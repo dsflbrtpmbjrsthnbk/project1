@@ -247,3 +247,16 @@ C:\Users\Asus\Desktop\Sol_task4\Fin_\obj\Debug\net8.0\refint\UserManagementApp.d
 C:\Users\Asus\Desktop\Sol_task4\Fin_\obj\Debug\net8.0\UserManagementApp.pdb
 C:\Users\Asus\Desktop\Sol_task4\Fin_\obj\Debug\net8.0\UserManagementApp.genruntimeconfig.cache
 C:\Users\Asus\Desktop\Sol_task4\Fin_\obj\Debug\net8.0\ref\UserManagementApp.dll
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.csproj.AssemblyReference.cache
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\rpswa.dswa.cache.json
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.AssemblyInfoInputs.cache
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.AssemblyInfo.cs
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.csproj.CoreCompileInputs.cache
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.MvcApplicationPartsAssemblyInfo.cache
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.RazorAssemblyInfo.cache
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.RazorAssemblyInfo.cs
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.sourcelink.json
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.dll
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\refint\UserManagementApp.dll
+c:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.pdb

@@ -18,7 +18,7 @@
                     <div class="flex-grow-1">
                         <div class="row g-2 align-items-center">
                             <div class="col-md-4">
-                                <select class="form-select form-select-sm border-0 bg-light rounded-pill px-3" @bind="element.Type" @onchange="OnChange">
+                                <select class="form-select form-select-sm border-0 bg-light rounded-pill px-3" @bind="element.Type" @bind:after="UpdatePattern">
                                     @foreach (var type in Enum.GetValues<IdElementType>())
                                     {
                                         <option value="@type">@type</option>
@@ -28,15 +28,15 @@
                             <div class="col-md-8">
                                 @if (element.Type == IdElementType.FixedText)
                                 {
-                                    <input type="text" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" @bind="element.Value" @oninput="OnChange" placeholder="Fixed text..." />
+                                    <input type="text" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" @bind="element.Value" @bind:after="UpdatePattern" placeholder="Fixed text..." />
                                 }
                                 else if (element.Type == IdElementType.RandomNumber || element.Type == IdElementType.Sequence)
                                 {
-                                    <input type="text" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" @bind="element.Format" @oninput="OnChange" placeholder="Format (e.g. D4, X5)..." />
+                                    <input type="text" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" @bind="element.Format" @bind:after="UpdatePattern" placeholder="Format (e.g. D4, X5)..." />
                                 }
                                 else if (element.Type == IdElementType.DateTime)
                                 {
-                                    <input type="text" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" @bind="element.Format" @oninput="OnChange" placeholder="Format (e.g. yyyy-MM-dd)..." />
+                                    <input type="text" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" @bind="element.Format" @bind:after="UpdatePattern" placeholder="Format (e.g. yyyy-MM-dd)..." />
                                 }
                             </div>
                         </div>

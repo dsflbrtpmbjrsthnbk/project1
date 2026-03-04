@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Asus\\Desktop\\Sol_task4\\Fin_\\UserManagementApp.csproj": {}
+    "c:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Asus\\Desktop\\Sol_task4\\Fin_\\UserManagementApp.csproj": {
+    "c:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Asus\\Desktop\\Sol_task4\\Fin_\\UserManagementApp.csproj",
+        "projectUniqueName": "c:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj",
         "projectName": "UserManagementApp",
-        "projectPath": "C:\\Users\\Asus\\Desktop\\Sol_task4\\Fin_\\UserManagementApp.csproj",
+        "projectPath": "c:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj",
         "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Asus\\Desktop\\Sol_task4\\Fin_\\obj\\",
+        "outputPath": "c:\\Users\\Asus\\Desktop\\Project1\\project1\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Asus\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -51,6 +51,18 @@
             "MailKit": {
               "target": "Package",
               "version": "[4.3.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.Facebook": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.Google": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.AspNetCore.SignalR.Client": {
+              "target": "Package",
+              "version": "[8.0.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",

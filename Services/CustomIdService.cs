@@ -7,7 +7,7 @@ namespace UserManagementApp.Services
 {
     public interface ICustomIdService
     {
-        Task<string> GenerateIdAsync(Inventory inventory);
+        Task<string> GenerateIdAsync(UserManagementApp.Models.Inventory inventory);
     }
 
     public class CustomIdService : ICustomIdService
@@ -19,7 +19,7 @@ namespace UserManagementApp.Services
             _context = context;
         }
 
-        public async Task<string> GenerateIdAsync(Inventory inventory)
+        public async Task<string> GenerateIdAsync(UserManagementApp.Models.Inventory inventory)
         {
             if (string.IsNullOrEmpty(inventory.CustomIdPattern) || inventory.CustomIdPattern == "[]")
             {
@@ -39,7 +39,7 @@ namespace UserManagementApp.Services
             return result;
         }
 
-        private async Task<string> ResolveElement(IdElement element, Inventory inventory)
+        private async Task<string> ResolveElement(IdElement element, UserManagementApp.Models.Inventory inventory)
         {
             return element.Type switch
             {
@@ -55,13 +55,12 @@ namespace UserManagementApp.Services
         private string GenerateRandom(string? format)
         {
             var random = new Random();
-            // Simple implementation of 20-bit, 32-bit etc or based on format D4, X5
             if (format != null && format.StartsWith("X")) 
                 return random.Next(1000, 99999).ToString("X");
             return random.Next(1000, 9999).ToString();
         }
 
-        private async Task<string> GetNextSequence(Inventory inventory, string? format)
+        private async Task<string> GetNextSequence(UserManagementApp.Models.Inventory inventory, string? format)
         {
             var count = await _context.Items.CountAsync(i => i.InventoryId == inventory.Id);
             var next = count + 1;

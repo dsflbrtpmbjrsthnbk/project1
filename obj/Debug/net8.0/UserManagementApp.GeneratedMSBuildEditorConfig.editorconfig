@@ -11,29 +11,105 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = UserManagementApp
 build_property.RootNamespace = UserManagementApp
-build_property.ProjectDir = C:\Users\Asus\Desktop\Sol_task4\Fin_\
+build_property.ProjectDir = c:\Users\Asus\Desktop\Project1\project1\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\Asus\Desktop\Sol_task4\Fin_
+build_property.MSBuildProjectDirectory = c:\Users\Asus\Desktop\Project1\project1
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/Asus/Desktop/Sol_task4/Fin_/Views/Account/Login.cshtml]
+[c:/Users/Asus/Desktop/Project1/project1/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Pages/Admin.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Pages/InventoryDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW52ZW50b3J5RGV0YWlsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Pages/ItemEdit.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSXRlbUVkaXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Pages/Personal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGVyc29uYWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Pages/Search.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2VhcmNoLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Shared/AccessManagement.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEFjY2Vzc01hbmFnZW1lbnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Shared/CustomIdBuilder.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEN1c3RvbUlkQnVpbGRlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Shared/DiscussionSection.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXERpc2N1c3Npb25TZWN0aW9uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Shared/FieldsDesigner.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEZpZWxkc0Rlc2lnbmVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Shared/InventorySettings.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEludmVudG9yeVNldHRpbmdzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Shared/InventoryStatistics.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEludmVudG9yeVN0YXRpc3RpY3MucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Shared/ItemsTable.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEl0ZW1zVGFibGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Shared/LikeButton.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExpa2VCdXR0b24ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Shared/TagInput.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFRhZ0lucHV0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Asus/Desktop/Project1/project1/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Asus/Desktop/Sol_task4/Fin_/Views/Account/Register.cshtml]
+[c:/Users/Asus/Desktop/Project1/project1/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Asus/Desktop/Sol_task4/Fin_/Views/Admin/Index.cshtml]
+[c:/Users/Asus/Desktop/Project1/project1/Views/Admin/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Asus/Desktop/Sol_task4/Fin_/Views/_ViewImports.cshtml]
+[c:/Users/Asus/Desktop/Project1/project1/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
