@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NpgsqlTypes;
 
 namespace UserManagementApp.Models
 {
@@ -52,6 +53,8 @@ namespace UserManagementApp.Models
 
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<Like> Likes { get; set; } = new List<Like>();
+        
+        public NpgsqlTsVector SearchVector { get; set; } = null!;
     }
 
     public class Comment

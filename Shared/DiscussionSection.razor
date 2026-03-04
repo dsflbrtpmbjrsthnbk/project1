@@ -67,9 +67,9 @@
         _newComment = "";
     }
 
-    private void HandleKeyUp(KeyboardEventArgs e)
+    private async Task HandleKeyUp(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter" && !e.ShiftKey) PostComment();
+        if (e.Key == "Enter" && !e.ShiftKey) await PostComment();
     }
 
     public bool _isConnected => _hubConnection?.State == HubConnectionState.Connected;

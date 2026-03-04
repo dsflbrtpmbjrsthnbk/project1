@@ -88,16 +88,4 @@ namespace UserManagementApp.Data
                 .HasMethod("GIN");
         }
     }
-
-    // Extended Item model for FTS support
-    public partial class Item
-    {
-        public NpgsqlTypes.NpgsqlTsVector SearchVector { get; set; } = null!;
-    }
-    
-    // Extended Inventory model for FTS support
-    public partial class Inventory
-    {
-        public NpgsqlTypes.NpgsqlTsVector SearchVector { get; set; } = null!;
-    }
 }

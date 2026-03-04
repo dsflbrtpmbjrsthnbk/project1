@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NpgsqlTypes;
 
 namespace UserManagementApp.Models
 {
@@ -38,6 +39,8 @@ namespace UserManagementApp.Models
         // Custom ID Format Configuration (JSON serialized string or separate table)
         // For drag-and-drop builder, we'll store the sequence of elements.
         public string CustomIdPattern { get; set; } = "[]"; 
+        
+        public NpgsqlTsVector SearchVector { get; set; } = null!;
     }
 
     public class InventoryAccess

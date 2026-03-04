@@ -46,28 +46,42 @@
                                 <label class="form-label fw-semibold">@field.Title</label>
                                 @if (field.Type == FieldType.String)
                                 {
-                                    <input type="text" class="form-control rounded-pill shadow-none" @bind="@(GetStringValue(field.SlotIndex))" placeholder="@field.Description" />
+                                    <input type="text" class="form-control rounded-pill shadow-none" 
+                                           @bind:get="GetStringValue(field.SlotIndex)" 
+                                           @bind:set="(v) => SetStringValue(field.SlotIndex, v)" 
+                                           placeholder="@field.Description" />
                                 }
                                 else if (field.Type == FieldType.Numeric)
                                 {
-                                    <input type="number" class="form-control rounded-pill shadow-none" @bind="@(GetNumericValue(field.SlotIndex))" placeholder="@field.Description" />
+                                    <input type="number" class="form-control rounded-pill shadow-none" 
+                                           @bind:get="GetNumericValue(field.SlotIndex)" 
+                                           @bind:set="(v) => SetNumericValue(field.SlotIndex, v)"
+                                           placeholder="@field.Description" />
                                 }
                                 else if (field.Type == FieldType.Boolean)
                                 {
                                     <div class="form-check form-switch mt-2">
-                                        <input class="form-check-input" type="checkbox" @bind="@(GetBoolValue(field.SlotIndex))" />
+                                        <input class="form-check-input" type="checkbox" 
+                                               @bind:get="GetBoolValue(field.SlotIndex) ?? false" 
+                                               @bind:set="(v) => SetBoolValue(field.SlotIndex, v)" />
                                         <label class="form-check-label text-muted small">@field.Description</label>
                                     </div>
                                 }
                                 else if (field.Type == FieldType.Multiline)
                                 {
-                                    <textarea class="form-control rounded-4 shadow-none" rows="4" @bind="@(GetTextValue(field.SlotIndex))" placeholder="@field.Description"></textarea>
+                                    <textarea class="form-control rounded-4 shadow-none" rows="4" 
+                                              @bind:get="GetTextValue(field.SlotIndex)" 
+                                              @bind:set="(v) => SetTextValue(field.SlotIndex, v)"
+                                              placeholder="@field.Description"></textarea>
                                 }
                                 else if (field.Type == FieldType.Link)
                                 {
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0 rounded-start-pill ps-3"><i class="bi bi-link-45deg"></i></span>
-                                        <input type="text" class="form-control border-start-0 rounded-end-pill shadow-none" @bind="@(GetLinkValue(field.SlotIndex))" placeholder="https://..." />
+                                        <input type="text" class="form-control border-start-0 rounded-end-pill shadow-none" 
+                                               @bind:get="GetLinkValue(field.SlotIndex)" 
+                                               @bind:set="(v) => SetLinkValue(field.SlotIndex, v)"
+                                               placeholder="https://..." />
                                     </div>
                                 }
                             </div>
@@ -88,8 +102,8 @@
     [Parameter] public Guid InventoryId { get; set; }
     [Parameter] public Guid ItemId { get; set; }
 
-    private Inventory? _inventory;
-    private Item? _item;
+    private UserManagementApp.Models.Inventory? _inventory;
+    private UserManagementApp.Models.Item? _item;
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,16 +111,16 @@
         
         if (ItemId == Guid.Empty)
         {
-            _item = new Item { 
+            _item = new UserManagementApp.Models.Item { 
                 Id = Guid.NewGuid(), 
                 InventoryId = InventoryId, 
                 CreatedAt = DateTime.UtcNow,
-                CustomId = "PENDING-" + Guid.NewGuid().ToString().Substring(0, 4) // Logic to generate based on pattern would go here
+                CustomId = "PENDING-" + Guid.NewGuid().ToString().Substring(0, 4)
             };
         }
         else
         {
-            _item = await DbContext.Items.FindAsync(ItemId);
+            _item = await DbContext.Items.FirstOrDefaultAsync(i => i.Id == ItemId);
         }
     }
 
@@ -119,10 +133,18 @@
         Navigation.NavigateTo($"inventory/{InventoryId}");
     }
 
-    // Dynamic Binding Helpers (Concept - in real app would use a more robust mapping)
-    private string GetStringValue(int i) => i == 0 ? _item.StringField0 : i == 1 ? _item.StringField1 : _item.StringField2;
-    private double? GetNumericValue(int i) => i == 0 ? _item.NumberField0 : i == 1 ? _item.NumberField1 : _item.NumberField2;
-    private bool? GetBoolValue(int i) => i == 0 ? _item.BoolField0 : i == 1 ? _item.BoolField1 : _item.BoolField2;
-    private string? GetTextValue(int i) => i == 0 ? _item.TextField0 : i == 1 ? _item.TextField1 : _item.TextField2;
-    private string? GetLinkValue(int i) => i == 0 ? _item.LinkField0 : i == 1 ? _item.LinkField1 : _item.LinkField2;
+    private string GetStringValue(int i) => i == 0 ? _item?.StringField0 : i == 1 ? _item?.StringField1 : _item?.StringField2;
+    private void SetStringValue(int i, string v) { if (i == 0) _item.StringField0 = v; else if (i == 1) _item.StringField1 = v; else _item.StringField2 = v; }
+
+    private double? GetNumericValue(int i) => i == 0 ? _item?.NumberField0 : i == 1 ? _item?.NumberField1 : _item?.NumberField2;
+    private void SetNumericValue(int i, double? v) { if (i == 0) _item.NumberField0 = v; else if (i == 1) _item.NumberField1 = v; else _item.NumberField2 = v; }
+
+    private bool? GetBoolValue(int i) => i == 0 ? _item?.BoolField0 : i == 1 ? _item?.BoolField1 : _item?.BoolField2;
+    private void SetBoolValue(int i, bool v) { if (i == 0) _item.BoolField0 = v; else if (i == 1) _item.BoolField1 = v; else _item.BoolField2 = v; }
+
+    private string? GetTextValue(int i) => i == 0 ? _item?.TextField0 : i == 1 ? _item?.TextField1 : _item?.TextField2;
+    private void SetTextValue(int i, string v) { if (i == 0) _item.TextField0 = v; else if (i == 1) _item.TextField1 = v; else _item.TextField2 = v; }
+
+    private string? GetLinkValue(int i) => i == 0 ? _item?.LinkField0 : i == 1 ? _item?.LinkField1 : _item?.LinkField2;
+    private void SetLinkValue(int i, string v) { if (i == 0) _item.LinkField0 = v; else if (i == 1) _item.LinkField1 = v; else _item.LinkField2 = v; }
 }
