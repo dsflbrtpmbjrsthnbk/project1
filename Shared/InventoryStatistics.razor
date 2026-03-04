@@ -1,0 +1,89 @@
+@using UserManagementApp.Models
+@using Microsoft.EntityFrameworkCore
+
+<div class="row g-4">
+    <div class="col-12 mb-2">
+        <h5 class="fw-bold"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Inventory Analytics</h5>
+        <p class="text-muted small">Aggregated data for all items in this inventory.</p>
+    </div>
+
+    <!-- Counters -->
+    <div class="col-md-3">
+        <div class="card border-0 bg-primary bg-opacity-10 rounded-4 p-4 text-center">
+            <div class="text-primary small fw-bold text-uppercase mb-1">Total Items</div>
+            <div class="display-5 fw-bold text-primary">@Inventory.Items.Count</div>
+        </div>
+    </div>
+    
+    @foreach (var field in Inventory.FieldDefinitions.Where(f => f.Type == FieldType.Numeric))
+    {
+        <div class="col-md-3">
+            <div class="card border-0 bg-light rounded-4 p-4">
+                <div class="text-muted small fw-bold text-uppercase mb-2">@field.Title (Avg)</div>
+                <div class="h3 fw-bold mb-0">@GetAverage(field)</div>
+                <div class="text-muted small mt-2">Range: @GetRange(field)</div>
+            </div>
+        </div>
+    }
+
+    <!-- Top Strings -->
+    @foreach (var field in Inventory.FieldDefinitions.Where(f => f.Type == FieldType.String).Take(2))
+    {
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h6 class="fw-bold mb-3">Frequent Values: @field.Title</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var val in GetTopValues(field))
+                    {
+                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2 fw-normal">
+                             @val.Key <span class="ms-2 text-primary fw-bold">@val.Value</span>
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Inventory Inventory { get; set; } = null!;
+
+    private string GetAverage(FieldDefinition field)
+    {
+        var values = Inventory.Items
+            .Select(i => i.GetType().GetProperty($"{GetTypeName(field.Type)}Field{field.SlotIndex}")?.GetValue(i) as double?)
+            .Where(v => v.HasValue)
+            .Select(v => v!.Value)
+            .ToList();
+
+        return values.Any() ? values.Average().ToString("N2") : "0.00";
+    }
+
+    private string GetRange(FieldDefinition field)
+    {
+        var values = Inventory.Items
+            .Select(i => i.GetType().GetProperty($"{GetTypeName(field.Type)}Field{field.SlotIndex}")?.GetValue(i) as double?)
+            .Where(v => v.HasValue)
+            .Select(v => v!.Value)
+            .ToList();
+
+        return values.Any() ? $"{values.Min()} - {values.Max()}" : "N/A";
+    }
+
+    private Dictionary<string, int> GetTopValues(FieldDefinition field)
+    {
+        return Inventory.Items
+            .Select(i => i.GetType().GetProperty($"{GetTypeName(field.Type)}Field{field.SlotIndex}")?.GetValue(i) as string)
+            .Where(v => !string.IsNullOrEmpty(v))
+            .GroupBy(v => v!)
+            .OrderByDescending(g => g.Count())
+            .Take(5)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+
+    private string GetTypeName(FieldType type) => type switch {
+        FieldType.String => "String",
+        FieldType.Numeric => "Number",
+        _ => "Text"
+    };
+}

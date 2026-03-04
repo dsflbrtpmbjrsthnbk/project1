@@ -1,0 +1,87 @@
+@using UserManagementApp.Models
+@using Microsoft.EntityFrameworkCore
+@inject UserManagementApp.Data.ApplicationDbContext DbContext
+
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+<div class="row">
+    <div class="col-12">
+        <h5 class="fw-bold mb-4">Discussion</h5>
+        
+        <div class="d-flex flex-column gap-3 mb-4" id="comment-list" style="max-height: 500px; overflow-y: auto;">
+            @foreach (var comment in _comments)
+            {
+                <div class="d-flex gap-3 p-3 bg-light rounded-4 border-0 animate__animated animate__fadeInUp">
+                    <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
+                        <i class="bi bi-person text-primary"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="fw-bold small">@comment.UserName</span>
+                            <span class="text-muted" style="font-size: 0.75rem;">@comment.Date</span>
+                        </div>
+                        <div class="small">@comment.Content</div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="p-3 bg-white border border-light shadow-sm rounded-4">
+            <textarea class="form-control border-0 shadow-none mb-2" rows="2" placeholder="Write a comment..." @bind="_newComment" @onkeyup="HandleKeyUp"></textarea>
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-primary btn-sm rounded-pill px-4" @onclick="PostComment" disabled="@(!_isConnected)">Post Comment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid InventoryId { get; set; }
+    private List<CommentDisplay> _comments = new();
+    private string _newComment = "";
+    private HubConnection? _hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/discussionHub"))
+            .Build();
+
+        _hubConnection.On<string, string, string>("ReceiveComment", (user, content, date) =>
+        {
+            _comments.Add(new CommentDisplay { UserName = user, Content = content, Date = date });
+            InvokeAsync(StateHasChanged);
+        });
+
+        await _hubConnection.StartAsync();
+        await _hubConnection.SendAsync("JoinInventory", InventoryId.ToString());
+    }
+
+    private async Task PostComment()
+    {
+        if (string.IsNullOrWhiteSpace(_newComment) || _hubConnection == null) return;
+
+        await _hubConnection.SendAsync("SendComment", InventoryId.ToString(), "Current User", _newComment);
+        _newComment = "";
+    }
+
+    private void HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey) PostComment();
+    }
+
+    public bool _isConnected => _hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null) await _hubConnection.DisposeAsync();
+    }
+
+    private class CommentDisplay {
+        public string UserName { get; set; } = "";
+        public string Content { get; set; } = "";
+        public string Date { get; set; } = "";
+    }
+}

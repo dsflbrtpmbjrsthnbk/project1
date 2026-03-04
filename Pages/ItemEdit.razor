@@ -1,0 +1,128 @@
+@page "/inventory/{InventoryId:guid}/item/create"
+@page "/inventory/{InventoryId:guid}/item/{ItemId:guid}"
+@using UserManagementApp.Models
+@using Microsoft.EntityFrameworkCore
+@inject UserManagementApp.Data.ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 fw-bold mb-0">@(ItemId == Guid.Empty ? "New Item" : "Edit Item")</h1>
+                <div class="badge bg-light text-primary border rounded-pill px-3 py-2 fw-semibold">
+                    <i class="bi bi-tag-fill me-2"></i>@(_item?.CustomId ?? "Generating...")
+                </div>
+            </div>
+
+            @if (_item != null && _inventory != null)
+            {
+                <EditForm Model="_item" OnValidSubmit="HandleSubmit">
+                    <!-- Fixed Fields Row -->
+                    <div class="row g-4 mb-5 p-4 bg-light rounded-4 border border-info border-opacity-10">
+                        <div class="col-12 border-bottom pb-2 mb-2">
+                            <span class="text-info fw-bold small text-uppercase tracking-wider">Fixed Information</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Custom ID</label>
+                            <input type="text" class="form-control rounded-pill shadow-none" @bind="_item.CustomId" />
+                            <div class="form-text small">This matches the inventory's unique ID format.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Created At</label>
+                            <input type="text" class="form-control rounded-pill bg-white border-0 shadow-none text-muted" value="@_item.CreatedAt.ToString("g")" disabled />
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Custom Fields -->
+                    <div class="row g-4">
+                        <div class="col-12 border-bottom pb-2 mb-2">
+                            <span class="text-primary fw-bold small text-uppercase tracking-wider">Inventory Fields</span>
+                        </div>
+                        
+                        @foreach (var field in _inventory.FieldDefinitions.OrderBy(f => f.DisplayOrder))
+                        {
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">@field.Title</label>
+                                @if (field.Type == FieldType.String)
+                                {
+                                    <input type="text" class="form-control rounded-pill shadow-none" @bind="@(GetStringValue(field.SlotIndex))" placeholder="@field.Description" />
+                                }
+                                else if (field.Type == FieldType.Numeric)
+                                {
+                                    <input type="number" class="form-control rounded-pill shadow-none" @bind="@(GetNumericValue(field.SlotIndex))" placeholder="@field.Description" />
+                                }
+                                else if (field.Type == FieldType.Boolean)
+                                {
+                                    <div class="form-check form-switch mt-2">
+                                        <input class="form-check-input" type="checkbox" @bind="@(GetBoolValue(field.SlotIndex))" />
+                                        <label class="form-check-label text-muted small">@field.Description</label>
+                                    </div>
+                                }
+                                else if (field.Type == FieldType.Multiline)
+                                {
+                                    <textarea class="form-control rounded-4 shadow-none" rows="4" @bind="@(GetTextValue(field.SlotIndex))" placeholder="@field.Description"></textarea>
+                                }
+                                else if (field.Type == FieldType.Link)
+                                {
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0 rounded-start-pill ps-3"><i class="bi bi-link-45deg"></i></span>
+                                        <input type="text" class="form-control border-start-0 rounded-end-pill shadow-none" @bind="@(GetLinkValue(field.SlotIndex))" placeholder="https://..." />
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="d-flex gap-2 mt-5 justify-content-end">
+                        <button type="button" class="btn btn-light rounded-pill px-4" @onclick='() => Navigation.NavigateTo($"inventory/{InventoryId}")'>Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 shadow-sm">Save Item</button>
+                    </div>
+                </EditForm>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid InventoryId { get; set; }
+    [Parameter] public Guid ItemId { get; set; }
+
+    private Inventory? _inventory;
+    private Item? _item;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _inventory = await DbContext.Inventories.Include(i => i.FieldDefinitions).FirstOrDefaultAsync(i => i.Id == InventoryId);
+        
+        if (ItemId == Guid.Empty)
+        {
+            _item = new Item { 
+                Id = Guid.NewGuid(), 
+                InventoryId = InventoryId, 
+                CreatedAt = DateTime.UtcNow,
+                CustomId = "PENDING-" + Guid.NewGuid().ToString().Substring(0, 4) // Logic to generate based on pattern would go here
+            };
+        }
+        else
+        {
+            _item = await DbContext.Items.FindAsync(ItemId);
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (_item == null) return;
+        
+        if (ItemId == Guid.Empty) DbContext.Items.Add(_item);
+        await DbContext.SaveChangesAsync();
+        Navigation.NavigateTo($"inventory/{InventoryId}");
+    }
+
+    // Dynamic Binding Helpers (Concept - in real app would use a more robust mapping)
+    private string GetStringValue(int i) => i == 0 ? _item.StringField0 : i == 1 ? _item.StringField1 : _item.StringField2;
+    private double? GetNumericValue(int i) => i == 0 ? _item.NumberField0 : i == 1 ? _item.NumberField1 : _item.NumberField2;
+    private bool? GetBoolValue(int i) => i == 0 ? _item.BoolField0 : i == 1 ? _item.BoolField1 : _item.BoolField2;
+    private string? GetTextValue(int i) => i == 0 ? _item.TextField0 : i == 1 ? _item.TextField1 : _item.TextField2;
+    private string? GetLinkValue(int i) => i == 0 ? _item.LinkField0 : i == 1 ? _item.LinkField1 : _item.LinkField2;
+}

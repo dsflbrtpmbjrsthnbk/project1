@@ -1,0 +1,53 @@
+@using UserManagementApp.Models
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <label class="form-label fw-semibold">Inventory Title</label>
+        <input type="text" class="form-control rounded-pill shadow-none" @bind="Inventory.Title" @bind:event="oninput" @onkeyup="OnChange" />
+    </div>
+    
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">Category</label>
+        <select class="form-select rounded-pill shadow-none" @bind="Inventory.CategoryId" @onchange="OnChange">
+            @foreach (var cat in _categories)
+            {
+                <option value="@cat.Id">@cat.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-12 mt-4">
+        <label class="form-label fw-semibold d-flex justify-content-between">
+            Description 
+            <span class="text-muted small"><i class="bi bi-markdown me-1"></i>Supports Markdown</span>
+        </label>
+        <textarea class="form-control rounded-4 shadow-none" rows="6" @bind="Inventory.Description" @bind:event="oninput" @onkeyup="OnChange"></textarea>
+    </div>
+
+    <div class="col-md-6 mt-4">
+        <div class="form-check form-switch p-3 bg-light rounded-4">
+            <input class="form-check-input ms-0 me-3" type="checkbox" role="switch" id="publicSwitch" @bind="Inventory.IsPublic" @onchange="OnChange">
+            <label class="form-check-label fw-semibold" for="publicSwitch">
+                Make Public
+                <div class="text-muted small fw-normal">Allow all authenticated users to add items.</div>
+            </label>
+        </div>
+    </div>
+
+    <div class="col-12 mt-4">
+        <label class="form-label fw-semibold">Tags</label>
+        <TagInput InventoryId="Inventory.Id" InventoryTags="Inventory.InventoryTags.ToList()" OnChange="OnChange" />
+    </div>
+</div>
+
+@code {
+    [Parameter] public Inventory Inventory { get; set; } = null!;
+    [Parameter] public EventCallback OnChange { get; set; }
+    
+    private List<Category> _categories = new();
+
+    protected override void OnInitialized()
+    {
+        // Category loading would be here
+    }
+}

@@ -1,0 +1,148 @@
+@using UserManagementApp.Models
+@using System.Text.Json
+
+<div class="row">
+    <div class="col-md-7">
+        <h5 class="fw-bold mb-3">Format Builder</h5>
+        <div class="alert alert-info border-0 rounded-4 p-3 mb-4 small">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            Drag elements to reorder or click <i class="bi bi-x"></i> to remove. The resulting ID is generated at item creation.
+        </div>
+
+        <div class="d-flex flex-column gap-3 mb-4">
+            @foreach (var element in _elements)
+            {
+                <div class="d-flex align-items-center bg-white border rounded-4 p-3 shadow-sm element-row position-relative">
+                    <div class="me-3 text-muted" style="cursor: grab;"><i class="bi bi-grip-vertical fs-5"></i></div>
+                    
+                    <div class="flex-grow-1">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-4">
+                                <select class="form-select form-select-sm border-0 bg-light rounded-pill px-3" @bind="element.Type" @onchange="OnChange">
+                                    @foreach (var type in Enum.GetValues<IdElementType>())
+                                    {
+                                        <option value="@type">@type</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                @if (element.Type == IdElementType.FixedText)
+                                {
+                                    <input type="text" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" @bind="element.Value" @oninput="OnChange" placeholder="Fixed text..." />
+                                }
+                                else if (element.Type == IdElementType.RandomNumber || element.Type == IdElementType.Sequence)
+                                {
+                                    <input type="text" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" @bind="element.Format" @oninput="OnChange" placeholder="Format (e.g. D4, X5)..." />
+                                }
+                                else if (element.Type == IdElementType.DateTime)
+                                {
+                                    <input type="text" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" @bind="element.Format" @oninput="OnChange" placeholder="Format (e.g. yyyy-MM-dd)..." />
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-sm btn-link text-muted p-0 ms-3 shadow-none border-0" @onclick='() => RemoveElement(element)'>
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                    
+                    @if (_elements.IndexOf(element) > 0)
+                    {
+                        <div class="position-absolute top-0 start-50 translate-middle-y">
+                            <button class="btn btn-xs btn-light rounded-circle shadow-sm border py-0" @onclick='() => MoveUp(element)'><i class="bi bi-chevron-up small"></i></button>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <button class="btn btn-outline-primary rounded-pill px-4" @onclick="AddElement">
+            <i class="bi bi-plus-lg me-2"></i>Add Element
+        </button>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card border-0 bg-light rounded-4 p-4 sticky-top" style="top: 100px;">
+            <h5 class="fw-bold mb-4">Real-time Preview</h5>
+            <div class="bg-white p-4 rounded-4 border text-center shadow-sm mb-4">
+                <div class="text-muted small mb-2 text-uppercase fw-bold tracking-wider">Example Generated ID</div>
+                <div class="fs-3 fw-bold text-primary font-monospace">@GeneratePreview()</div>
+            </div>
+            
+            <div class="small text-muted">
+                <p class="mb-1"><i class="bi bi-lightning-fill text-warning me-1"></i> <strong>Note:</strong> Changes here only affect new items. Existing items will keep their current IDs, but the new format will be enforced during editing.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Inventory Inventory { get; set; } = null!;
+    [Parameter] public EventCallback OnChange { get; set; }
+
+    private List<IdElement> _elements = new();
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(Inventory.CustomIdPattern))
+        {
+            try { _elements = JsonSerializer.Deserialize<List<IdElement>>(Inventory.CustomIdPattern) ?? new(); }
+            catch { _elements = new(); }
+        }
+    }
+
+    private void AddElement()
+    {
+        _elements.Add(new IdElement { Type = IdElementType.FixedText });
+        UpdatePattern();
+    }
+
+    private void RemoveElement(IdElement el)
+    {
+        _elements.Remove(el);
+        UpdatePattern();
+    }
+
+    private void MoveUp(IdElement el)
+    {
+        int idx = _elements.IndexOf(el);
+        if (idx > 0)
+        {
+            _elements.RemoveAt(idx);
+            _elements.Insert(idx - 1, el);
+            UpdatePattern();
+        }
+    }
+
+    private void UpdatePattern()
+    {
+        Inventory.CustomIdPattern = JsonSerializer.Serialize(_elements);
+        OnChange.InvokeAsync();
+    }
+
+    private string GeneratePreview()
+    {
+        if (!_elements.Any()) return "INV-0001";
+        // Simplified preview logic
+        return string.Join("", _elements.Select(e => e.Type switch {
+            IdElementType.FixedText => e.Value ?? "-",
+            IdElementType.Sequence => "001",
+            IdElementType.GUID => Guid.NewGuid().ToString().Substring(0, 8),
+            IdElementType.RandomNumber => "8472",
+            IdElementType.DateTime => DateTime.Now.ToString(e.Format ?? "yyyyMMdd"),
+            _ => "?"
+        }));
+    }
+
+    public enum IdElementType { FixedText, RandomNumber, GUID, DateTime, Sequence }
+    public class IdElement {
+        public IdElementType Type { get; set; }
+        public string? Value { get; set; }
+        public string? Format { get; set; }
+    }
+}
+
+<style>
+    .element-row:hover { border-color: #0d6efd !important; }
+    .tracking-wider { letter-spacing: 1px; }
+</style>

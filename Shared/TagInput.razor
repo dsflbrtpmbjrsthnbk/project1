@@ -1,0 +1,80 @@
+@using UserManagementApp.Models
+@using Microsoft.EntityFrameworkCore
+@inject UserManagementApp.Data.ApplicationDbContext DbContext
+
+<div class="position-relative">
+    <div class="d-flex flex-wrap gap-2 mb-2 p-2 bg-light rounded-4 border">
+        @foreach (var tag in _selectedTags)
+        {
+            <span class="badge bg-primary rounded-pill px-3 py-2 d-flex align-items-center fw-normal">
+                #@tag.Name
+                <button class="btn btn-sm btn-link p-0 ms-2 text-white border-0 shadow-none" @onclick="() => RemoveTag(tag)">
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+            </span>
+        }
+        <input type="text" class="form-control border-0 bg-transparent flex-grow-1 shadow-none py-2" 
+               placeholder="Add tags..." 
+               @bind="_tagInput" @oninput="OnTagInput" />
+    </div>
+
+    @if (_suggestions.Any())
+    {
+        <div class="list-group position-absolute w-100 shadow-lg mt-1 rounded-4 overflow-hidden z-3">
+            @foreach (var tag in _suggestions)
+            {
+                <button class="list-group-item list-group-item-action border-0 py-2 small" @onclick="() => SelectTag(tag)">
+                    #@tag.Name
+                </button>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid InventoryId { get; set; }
+    [Parameter] public List<InventoryTag> InventoryTags { get; set; } = new();
+    [Parameter] public EventCallback OnChange { get; set; }
+
+    private string _tagInput = "";
+    private List<Tag> _suggestions = new();
+    private List<Tag> _selectedTags = new();
+
+    protected override void OnInitialized()
+    {
+        _selectedTags = InventoryTags.Select(it => it.Tag).ToList();
+    }
+
+    private async Task OnTagInput(ChangeEventArgs e)
+    {
+        _tagInput = e.Value?.ToString() ?? "";
+        if (_tagInput.Length < 1)
+        {
+            _suggestions.Clear();
+            return;
+        }
+
+        _suggestions = await DbContext.Tags
+            .Where(t => t.Name.StartsWith(_tagInput))
+            .Where(t => !_selectedTags.Any(st => st.Id == t.Id))
+            .Take(5)
+            .ToListAsync();
+    }
+
+    private async Task SelectTag(Tag tag)
+    {
+        _selectedTags.Add(tag);
+        InventoryTags.Add(new InventoryTag { InventoryId = InventoryId, TagId = tag.Id, Tag = tag });
+        _tagInput = "";
+        _suggestions.Clear();
+        await OnChange.InvokeAsync();
+    }
+
+    private async Task RemoveTag(Tag tag)
+    {
+        _selectedTags.Remove(tag);
+        var it = InventoryTags.FirstOrDefault(t => t.TagId == tag.Id);
+        if (it != null) InventoryTags.Remove(it);
+        await OnChange.InvokeAsync();
+    }
+}

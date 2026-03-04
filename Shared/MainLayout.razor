@@ -1,0 +1,131 @@
+@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Web
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<div class="page @(_isDarkMode ? "dark-theme" : "light-theme")">
+    <header class="navbar navbar-expand-lg border-bottom sticky-top bg-body shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center fw-bold text-primary" href="">
+                <i class="bi bi-box-seam me-2"></i>
+                <span>InventoryHub</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- Global Search -->
+                <div class="mx-auto" style="width: 40%;">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 ps-0 shadow-none" 
+                               placeholder="Search inventories and items..." 
+                               @bind="_searchQuery" @onkeyup="HandleSearch" />
+                    </div>
+                </div>
+
+                <ul class="navbar-nav align-items-center">
+                    <!-- Language Selection -->
+                    <li class="nav-item dropdown me-2">
+                        <button class="btn btn-link nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-translate me-1"></i> @(_currentLanguage == "en-US" ? "EN" : "UZ")
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><button class="dropdown-item" @onclick='() => ChangeLanguage("en-US")'>English</button></li>
+                            <li><button class="dropdown-item" @onclick='() => ChangeLanguage("uz-UZ")'>O'zbek</button></li>
+                        </ul>
+                    </li>
+
+                    <!-- Theme Switcher -->
+                    <li class="nav-item me-3">
+                        <button class="btn btn-link nav-link p-0" @onclick="ToggleTheme">
+                            <i class="bi @(_isDarkMode ? "bi-sun-fill text-warning" : "bi-moon-stars-fill text-primary") fs-5"></i>
+                        </button>
+                    </li>
+
+                    <!-- User Actions -->
+                    @if (true) // Placeholder for auth check
+                    {
+                        <li class="nav-item dropdown">
+                            <button class="btn btn-outline-primary rounded-pill px-3 dropdown-toggle shadow-sm" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1"></i> My Account
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="personal"><i class="bi bi-files me-2"></i> My Inventories</a></li>
+                                <li><a class="dropdown-item" href="admin"><i class="bi bi-shield-lock me-2"></i> Admin Panel</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><button class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i> Logout</button></li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="btn btn-primary rounded-pill px-4" href="login">Login</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-4">
+        @Body
+    </main>
+
+    <footer class="mt-auto py-3 border-top text-center text-muted small">
+        &copy; 2026 Inventory Management System. Built with .NET Blazor.
+    </footer>
+</div>
+
+@code {
+    private string _searchQuery = "";
+    private bool _isDarkMode = false;
+    private string _currentLanguage = "en-US";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load theme and language from local storage or cookie in real impl
+    }
+
+    private void HandleSearch(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(_searchQuery))
+        {
+            Navigation.NavigateTo($"/search/{_searchQuery}");
+        }
+    }
+
+    private async Task ToggleTheme()
+    {
+        _isDarkMode = !_isDarkMode;
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "theme", _isDarkMode ? "dark" : "light");
+    }
+
+    private async Task ChangeLanguage(string lang)
+    {
+        _currentLanguage = lang;
+        // In real impl, we'd trigger a page reload or update culture
+    }
+}
+
+<style>
+    .dark-theme {
+        background-color: #121212;
+        color: #e0e0e0;
+    }
+    .dark-theme .bg-body { background-color: #1e1e1e !important; }
+    .dark-theme .navbar { border-color: #333 !important; }
+    .dark-theme .form-control { background-color: #2c2c2c; border-color: #444; color: white; }
+    .dark-theme .input-group-text { border-color: #444; color: #aaa; }
+    
+    .navbar-brand span {
+        letter-spacing: -0.5px;
+    }
+    
+    .btn-link { text-decoration: none; }
+</style>

@@ -1,0 +1,161 @@
+@page "/admin"
+@using UserManagementApp.Models
+@using Microsoft.EntityFrameworkCore
+@inject UserManagementApp.Data.ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+
+<PageTitle>Admin Panel - User Management</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h1 class="h3 mb-0 fw-bold">User Management</h1>
+            <p class="text-muted">Manage system users, roles, and status.</p>
+        </div>
+        <div class="col-auto">
+            <div class="btn-toolbar shadow-sm rounded-pill overflow-hidden border">
+                <button class="btn btn-light border-0 px-3" @onclick="BlockSelected" disabled="@(!_selectedUsers.Any())">
+                    <i class="bi bi-lock-fill text-warning me-1"></i> Block
+                </button>
+                <button class="btn btn-light border-0 px-3 border-start" @onclick="UnblockSelected" disabled="@(!_selectedUsers.Any())">
+                    <i class="bi bi-unlock-fill text-success me-1"></i> Unblock
+                </button>
+                <button class="btn btn-light border-0 px-3 border-start" @onclick="DeleteSelected" disabled="@(!_selectedUsers.Any())">
+                    <i class="bi bi-person-x-fill text-danger me-1"></i> Delete
+                </button>
+                <button class="btn btn-light border-0 px-3 border-start" @onclick="PromoteSelected" disabled="@(!_selectedUsers.Any())">
+                    <i class="bi bi-shield-plus text-primary me-1"></i> Add Admin
+                </button>
+                <button class="btn btn-light border-0 px-3 border-start" @onclick="DemoteSelected" disabled="@(!_selectedUsers.Any())">
+                    <i class="bi bi-shield-minus text-secondary me-1"></i> Remove Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width: 40px;" class="ps-4">
+                            <input type="checkbox" class="form-check-input" @onchange="ToggleSelectAll" checked="@(_selectedUsers.Count == _users.Count && _users.Any())" />
+                        </th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Admin</th>
+                        <th>Last Login</th>
+                        <th class="pe-4">Registration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in _users)
+                    {
+                        <tr class="@(user.IsBlocked() ? "table-light opacity-75" : "")">
+                            <td class="ps-4">
+                                <input type="checkbox" class="form-check-input" 
+                                       checked="@_selectedUsers.Contains(user.Id)" 
+                                       @onchange='e => ToggleUserSelection(user.Id, e.Value)' />
+                            </td>
+                            <td>
+                                <div class="fw-semibold">@user.Name</div>
+                            </td>
+                            <td><span class="text-muted">@user.Email</span></td>
+                            <td>
+                                @if (user.IsBlocked())
+                                {
+                                    <span class="badge bg-danger bg-opacity-10 text-danger px-2 border border-danger border-opacity-25 rounded-pill">Blocked</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success px-2 border border-success border-opacity-25 rounded-pill">Active</span>
+                                }
+                            </td>
+                            <td>
+                                @if (user.IsAdmin)
+                                {
+                                    <span class="badge bg-primary px-2 rounded-pill"><i class="bi bi-shield-fill-check me-1"></i>Admin</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">User</span>
+                                }
+                            </td>
+                            <td><small class="text-muted">@(user.LastLoginTime?.ToString("g") ?? "Never")</small></td>
+                            <td class="pe-4"><small class="text-muted">@user.RegistrationTime.ToString("d")</small></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<User> _users = new();
+    private HashSet<Guid> _selectedUsers = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        _users = await DbContext.Users.OrderByDescending(u => u.RegistrationTime).ToListAsync();
+    }
+
+    private void ToggleUserSelection(Guid id, object? isChecked)
+    {
+        if (isChecked is true) _selectedUsers.Add(id);
+        else _selectedUsers.Remove(id);
+    }
+
+    private void ToggleSelectAll(ChangeEventArgs e)
+    {
+        if (e.Value is true) _selectedUsers = new HashSet<Guid>(_users.Select(u => u.Id));
+        else _selectedUsers.Clear();
+    }
+
+    private async Task BlockSelected()
+    {
+        var usersToModify = _users.Where(u => _selectedUsers.Contains(u.Id)).ToList();
+        foreach (var user in usersToModify) user.Status = "blocked";
+        await DbContext.SaveChangesAsync();
+        await LoadUsers();
+    }
+
+    private async Task UnblockSelected()
+    {
+        var usersToModify = _users.Where(u => _selectedUsers.Contains(u.Id)).ToList();
+        foreach (var user in usersToModify) user.Status = "active";
+        await DbContext.SaveChangesAsync();
+        await LoadUsers();
+    }
+
+    private async Task PromoteSelected()
+    {
+        var usersToModify = _users.Where(u => _selectedUsers.Contains(u.Id)).ToList();
+        foreach (var user in usersToModify) user.IsAdmin = true;
+        await DbContext.SaveChangesAsync();
+        await LoadUsers();
+    }
+
+    private async Task DemoteSelected()
+    {
+        var usersToModify = _users.Where(u => _selectedUsers.Contains(u.Id)).ToList();
+        foreach (var user in usersToModify) user.IsAdmin = false;
+        await DbContext.SaveChangesAsync();
+        await LoadUsers();
+    }
+
+    private async Task DeleteSelected()
+    {
+        var usersToModify = _users.Where(u => _selectedUsers.Contains(u.Id)).ToList();
+        DbContext.Users.RemoveRange(usersToModify);
+        await DbContext.SaveChangesAsync();
+        _selectedUsers.Clear();
+        await LoadUsers();
+    }
+}

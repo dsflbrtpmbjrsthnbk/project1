@@ -1,0 +1,42 @@
+@using UserManagementApp.Models
+@using Microsoft.EntityFrameworkCore
+@inject UserManagementApp.Data.ApplicationDbContext DbContext
+
+<div class="d-flex align-items-center">
+    <button class="btn @(_isLiked ? "btn-danger" : "btn-outline-secondary") rounded-pill px-3 shadow-none border-0 d-flex align-items-center" @onclick="ToggleLike">
+        <i class="bi @(_isLiked ? "bi-heart-fill" : "bi-heart") me-2"></i>
+        <span>@_likeCount</span>
+    </button>
+</div>
+
+@code {
+    [Parameter] public Guid ItemId { get; set; }
+    [Parameter] public Guid UserId { get; set; }
+    
+    private bool _isLiked;
+    private int _likeCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _likeCount = await DbContext.Likes.CountAsync(l => l.ItemId == ItemId);
+        _isLiked = await DbContext.Likes.AnyAsync(l => l.ItemId == ItemId && l.UserId == UserId);
+    }
+
+    private async Task ToggleLike()
+    {
+        if (_isLiked)
+        {
+            var like = await DbContext.Likes.FindAsync(ItemId, UserId);
+            if (like != null) DbContext.Likes.Remove(like);
+            _likeCount--;
+        }
+        else
+        {
+            DbContext.Likes.Add(new Like { ItemId = ItemId, UserId = UserId });
+            _likeCount++;
+        }
+        
+        _isLiked = !_isLiked;
+        await DbContext.SaveChangesAsync();
+    }
+}

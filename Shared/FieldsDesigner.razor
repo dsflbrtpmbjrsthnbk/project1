@@ -1,0 +1,95 @@
+@using UserManagementApp.Models
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <h5 class="fw-bold">Item Custom Fields</h5>
+        <p class="text-muted small">Configure up to 3 fields of each type. These fields will appear on every item form in this inventory.</p>
+    </div>
+
+    <div class="col-12 d-flex flex-column gap-3">
+        @foreach (var type in Enum.GetValues<FieldType>())
+        {
+            <div class="card border-0 bg-light rounded-4 overflow-hidden">
+                <div class="card-header border-0 py-3 bg-white bg-opacity-50">
+                    <h6 class="mb-0 fw-bold text-dark">
+                        <i class="bi @GetIcon(type) me-2"></i>@type Fields
+                    </h6>
+                </div>
+                <div class="card-body p-3">
+                    <div class="row g-2">
+                        @for (int i = 0; i < 3; i++)
+                        {
+                            var idx = i;
+                            var field = GetField(type, idx);
+                            <div class="col-md-4">
+                                <div class="bg-white p-3 rounded-4 border @(field != null ? "border-primary shadow-sm" : "border-dashed opacity-50")">
+                                    @if (field != null)
+                                    {
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <input type="text" class="form-control form-control-sm border-0 fw-bold p-0 shadow-none" 
+                                                   @bind="field.Title" @bind:event="oninput" @onkeyup="OnChange" placeholder="Field Title..." />
+                                            <button class="btn btn-sm btn-link p-0 text-danger" @onclick="() => RemoveField(field)"><i class="bi bi-x-lg"></i></button>
+                                        </div>
+                                        <input type="text" class="form-control form-control-xs border-0 text-muted p-0 shadow-none small" 
+                                               @bind="field.Description" @bind:event="oninput" @onkeyup="OnChange" placeholder="Hint/Description..." />
+                                        <div class="form-check form-switch mt-2 small">
+                                            <input class="form-check-input" type="checkbox" @bind="field.IsInTableView" @onchange="OnChange">
+                                            <label class="form-check-label">Show in Table</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link w-100 text-decoration-none text-muted p-3 py-4" @onclick="() => AddField(type, idx)">
+                                            <i class="bi bi-plus-circle-dotted me-2"></i>Add @type
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public Inventory Inventory { get; set; } = null!;
+    [Parameter] public EventCallback OnChange { get; set; }
+
+    private FieldDefinition? GetField(FieldType type, int slot) 
+        => Inventory.FieldDefinitions.FirstOrDefault(f => f.Type == type && f.SlotIndex == slot);
+
+    private void AddField(FieldType type, int slot)
+    {
+        Inventory.FieldDefinitions.Add(new FieldDefinition {
+            Id = Guid.NewGuid(),
+            InventoryId = Inventory.Id,
+            Type = type,
+            SlotIndex = slot,
+            Title = $"New {type} Field",
+            IsInTableView = true
+        });
+        OnChange.InvokeAsync();
+    }
+
+    private void RemoveField(FieldDefinition field)
+    {
+        Inventory.FieldDefinitions.Remove(field);
+        OnChange.InvokeAsync();
+    }
+
+    private string GetIcon(FieldType type) => type switch {
+        FieldType.String => "bi-input-cursor-text",
+        FieldType.Multiline => "bi-textarea-t",
+        FieldType.Numeric => "bi-hash",
+        FieldType.Link => "bi-link-45deg",
+        FieldType.Boolean => "bi-check2-square",
+        _ => "bi-gear"
+    };
+}
+
+<style>
+    .border-dashed { border-style: dashed !important; }
+    .form-control-xs { font-size: 0.75rem; }
+</style>
