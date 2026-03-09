@@ -56,11 +56,11 @@
                     <div class="list-group-item border-0 py-3 d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <div class="bg-primary bg-opacity-10 text-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                @access.User.Name[0]
+                                @(access.User?.Name?.FirstOrDefault() ?? '?')
                             </div>
                             <div>
-                                <div class="fw-semibold">@access.User.Name</div>
-                                <div class="text-muted small">@access.User.Email</div>
+                                <div class="fw-semibold">@(access.User?.Name ?? "Unknown")</div>
+                                <div class="text-muted small">@(access.User?.Email ?? "")</div>
                             </div>
                         </div>
                         <button class="btn btn-sm btn-link text-danger p-0 shadow-none border-0" @onclick="() => RemoveAccess(access)">
@@ -103,7 +103,7 @@
         }
 
         _suggestions = await DbContext.Users
-            .Where(u => u.Name.Contains(_userQuery) || u.Email.Contains(_userQuery))
+            .Where(u => (!string.IsNullOrEmpty(u.Name) && u.Name.Contains(_userQuery)) || (!string.IsNullOrEmpty(u.Email) && u.Email.Contains(_userQuery)))
             .Where(u => !_accessList.Any(a => a.UserId == u.Id))
             .Take(5)
             .ToListAsync();

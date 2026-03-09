@@ -1,4 +1,6 @@
 @using UserManagementApp.Models
+@using Microsoft.EntityFrameworkCore
+@inject UserManagementApp.Data.ApplicationDbContext DbContext
 
 <div class="row g-3">
     <div class="col-md-8">
@@ -14,6 +16,12 @@
                 <option value="@cat.Id">@cat.Name</option>
             }
         </select>
+    </div>
+
+    <!-- Image Upload (URL input for now) -->
+    <div class="col-md-12 mt-4">
+        <label class="form-label fw-semibold">Image URL <span class="text-muted fw-normal small">(optional)</span></label>
+        <input type="url" class="form-control rounded-pill shadow-none" @bind="Inventory.ImageUrl" @bind:after="OnChange.InvokeAsync" placeholder="https://..." />
     </div>
 
     <div class="col-12 mt-4">
@@ -36,7 +44,7 @@
 
     <div class="col-12 mt-4">
         <label class="form-label fw-semibold">Tags</label>
-        <TagInput InventoryId="Inventory.Id" InventoryTags="Inventory.InventoryTags.ToList()" OnChange="OnChange" />
+        <TagInput Tags="_stringTags" OnTagsChanged="HandleTagsChanged" />
     </div>
 </div>
 
@@ -45,9 +53,44 @@
     [Parameter] public EventCallback OnChange { get; set; }
     
     private List<Category> _categories = new();
+    private List<string> _stringTags = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        // Category loading would be here
+        _categories = await DbContext.Categories.OrderBy(c => c.Name).ToListAsync();
+        _stringTags = Inventory.InventoryTags.Select(it => it.Tag.Name).ToList();
+    }
+
+    private async Task HandleTagsChanged(List<string> updatedTags)
+    {
+        _stringTags = updatedTags;
+
+        // Sync with DbContext manually since we are auto-saving
+        // 1. Remove missing tags
+        var toRemove = Inventory.InventoryTags
+            .Where(it => !_stringTags.Contains(it.Tag.Name, StringComparer.OrdinalIgnoreCase))
+            .ToList();
+        foreach (var r in toRemove)
+        {
+            Inventory.InventoryTags.Remove(r);
+        }
+
+        // 2. Add new tags
+        var currentTagNames = Inventory.InventoryTags.Select(it => it.Tag.Name.ToLower());
+        var newNames = _stringTags.Where(t => !currentTagNames.Contains(t.ToLower())).ToList();
+
+        foreach (var name in newNames)
+        {
+            var tag = await DbContext.Tags.FirstOrDefaultAsync(t => t.Name.ToLower() == name.ToLower());
+            if (tag == null)
+            {
+                tag = new Tag { Name = name };
+                DbContext.Tags.Add(tag);
+                await DbContext.SaveChangesAsync(); // generate ID
+            }
+            Inventory.InventoryTags.Add(new InventoryTag { InventoryId = Inventory.Id, TagId = tag.Id, Tag = tag });
+        }
+
+        await OnChange.InvokeAsync();
     }
 }

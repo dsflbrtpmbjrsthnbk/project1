@@ -76,19 +76,44 @@
 
     private async Task PerformSearch()
     {
-        // Simple search logic (real app would use NpgsqlTsVector)
-        _inventories = await DbContext.Inventories
-            .Include(i => i.Owner)
-            .Where(i => i.Title.Contains(Query) || (i.Description != null && i.Description.Contains(Query)))
-            .ToListAsync();
+        if (string.IsNullOrWhiteSpace(Query))
+        {
+            _inventories.Clear();
+            _items.Clear();
+            return;
+        }
 
-        _items = await DbContext.Items
-            .Include(i => i.Inventory)
-            .Include(i => i.CreatedBy)
-            .Where(i => i.CustomId.Contains(Query) || 
-                       (i.StringField0 != null && i.StringField0.Contains(Query)) ||
-                       (i.StringField1 != null && i.StringField1.Contains(Query)) ||
-                       (i.StringField2 != null && i.StringField2.Contains(Query)))
-            .ToListAsync();
+        var normalizedQuery = Query.ToLower();
+
+        if (DbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+        {
+            // Simple fallback for SQLite
+            _inventories = await DbContext.Inventories
+                .Include(i => i.Owner)
+                .Where(i => i.Title.ToLower().Contains(normalizedQuery) || (i.Description != null && i.Description.ToLower().Contains(normalizedQuery)))
+                .ToListAsync();
+
+            _items = await DbContext.Items
+                .Include(i => i.Inventory)
+                .Include(i => i.CreatedBy)
+                .Where(i => i.CustomId.ToLower().Contains(normalizedQuery))
+                .ToListAsync();
+        }
+        else
+        {
+            // PostgreSQL FTS
+            var formattedQuery = string.Join(" | ", Query.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries));
+            
+            _inventories = await DbContext.Inventories
+                .Include(i => i.Owner)
+                .Where(i => i.SearchVector.Matches(Microsoft.EntityFrameworkCore.EF.Functions.ToTsQuery("english", formattedQuery)))
+                .ToListAsync();
+
+            _items = await DbContext.Items
+                .Include(i => i.Inventory)
+                .Include(i => i.CreatedBy)
+                .Where(i => i.SearchVector.Matches(Microsoft.EntityFrameworkCore.EF.Functions.ToTsQuery("english", formattedQuery)))
+                .ToListAsync();
+        }
     }
 }

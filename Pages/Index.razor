@@ -3,54 +3,45 @@
 @using Microsoft.EntityFrameworkCore
 @inject UserManagementApp.Data.ApplicationDbContext DbContext
 
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
+
 <PageTitle>Home - InventoryHub</PageTitle>
 
-<div class="row mb-5 g-4">
+<h4 class="mb-4">All Inventories</h4>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">
+        @_errorMessage
+    </div>
+}
+
+<div class="row g-4">
     <!-- Latest Inventories -->
     <div class="col-lg-8">
-        <div class="d-flex align-items-center mb-4">
-            <h2 class="h4 mb-0 fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i>Latest Inventories</h2>
-        </div>
-        
-        <div class="table-responsive bg-white rounded-4 shadow-sm p-3">
+        <div class="table-responsive border rounded">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Inventory</th>
+                        <th>Name</th>
                         <th>Owner</th>
                         <th>Category</th>
                         <th>Created</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @if (!_latestInventories.Any())
+                    {
+                        <tr><td colspan="4" class="text-center text-muted py-3">No inventories yet.</td></tr>
+                    }
                     @foreach (var inv in _latestInventories)
                     {
                         <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    @if (!string.IsNullOrEmpty(inv.ImageUrl))
-                                    {
-                                        <img src="@inv.ImageUrl" class="rounded me-3 shadow-sm" style="width: 40px; height: 40px; object-fit: cover;" alt="">
-                                    }
-                                    else
-                                    {
-                                        <div class="bg-primary bg-opacity-10 text-primary rounded me-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
-                                            <i class="bi bi-collection"></i>
-                                        </div>
-                                    }
-                                    <div>
-                                        <a href="inventory/@inv.Id" class="text-decoration-none fw-semibold text-dark">@inv.Title</a>
-                                        <div class="small text-muted text-truncate" style="max-width: 250px;">@(inv.Description?.Length > 60 ? inv.Description.Substring(0, 57) + "..." : inv.Description)</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <a href="profile/@inv.OwnerId" class="text-muted text-decoration-none small">
-                                    <i class="bi bi-person me-1"></i>@inv.Owner?.Name
-                                </a>
-                            </td>
-                            <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill">@inv.Category?.Name</span></td>
-                            <td><small class="text-muted">@inv.CreatedAt.ToString("MMM dd, yyyy")</small></td>
+                            <td><a href="inventory/@inv.Id" class="text-decoration-none fw-semibold">@inv.Title</a></td>
+                            <td><small class="text-muted">@inv.Owner?.Name</small></td>
+                            <td><span class="badge bg-light text-dark border">@inv.Category?.Name</span></td>
+                            <td><small class="text-muted">@inv.CreatedAt.ToShortDateString()</small></td>
                         </tr>
                     }
                 </tbody>
@@ -58,39 +49,38 @@
         </div>
     </div>
 
-    <!-- Sidebar: Popular Inventories & Tag Cloud -->
+    <!-- Sidebar -->
     <div class="col-lg-4">
-        <!-- Top 5 Popular -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-                <h2 class="h5 mb-4 fw-bold"><i class="bi bi-fire me-2 text-danger"></i>Most Popular</h2>
-                <div class="list-group list-group-flush">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="card-title fw-bold">Most Popular</h6>
+                <ul class="list-unstyled mb-0">
+                    @if (!_popularInventories.Any())
+                    {
+                        <li class="text-muted small">Nothing yet.</li>
+                    }
                     @foreach (var inv in _popularInventories)
                     {
-                        <a href="inventory/@inv.Id" class="list-group-item list-group-item-action border-0 px-0 d-flex justify-content-between align-items-center py-3">
-                            <div class="d-flex align-items-center">
-                                <span class="badge bg-light text-dark rounded-circle me-3 p-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
-                                    @(_popularInventories.IndexOf(inv) + 1)
-                                </span>
-                                <div class="fw-semibold">@inv.Title</div>
-                            </div>
-                            <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary small">@inv.Items.Count items</span>
-                        </a>
+                        <li class="d-flex justify-content-between py-1 border-bottom">
+                            <a href="inventory/@inv.Id" class="text-decoration-none small">@inv.Title</a>
+                            <span class="badge bg-primary rounded-pill">@inv.Items.Count</span>
+                        </li>
                     }
-                </div>
+                </ul>
             </div>
         </div>
 
-        <!-- Tag Cloud -->
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-body p-4">
-                <h2 class="h5 mb-4 fw-bold"><i class="bi bi-tags me-2 text-primary"></i>Topics</h2>
-                <div class="d-flex flex-wrap gap-2">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title fw-bold">Tags</h6>
+                <div class="d-flex flex-wrap gap-1">
+                    @if (!_tags.Any())
+                    {
+                        <span class="text-muted small">No tags.</span>
+                    }
                     @foreach (var tag in _tags)
                     {
-                        <a href="search/tag/@tag.Name" class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-none">
-                            #@tag.Name
-                        </a>
+                        <a href="search/tag/@tag.Name" class="badge bg-secondary text-decoration-none">#@tag.Name</a>
                     }
                 </div>
             </div>
@@ -102,22 +92,30 @@
     private List<Inventory> _latestInventories = new();
     private List<Inventory> _popularInventories = new();
     private List<Tag> _tags = new();
+    private string? _errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        _latestInventories = await DbContext.Inventories
-            .Include(i => i.Owner)
-            .Include(i => i.Category)
-            .OrderByDescending(i => i.CreatedAt)
-            .Take(10)
-            .ToListAsync();
+        try
+        {
+            _latestInventories = await DbContext.Inventories
+                .Include(i => i.Owner)
+                .Include(i => i.Category)
+                .OrderByDescending(i => i.CreatedAt)
+                .Take(10)
+                .ToListAsync();
 
-        _popularInventories = await DbContext.Inventories
-            .Include(i => i.Items)
-            .OrderByDescending(i => i.Items.Count)
-            .Take(5)
-            .ToListAsync();
+            _popularInventories = await DbContext.Inventories
+                .Include(i => i.Items)
+                .OrderByDescending(i => i.Items.Count)
+                .Take(5)
+                .ToListAsync();
 
-        _tags = await DbContext.Tags.Take(20).ToListAsync();
+            _tags = await DbContext.Tags.Take(20).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error loading data: {ex.Message}";
+        }
     }
 }

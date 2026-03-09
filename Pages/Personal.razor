@@ -1,157 +1,192 @@
 @page "/personal"
 @using UserManagementApp.Models
+@using UserManagementApp.Services
 @using Microsoft.EntityFrameworkCore
 @inject UserManagementApp.Data.ApplicationDbContext DbContext
 @inject NavigationManager Navigation
+@inject IUserService UserService
 
-<PageTitle>My Inventories - InventoryHub</PageTitle>
+<PageTitle>My Inventories – InventoryHub</PageTitle>
 
-<div class="row mb-5">
-    <div class="col-12 d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 fw-bold">My Personal Page</h1>
-            <p class="text-muted">Manage your inventories and those you can contribute to.</p>
-        </div>
-        <button class="btn btn-primary rounded-pill px-4 shadow-sm" @onclick="CreateNewInventory">
-            <i class="bi bi-plus-lg me-2"></i>Create New Inventory
-        </button>
+@if (_loading)
+{
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+}
+else if (_currentUser == null)
+{
+    <div class="alert alert-warning text-center py-5">
+        <i class="bi bi-person-lock display-4 d-block mb-3"></i>
+        <h4>Please log in</h4>
+        <p class="mb-0">You must be logged in to view your personal page.</p>
+        <a href="/Account/Login" class="btn btn-primary mt-3">Login</a>
     </div>
+}
+else
+{
+    <div class="row mb-5">
+        <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0 fw-bold">My Personal Page</h1>
+                <p class="text-muted">Welcome, @_currentUser.Name. Manage your inventories below.</p>
+            </div>
+            <button class="btn btn-primary rounded-pill px-4 shadow-sm" @onclick="CreateNewInventory">
+                <i class="bi bi-plus-lg me-2"></i>Create New Inventory
+            </button>
+        </div>
 
-    <!-- Table of Owned Inventories -->
-    <div class="col-12 mb-5">
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold"><i class="bi bi-collection-fill me-2 text-primary"></i>My Inventories</h5>
-                <div class="btn-group btn-group-sm border rounded-pill overflow-hidden shadow-none">
-                     <button class="btn btn-light px-3" disabled="@(!_selectedOwned.Any())" @onclick="DeleteSelectedOwned">
-                         <i class="bi bi-trash3 me-1 text-danger"></i> Delete
-                     </button>
+        <!-- Owned Inventories Table -->
+        <div class="col-12 mb-5">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-collection-fill me-2 text-primary"></i>My Inventories</h5>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select class="form-select form-select-sm border-0 shadow-none" style="width:auto;" @onchange="SortOwned">
+                            <option value="updated">Sort: Last Updated</option>
+                            <option value="title">Sort: Title</option>
+                            <option value="items">Sort: Item Count</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                disabled="@(!_selectedOwned.Any())"
+                                @onclick="DeleteSelectedOwned">
+                            <i class="bi bi-trash3 me-1"></i> Delete
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 40px;" class="ps-4">
+                                    <input type="checkbox" class="form-check-input" @onchange="ToggleSelectAllOwned" />
+                                </th>
+                                <th>Inventory Title</th>
+                                <th>Category</th>
+                                <th>Items</th>
+                                <th>Visibility</th>
+                                <th class="pe-4">Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var inv in _ownedInventories)
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <input type="checkbox" class="form-check-input"
+                                               checked="@_selectedOwned.Contains(inv.Id)"
+                                               @onchange='e => ToggleOwnedSelection(inv.Id, e.Value)' />
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(inv.ImageUrl))
+                                            {
+                                                <img src="@inv.ImageUrl" class="rounded me-3" style="width:32px;height:32px;object-fit:cover;" alt="">
+                                            }
+                                            <a href="/inventory/@inv.Id" class="text-decoration-none fw-semibold text-dark">@inv.Title</a>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill">@inv.Category?.Name</span></td>
+                                    <td><span class="text-muted">@inv.Items.Count items</span></td>
+                                    <td>
+                                        @if (inv.IsPublic)
+                                        {
+                                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 small"><i class="bi bi-globe me-1"></i>Public</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-light text-muted border rounded-pill px-2 small"><i class="bi bi-lock me-1"></i>Private</span>
+                                        }
+                                    </td>
+                                    <td class="pe-4 text-muted small">@inv.UpdatedAt.ToString("g")</td>
+                                </tr>
+                            }
+                            @if (!_ownedInventories.Any())
+                            {
+                                <tr><td colspan="6" class="text-center text-muted py-4">No inventories yet. Create your first one!</td></tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th style="width: 40px;" class="ps-4">
-                                <input type="checkbox" class="form-check-input" @onchange="ToggleSelectAllOwned" />
-                            </th>
-                            <th>Inventory Title</th>
-                            <th>Category</th>
-                            <th>Items Count</th>
-                            <th>Visibility</th>
-                            <th class="pe-4">Last Updated</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var inv in _ownedInventories)
-                        {
-                            <tr>
-                                <td class="ps-4">
-                                    <input type="checkbox" class="form-check-input" 
-                                           checked="@_selectedOwned.Contains(inv.Id)" 
-                                           @onchange='e => ToggleOwnedSelection(inv.Id, e.Value)' />
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        @if (!string.IsNullOrEmpty(inv.ImageUrl))
-                                        {
-                                            <img src="@inv.ImageUrl" class="rounded me-3" style="width: 32px; height: 32px; object-fit: cover;" alt="">
-                                        }
-                                        <a href="inventory/@inv.Id" class="text-decoration-none fw-semibold text-dark">@inv.Title</a>
-                                    </div>
-                                </td>
-                                <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill">@inv.Category?.Name</span></td>
-                                <td><span class="text-muted">@inv.Items.Count items</span></td>
-                                <td>
-                                    @if (inv.IsPublic)
-                                    {
-                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 small"><i class="bi bi-globe me-1"></i>Public</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-light text-muted border rounded-pill px-2 small"><i class="bi bi-lock me-1"></i>Private</span>
-                                    }
-                                </td>
-                                <td class="pe-4 text-muted small">@inv.UpdatedAt.ToString("g")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
         </div>
-    </div>
 
-    <!-- Table of Shared Inventories (Write Access) -->
-    <div class="col-12">
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="card-header bg-white py-3 border-bottom">
-                <h5 class="mb-0 fw-bold"><i class="bi bi-share-fill me-2 text-info"></i>Shared With Me</h5>
-                <p class="small text-muted mb-0">Inventories you have write access to.</p>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="ps-4">Inventory Title</th>
-                            <th>Owner</th>
-                            <th>Category</th>
-                            <th>Items</th>
-                            <th class="pe-4">Access Level</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var access in _sharedInventories)
-                        {
-                            var inv = access.Inventory;
+        <!-- Shared Inventories Table -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-share-fill me-2 text-info"></i>Shared With Me</h5>
+                    <p class="small text-muted mb-0">Inventories where you have write access.</p>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
                             <tr>
-                                <td class="ps-4">
-                                    <a href="inventory/@inv.Id" class="text-decoration-none fw-semibold text-dark">@inv.Title</a>
-                                </td>
-                                <td><span class="text-muted small">@inv.Owner?.Name</span></td>
-                                <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill">@inv.Category?.Name</span></td>
-                                <td><span class="text-muted">@inv.Items.Count</span></td>
-                                <td class="pe-4"><span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2 small">Write Access</span></td>
+                                <th class="ps-4">Inventory Title</th>
+                                <th>Owner</th>
+                                <th>Category</th>
+                                <th>Items</th>
+                                <th class="pe-4">Access</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var access in _sharedInventories)
+                            {
+                                var inv = access.Inventory;
+                                <tr>
+                                    <td class="ps-4"><a href="/inventory/@inv.Id" class="text-decoration-none fw-semibold text-dark">@inv.Title</a></td>
+                                    <td><span class="text-muted small">@inv.Owner?.Name</span></td>
+                                    <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill">@inv.Category?.Name</span></td>
+                                    <td><span class="text-muted">@inv.Items.Count</span></td>
+                                    <td class="pe-4"><span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2 small">Write Access</span></td>
+                                </tr>
+                            }
+                            @if (!_sharedInventories.Any())
+                            {
+                                <tr><td colspan="5" class="text-center text-muted py-4">No shared inventories yet.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
 
 @code {
     private List<Inventory> _ownedInventories = new();
     private List<InventoryAccess> _sharedInventories = new();
     private HashSet<Guid> _selectedOwned = new();
-    private Guid _currentUserId = Guid.Empty; // Should get from auth
+    private User? _currentUser;
+    private bool _loading = true;
+    private string _ownedSortMode = "updated";
 
     protected override async Task OnInitializedAsync()
     {
-        // For now, using a placeholder logic for current user
-        var firstUser = await DbContext.Users.FirstOrDefaultAsync();
-        if (firstUser != null) _currentUserId = firstUser.Id;
-
-        await LoadData();
+        _currentUser = await UserService.GetCurrentUserAsync();
+        _loading = false;
+        if (_currentUser != null) await LoadData();
     }
 
     private async Task LoadData()
     {
-        _ownedInventories = await DbContext.Inventories
+        var uid = _currentUser!.Id;
+
+        var q = DbContext.Inventories
             .Include(i => i.Category)
             .Include(i => i.Items)
-            .Where(i => i.OwnerId == _currentUserId)
-            .OrderByDescending(i => i.UpdatedAt)
-            .ToListAsync();
+            .Where(i => i.OwnerId == uid);
+
+        _ownedInventories = _ownedSortMode switch
+        {
+            "title" => await q.OrderBy(i => i.Title).ToListAsync(),
+            "items" => await q.OrderByDescending(i => i.Items.Count).ToListAsync(),
+            _ => await q.OrderByDescending(i => i.UpdatedAt).ToListAsync()
+        };
 
         _sharedInventories = await DbContext.InventoryAccesses
-            .Include(ia => ia.Inventory)
-                .ThenInclude(i => i.Owner)
-            .Include(ia => ia.Inventory)
-                .ThenInclude(i => i.Category)
-            .Include(ia => ia.Inventory)
-                .ThenInclude(i => i.Items)
-            .Where(ia => ia.UserId == _currentUserId)
+            .Include(ia => ia.Inventory).ThenInclude(i => i.Owner)
+            .Include(ia => ia.Inventory).ThenInclude(i => i.Category)
+            .Include(ia => ia.Inventory).ThenInclude(i => i.Items)
+            .Where(ia => ia.UserId == uid)
             .ToListAsync();
     }
 
@@ -167,10 +202,7 @@
         else _selectedOwned.Clear();
     }
 
-    private void CreateNewInventory()
-    {
-        Navigation.NavigateTo("inventory/create");
-    }
+    private void CreateNewInventory() => Navigation.NavigateTo("/inventory/create");
 
     private async Task DeleteSelectedOwned()
     {
@@ -178,6 +210,12 @@
         DbContext.Inventories.RemoveRange(toDelete);
         await DbContext.SaveChangesAsync();
         _selectedOwned.Clear();
+        await LoadData();
+    }
+
+    private async Task SortOwned(ChangeEventArgs e)
+    {
+        _ownedSortMode = e.Value?.ToString() ?? "updated";
         await LoadData();
     }
 }

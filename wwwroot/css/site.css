@@ -1,35 +1,103 @@
-html {
-  font-size: 14px;
+:root {
+  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --dark-glass-bg: rgba(30, 30, 30, 0.7);
+  --dark-glass-border: rgba(255, 255, 255, 0.1);
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus,
-.btn:active:focus,
-.btn-link.nav-link:focus,
-.form-control:focus,
-.form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+html,
 body {
-  margin-bottom: 60px;
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
 }
 
-.table td,
-.table th {
-  vertical-align: middle;
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.btn-toolbar .btn {
-  min-width: 90px;
+main {
+  flex: 1 0 auto;
+}
+
+.navbar {
+  backdrop-filter: blur(10px);
+  background-color: var(--glass-bg) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+
+.dark-theme .navbar {
+  background-color: var(--dark-glass-bg) !important;
+  border-bottom: 1px solid var(--dark-glass-border) !important;
+}
+
+.card {
+  border: 1px solid var(--glass-border);
+  background: white;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background: var(--primary-gradient);
+  border: none;
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.rounded-4 {
+  border-radius: 1rem !important;
+}
+
+.rounded-5 {
+  border-radius: 1.5rem !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.table tr {
+  transition: background-color 0.2s;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(99, 102, 241, 0.05) !important;
+}
+
+/* Row actions visible on hover */
+.row-actions {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+tr:hover .row-actions {
+  opacity: 1;
 }

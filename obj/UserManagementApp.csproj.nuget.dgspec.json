@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj": {}
+    "C:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj": {}
   },
   "projects": {
-    "c:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj": {
+    "C:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj",
+        "projectUniqueName": "C:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj",
         "projectName": "UserManagementApp",
-        "projectPath": "c:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj",
+        "projectPath": "C:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj",
         "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\Asus\\Desktop\\Project1\\project1\\obj\\",
+        "outputPath": "C:\\Users\\Asus\\Desktop\\Project1\\project1\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Asus\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -52,11 +52,19 @@
               "target": "Package",
               "version": "[4.3.0, )"
             },
+            "Markdig": {
+              "target": "Package",
+              "version": "[0.34.0, )"
+            },
             "Microsoft.AspNetCore.Authentication.Facebook": {
               "target": "Package",
               "version": "[8.0.0, )"
             },
             "Microsoft.AspNetCore.Authentication.Google": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.0, )"
             },
@@ -70,6 +78,10 @@
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
               "version": "[8.0.0, )"
             },

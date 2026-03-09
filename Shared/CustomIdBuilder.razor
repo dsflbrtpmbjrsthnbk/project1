@@ -30,9 +30,9 @@
                                 {
                                     <input type="text" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" @bind="element.Value" @bind:after="UpdatePattern" placeholder="Fixed text..." />
                                 }
-                                else if (element.Type == IdElementType.RandomNumber || element.Type == IdElementType.Sequence)
+                                else if (element.Type == IdElementType.Sequence)
                                 {
-                                    <input type="text" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" @bind="element.Format" @bind:after="UpdatePattern" placeholder="Format (e.g. D4, X5)..." />
+                                    <input type="text" class="form-control form-control-sm border-0 bg-light rounded-pill px-3" @bind="element.Format" @bind:after="UpdatePattern" placeholder="Format (e.g. D4)..." />
                                 }
                                 else if (element.Type == IdElementType.DateTime)
                                 {
@@ -124,21 +124,18 @@
     {
         if (!_elements.Any()) return "INV-0001";
         // Simplified preview logic
+        var random = new Random();
         return string.Join("", _elements.Select(e => e.Type switch {
             IdElementType.FixedText => e.Value ?? "-",
             IdElementType.Sequence => "001",
-            IdElementType.GUID => Guid.NewGuid().ToString().Substring(0, 8),
-            IdElementType.RandomNumber => "8472",
-            IdElementType.DateTime => DateTime.Now.ToString(e.Format ?? "yyyyMMdd"),
+            IdElementType.GUID => Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
+            IdElementType.Random20Bit => (random.Next() & 0xFFFFF).ToString("X5"),
+            IdElementType.Random32Bit => ((uint)random.Next()).ToString("X8"),
+            IdElementType.Random6Digit => random.Next(100000, 999999).ToString(),
+            IdElementType.Random9Digit => random.Next(100000000, 999999999).ToString(),
+            IdElementType.DateTime => DateTime.Now.ToString(string.IsNullOrWhiteSpace(e.Format) ? "yyyyMMdd" : e.Format),
             _ => "?"
         }));
-    }
-
-    public enum IdElementType { FixedText, RandomNumber, GUID, DateTime, Sequence }
-    public class IdElement {
-        public IdElementType Type { get; set; }
-        public string? Value { get; set; }
-        public string? Format { get; set; }
     }
 }
 

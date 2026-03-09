@@ -1,0 +1,197 @@
+@page "/inventory/create"
+@using UserManagementApp.Models
+@using UserManagementApp.Services
+@using Microsoft.EntityFrameworkCore
+@inject UserManagementApp.Data.ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+@inject IUserService UserService
+
+<PageTitle>Create Inventory – InventoryHub</PageTitle>
+
+@if (_loading)
+{
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+}
+else if (_currentUser == null)
+{
+    <div class="alert alert-warning text-center py-4">
+        <i class="bi bi-person-lock display-4 d-block mb-3"></i>
+        <h4>Please log in to create an inventory.</h4>
+        <a href="/Account/Login" class="btn btn-primary mt-2">Login</a>
+    </div>
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="d-flex align-items-center mb-4">
+                <a href="/personal" class="btn btn-light rounded-pill px-3 me-3">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </a>
+                <h1 class="h3 fw-bold mb-0">Create New Inventory</h1>
+            </div>
+
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <div class="alert alert-danger py-2 small">
+                    <i class="bi bi-exclamation-triangle me-2"></i>@_errorMessage
+                </div>
+            }
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
+                <div class="row g-4">
+
+                    <!-- Title -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control rounded-3 shadow-none"
+                               @bind="_title" placeholder="e.g. Office Equipment" maxlength="200" />
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            Description
+                            <span class="badge bg-light text-muted border ms-1 small fw-normal">Markdown supported</span>
+                        </label>
+                        <textarea class="form-control rounded-3 shadow-none" rows="4"
+                                  @bind="_description"
+                                  placeholder="Describe this inventory… **bold**, _italic_, etc."></textarea>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                        <select class="form-select rounded-3 shadow-none" @bind="_categoryId">
+                            <option value="0">— Select category —</option>
+                            @foreach (var cat in _categories)
+                            {
+                                <option value="@cat.Id">@cat.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Image URL -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Image URL <span class="text-muted fw-normal small">(optional)</span></label>
+                        <input type="url" class="form-control rounded-3 shadow-none"
+                               @bind="_imageUrl" placeholder="https://..." />
+                        <div class="form-text">Upload to Cloudinary or similar and paste the URL here.</div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Tags</label>
+                        <TagInput Tags="_tags" OnTagsChanged="tags => _tags = tags" />
+                    </div>
+
+                    <!-- Public toggle -->
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="isPublic" @bind="_isPublic" />
+                            <label class="form-check-label fw-semibold" for="isPublic">
+                                Public Inventory
+                                <span class="text-muted fw-normal small ms-1">– any authenticated user can add items</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="col-12 d-flex gap-2 justify-content-end pt-2">
+                        <button type="button" class="btn btn-light rounded-pill px-4"
+                                @onclick='() => Navigation.NavigateTo("/personal")'>Cancel</button>
+                        <button type="button" class="btn btn-primary rounded-pill px-5 shadow-sm"
+                                @onclick="HandleCreate" disabled="@_saving">
+                            @if (_saving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            <i class="bi bi-plus-lg me-2"></i>Create Inventory
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private User? _currentUser;
+    private List<Category> _categories = new();
+    private string _title = "";
+    private string _description = "";
+    private int _categoryId = 0;
+    private string _imageUrl = "";
+    private bool _isPublic = false;
+    private List<string> _tags = new();
+    private bool _loading = true;
+    private bool _saving = false;
+    private string _errorMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _currentUser = await UserService.GetCurrentUserAsync();
+        _categories = await DbContext.Categories.OrderBy(c => c.Name).ToListAsync();
+        _loading = false;
+    }
+
+    private async Task HandleCreate()
+    {
+        if (string.IsNullOrWhiteSpace(_title))
+        {
+            _errorMessage = "Title is required.";
+            return;
+        }
+        if (_categoryId == 0)
+        {
+            _errorMessage = "Please select a category.";
+            return;
+        }
+
+        _saving = true;
+        _errorMessage = "";
+
+        try
+        {
+            var inventory = new Inventory
+            {
+                Id = Guid.NewGuid(),
+                Title = _title.Trim(),
+                Description = _description,
+                CategoryId = _categoryId,
+                ImageUrl = string.IsNullOrWhiteSpace(_imageUrl) ? null : _imageUrl.Trim(),
+                IsPublic = _isPublic,
+                OwnerId = _currentUser!.Id,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                CustomIdPattern = "[]"
+            };
+
+            DbContext.Inventories.Add(inventory);
+
+            // Handle tags: find existing or create new
+            foreach (var tagName in _tags.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                var tag = await DbContext.Tags.FirstOrDefaultAsync(t => t.Name.ToLower() == tagName.ToLower());
+                if (tag == null)
+                {
+                    tag = new Tag { Name = tagName.Trim() };
+                    DbContext.Tags.Add(tag);
+                    await DbContext.SaveChangesAsync(); // get tag ID
+                }
+                DbContext.InventoryTags.Add(new InventoryTag { InventoryId = inventory.Id, TagId = tag.Id });
+            }
+
+            await DbContext.SaveChangesAsync();
+            Navigation.NavigateTo($"/inventory/{inventory.Id}");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"An error occurred: {ex.InnerException?.Message ?? ex.Message}";
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

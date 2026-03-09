@@ -22,8 +22,8 @@ namespace UserManagementApp.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        [Timestamp]
-        public byte[] RowVersion { get; set; } = null!;
+        [ConcurrencyCheck]
+        public byte[] RowVersion { get; set; } = Guid.NewGuid().ToByteArray();
 
         // Fixed Custom Fields (3 of each type as per requirement)
         // String fields
@@ -54,6 +54,7 @@ namespace UserManagementApp.Models
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<Like> Likes { get; set; } = new List<Like>();
         
+        [NotMapped]
         public NpgsqlTsVector SearchVector { get; set; } = null!;
     }
 

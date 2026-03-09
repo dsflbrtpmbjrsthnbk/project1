@@ -41,37 +41,26 @@ namespace UserManagementApp.Services
 
         private async Task<string> ResolveElement(IdElement element, UserManagementApp.Models.Inventory inventory)
         {
+            var random = new Random();
             return element.Type switch
             {
                 IdElementType.FixedText => element.Value ?? "",
                 IdElementType.GUID => Guid.NewGuid().ToString().Replace("-", "").Substring(0, 8).ToUpper(),
-                IdElementType.RandomNumber => GenerateRandom(element.Format),
-                IdElementType.DateTime => DateTime.UtcNow.ToString(element.Format ?? "yyyyMMdd"),
+                IdElementType.Random20Bit => (random.Next() & 0xFFFFF).ToString("X5"),
+                IdElementType.Random32Bit => ((uint)random.Next()).ToString("X8"),
+                IdElementType.Random6Digit => random.Next(100000, 999999).ToString(),
+                IdElementType.Random9Digit => random.Next(100000000, 999999999).ToString(),
+                IdElementType.DateTime => DateTime.UtcNow.ToString(string.IsNullOrWhiteSpace(element.Format) ? "yyyyMMdd" : element.Format),
                 IdElementType.Sequence => await GetNextSequence(inventory, element.Format),
                 _ => ""
             };
-        }
-
-        private string GenerateRandom(string? format)
-        {
-            var random = new Random();
-            if (format != null && format.StartsWith("X")) 
-                return random.Next(1000, 99999).ToString("X");
-            return random.Next(1000, 9999).ToString();
         }
 
         private async Task<string> GetNextSequence(UserManagementApp.Models.Inventory inventory, string? format)
         {
             var count = await _context.Items.CountAsync(i => i.InventoryId == inventory.Id);
             var next = count + 1;
-            return next.ToString(format ?? "D");
-        }
-
-        public enum IdElementType { FixedText, RandomNumber, GUID, DateTime, Sequence }
-        public class IdElement {
-            public IdElementType Type { get; set; }
-            public string? Value { get; set; }
-            public string? Format { get; set; }
+            return next.ToString(string.IsNullOrWhiteSpace(format) ? "D3" : format);
         }
     }
 }

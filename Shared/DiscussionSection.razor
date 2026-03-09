@@ -1,7 +1,8 @@
 @using UserManagementApp.Models
+@using UserManagementApp.Services
 @using Microsoft.EntityFrameworkCore
 @inject UserManagementApp.Data.ApplicationDbContext DbContext
-
+@inject IUserService UserService
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager Navigation
 @implements IAsyncDisposable
@@ -9,49 +10,91 @@
 <div class="row">
     <div class="col-12">
         <h5 class="fw-bold mb-4">Discussion</h5>
-        
-        <div class="d-flex flex-column gap-3 mb-4" id="comment-list" style="max-height: 500px; overflow-y: auto;">
-            @foreach (var comment in _comments)
+
+        <!-- Comment list -->
+        <div class="d-flex flex-column gap-3 mb-4" id="comment-list" style="max-height:500px;overflow-y:auto;">
+            @foreach (var c in _comments)
             {
-                <div class="d-flex gap-3 p-3 bg-light rounded-4 border-0 animate__animated animate__fadeInUp">
-                    <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
+                <div class="d-flex gap-3 p-3 bg-light rounded-4">
+                    <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center flex-shrink-0" style="width:40px;height:40px;">
                         <i class="bi bi-person text-primary"></i>
                     </div>
-                    <div>
+                    <div class="flex-grow-1">
                         <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="fw-bold small">@comment.UserName</span>
-                            <span class="text-muted" style="font-size: 0.75rem;">@comment.Date</span>
+                            <a href="/profile/@c.UserId" class="fw-bold small text-dark text-decoration-none">@c.UserName</a>
+                            <span class="text-muted" style="font-size:.75rem;">@c.Date</span>
                         </div>
-                        <div class="small">@comment.Content</div>
+                        <div class="small">@((MarkupString)Markdig.Markdown.ToHtml(c.Content))</div>
                     </div>
                 </div>
             }
+            @if (!_comments.Any())
+            {
+                <p class="text-muted text-center py-3">No comments yet. Be the first to start the discussion!</p>
+            }
         </div>
 
-        <div class="p-3 bg-white border border-light shadow-sm rounded-4">
-            <textarea class="form-control border-0 shadow-none mb-2" rows="2" placeholder="Write a comment..." @bind="_newComment" @onkeyup="HandleKeyUp"></textarea>
-            <div class="d-flex justify-content-end">
-                <button class="btn btn-primary btn-sm rounded-pill px-4" @onclick="PostComment" disabled="@(!_isConnected)">Post Comment</button>
+        <!-- Post comment -->
+        @if (CurrentUser != null)
+        {
+            <div class="p-3 bg-white border border-light shadow-sm rounded-4">
+                <textarea class="form-control border-0 shadow-none mb-2" rows="2"
+                          placeholder="Write a comment… (Markdown supported)"
+                          @bind="_newComment" @onkeyup="HandleKeyUp"></textarea>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Press Shift+Enter for new line. Enter to post.</span>
+                    <button class="btn btn-primary btn-sm rounded-pill px-4"
+                            @onclick="PostComment" disabled="@(!_isConnected || string.IsNullOrWhiteSpace(_newComment))">
+                        Post
+                    </button>
+                </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="alert alert-light text-center small py-2">
+                <a href="/Account/Login" class="text-decoration-none">Login</a> to join the discussion.
+            </div>
+        }
     </div>
 </div>
 
 @code {
     [Parameter] public Guid InventoryId { get; set; }
-    private List<CommentDisplay> _comments = new();
+    [Parameter] public User? CurrentUser { get; set; }
+
+    private List<CommentViewModel> _comments = new();
     private string _newComment = "";
     private HubConnection? _hubConnection;
 
+    public bool _isConnected => _hubConnection?.State == HubConnectionState.Connected;
+
     protected override async Task OnInitializedAsync()
     {
+        // Load existing comments from DB
+        var dbComments = await DbContext.InventoryComments
+            .Include(c => c.User)
+            .Where(c => c.InventoryId == InventoryId)
+            .OrderBy(c => c.CreatedAt)
+            .ToListAsync();
+
+        _comments = dbComments.Select(c => new CommentViewModel
+        {
+            UserId = c.UserId.ToString(),
+            UserName = c.User?.Name ?? "Unknown",
+            Content = c.Content,
+            Date = c.CreatedAt.ToString("g")
+        }).ToList();
+
+        // Connect to SignalR
         _hubConnection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/discussionHub"))
+            .WithAutomaticReconnect()
             .Build();
 
-        _hubConnection.On<string, string, string>("ReceiveComment", (user, content, date) =>
+        _hubConnection.On<string, string, string, string>("ReceiveComment", (userId, userName, content, date) =>
         {
-            _comments.Add(new CommentDisplay { UserName = user, Content = content, Date = date });
+            _comments.Add(new CommentViewModel { UserId = userId, UserName = userName, Content = content, Date = date });
             InvokeAsync(StateHasChanged);
         });
 
@@ -61,9 +104,13 @@
 
     private async Task PostComment()
     {
-        if (string.IsNullOrWhiteSpace(_newComment) || _hubConnection == null) return;
+        if (string.IsNullOrWhiteSpace(_newComment) || _hubConnection == null || CurrentUser == null) return;
 
-        await _hubConnection.SendAsync("SendComment", InventoryId.ToString(), "Current User", _newComment);
+        await _hubConnection.SendAsync("SendComment",
+            InventoryId.ToString(),
+            CurrentUser.Id.ToString(),
+            _newComment.Trim());
+
         _newComment = "";
     }
 
@@ -72,14 +119,14 @@
         if (e.Key == "Enter" && !e.ShiftKey) await PostComment();
     }
 
-    public bool _isConnected => _hubConnection?.State == HubConnectionState.Connected;
-
     public async ValueTask DisposeAsync()
     {
         if (_hubConnection is not null) await _hubConnection.DisposeAsync();
     }
 
-    private class CommentDisplay {
+    private class CommentViewModel
+    {
+        public string UserId { get; set; } = "";
         public string UserName { get; set; } = "";
         public string Content { get; set; } = "";
         public string Date { get; set; } = "";

@@ -1,124 +1,163 @@
 @page "/inventory/{Id:guid}"
 @using UserManagementApp.Models
+@using UserManagementApp.Services
 @using Microsoft.EntityFrameworkCore
 @inject UserManagementApp.Data.ApplicationDbContext DbContext
 @inject NavigationManager Navigation
+@inject IUserService UserService
 
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-1">
-                        <li class="breadcrumb-item"><a href="personal" class="text-decoration-none">Personal</a></li>
-                        <li class="breadcrumb-item active">Inventory</li>
-                    </ol>
-                </nav>
-                <h1 class="h2 fw-bold mb-0">@(_inventory?.Title ?? "Loading...")</h1>
-                <div class="d-flex align-items-center gap-2 mt-1">
-                    <span class="badge bg-light text-muted border rounded-pill">@(_inventory?.Category?.Name)</span>
-                    <span class="text-muted small">•</span>
-                    <span class="text-muted small">Managed by <span class="fw-medium">@(_inventory?.Owner?.Name)</span></span>
-                    @if (_isSaving)
+<PageTitle>@(_inventory?.Title ?? "Loading...") – InventoryHub</PageTitle>
+
+@if (_loading)
+{
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+}
+else if (_inventory == null)
+{
+    <div class="alert alert-warning">Inventory not found.</div>
+}
+else
+{
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-1">
+                            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                            <li class="breadcrumb-item"><a href="/personal" class="text-decoration-none">Personal</a></li>
+                            <li class="breadcrumb-item active">@_inventory.Title</li>
+                        </ol>
+                    </nav>
+                    <h1 class="h2 fw-bold mb-0">@_inventory.Title</h1>
+                    <div class="d-flex align-items-center gap-2 mt-1 mb-2">
+                        <span class="badge bg-light text-muted border rounded-pill">@(_inventory.Category?.Name)</span>
+                        <span class="text-muted small">• by <a href="/profile/@_inventory.OwnerId" class="text-muted">@(_inventory.Owner?.Name)</a></span>
+                        @if (_isSaving)
+                        {
+                            <span class="text-muted small ms-2"><i class="bi bi-arrow-repeat spin me-1"></i>Saving...</span>
+                        }
+                        else if (_lastSaved.HasValue)
+                        {
+                            <span class="text-muted small ms-2"><i class="bi bi-check2 me-1 text-success"></i>Saved @_lastSaved.Value.ToString("HH:mm:ss")</span>
+                        }
+                    </div>
+                    @if (!string.IsNullOrEmpty(_inventory.Description))
                     {
-                        <span class="text-muted small ms-2"><i class="bi bi-arrow-repeat spin me-1"></i>Saving...</span>
+                        <div class="text-muted small opacity-75">
+                            @((MarkupString)Markdig.Markdown.ToHtml(_inventory.Description))
+                        </div>
                     }
-                    else if (_lastSaved != null)
+                </div>
+                <div class="d-flex gap-2">
+                    @if (_hasWriteAccess)
                     {
-                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill ms-2 fw-normal border border-success border-opacity-10">
-                            Saved @(_lastSaved.Value.ToString("T"))
-                        </span>
+                        <button class="btn btn-primary rounded-pill px-4 shadow-sm" @onclick="CreateNewItem">
+                            <i class="bi bi-plus-lg me-2"></i>Add Item
+                        </button>
                     }
                 </div>
             </div>
-            <div class="d-flex gap-2">
-                 <button class="btn btn-primary rounded-pill px-4 shadow-sm" @onclick="CreateNewItem">
-                     <i class="bi bi-plus-lg me-2"></i>Add Item
-                 </button>
-            </div>
         </div>
-    </div>
 
-    <!-- Navigation Tabs -->
-    <div class="col-12">
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="card-header bg-white p-0 border-bottom">
-                <ul class="nav nav-tabs border-bottom-0 px-3 pt-2" id="inventoryTabs" role="tablist">
-                    <li class="nav-item">
-                        <button class="nav-link @(ActiveTab == "items" ? "active fw-bold" : "")" @onclick='() => SetTab("items")'>
-                            Items <span class="ms-1 badge rounded-pill bg-light text-muted fw-normal border">@(_inventory?.Items?.Count)</span>
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link @(ActiveTab == "chat" ? "active fw-bold" : "")" @onclick='() => SetTab("chat")'>Discussion</button>
-                    </li>
-                    @if (_hasWriteAccess)
+        <!-- Navigation Tabs -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-white p-0 border-bottom">
+                    <ul class="nav nav-tabs border-bottom-0 px-3 pt-2">
+                        <li class="nav-item">
+                            <button class="nav-link @(ActiveTab == "items" ? "active fw-bold" : "")" @onclick='() => SetTab("items")'>
+                                Items <span class="ms-1 badge rounded-pill bg-light text-muted fw-normal border">@(_inventory.Items?.Count ?? 0)</span>
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link @(ActiveTab == "chat" ? "active fw-bold" : "")" @onclick='() => SetTab("chat")'>Discussion</button>
+                        </li>
+                        @if (_isOwnerOrAdmin)
+                        {
+                            <li class="nav-item">
+                                <button class="nav-link @(ActiveTab == "settings" ? "active fw-bold" : "")" @onclick='() => SetTab("settings")'>Settings</button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link @(ActiveTab == "customid" ? "active fw-bold" : "")" @onclick='() => SetTab("customid")'>Custom ID</button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link @(ActiveTab == "fields" ? "active fw-bold" : "")" @onclick='() => SetTab("fields")'>Fields</button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link @(ActiveTab == "access" ? "active fw-bold" : "")" @onclick='() => SetTab("access")'>Access</button>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <button class="nav-link @(ActiveTab == "stats" ? "active fw-bold" : "")" @onclick='() => SetTab("stats")'>Statistics</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-4">
+                    @if (ActiveTab == "items")
                     {
-                        <li class="nav-item">
-                            <button class="nav-link @(ActiveTab == "settings" ? "active fw-bold" : "")" @onclick='() => SetTab("settings")'>Settings</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link @(ActiveTab == "customid" ? "active fw-bold" : "")" @onclick='() => SetTab("customid")'>Custom ID</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link @(ActiveTab == "fields" ? "active fw-bold" : "")" @onclick='() => SetTab("fields")'>Fields</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link @(ActiveTab == "access" ? "active fw-bold" : "")" @onclick='() => SetTab("access")'>Access</button>
-                        </li>
+                        <ItemsTable Inventory="_inventory" CurrentUser="_currentUser" HasWriteAccess="_hasWriteAccess" />
                     }
-                    <li class="nav-item">
-                        <button class="nav-link @(ActiveTab == "stats" ? "active fw-bold" : "")" @onclick='() => SetTab("stats")'>Statistics</button>
-                    </li>
-                </ul>
-            </div>
-            <div class="card-body p-4">
-                @if (ActiveTab == "items")
-                {
-                    <ItemsTable Inventory="_inventory" />
-                }
-                else if (ActiveTab == "chat")
-                {
-                    <DiscussionSection InventoryId="Id" />
-                }
-                else if (ActiveTab == "settings")
-                {
-                    <InventorySettings Inventory="_inventory" OnChange="TriggerAutoSave" />
-                }
-                else if (ActiveTab == "customid")
-                {
-                    <CustomIdBuilder Inventory="_inventory" OnChange="TriggerAutoSave" />
-                }
-                else if (ActiveTab == "fields")
-                {
-                    <FieldsDesigner Inventory="_inventory" OnChange="TriggerAutoSave" />
-                }
-                else if (ActiveTab == "access")
-                {
-                    <AccessManagement Inventory="_inventory" OnChange="TriggerAutoSave" />
-                }
-                else if (ActiveTab == "stats")
-                {
-                    <InventoryStatistics Inventory="_inventory" />
-                }
+                    else if (ActiveTab == "chat")
+                    {
+                        <DiscussionSection InventoryId="Id" CurrentUser="_currentUser" />
+                    }
+                    else if (ActiveTab == "settings" && _isOwnerOrAdmin)
+                    {
+                        <InventorySettings Inventory="_inventory" OnChange="TriggerAutoSave" />
+                    }
+                    else if (ActiveTab == "customid" && _isOwnerOrAdmin)
+                    {
+                        <CustomIdBuilder Inventory="_inventory" OnChange="TriggerAutoSave" />
+                    }
+                    else if (ActiveTab == "fields" && _isOwnerOrAdmin)
+                    {
+                        <FieldsDesigner Inventory="_inventory" OnChange="TriggerAutoSave" />
+                    }
+                    else if (ActiveTab == "access" && _isOwnerOrAdmin)
+                    {
+                        <AccessManagement Inventory="_inventory" OnChange="TriggerAutoSave" />
+                    }
+                    else if (ActiveTab == "stats")
+                    {
+                        <InventoryStatistics Inventory="_inventory" />
+                    }
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
 
 @code {
     [Parameter] public Guid Id { get; set; }
     private Inventory? _inventory;
-    private bool _hasWriteAccess = true; // Auth check needed
+    private User? _currentUser;
+    private bool _hasWriteAccess = false;
+    private bool _isOwnerOrAdmin = false;
     private string ActiveTab { get; set; } = "items";
     private bool _isSaving = false;
     private DateTime? _lastSaved;
+    private bool _loading = true;
     private System.Threading.Timer? _autoSaveTimer;
 
     protected override async Task OnInitializedAsync()
     {
+        _currentUser = await UserService.GetCurrentUserAsync();
         await LoadInventory();
-        _autoSaveTimer = new System.Threading.Timer(async _ => await DoAutoSave(), null, System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+        _loading = false;
+
+        // Determine access levels
+        if (_inventory != null && _currentUser != null)
+        {
+            _isOwnerOrAdmin = _currentUser.IsAdmin || _inventory.OwnerId == _currentUser.Id;
+            _hasWriteAccess = _isOwnerOrAdmin
+                || _inventory.IsPublic
+                || await DbContext.InventoryAccesses
+                    .AnyAsync(a => a.InventoryId == Id && a.UserId == _currentUser.Id);
+        }
+
+        _autoSaveTimer = new System.Threading.Timer(async _ => await DoAutoSave(),
+            null, System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
     }
 
     private async Task LoadInventory()
@@ -127,68 +166,50 @@
             .Include(i => i.Category)
             .Include(i => i.Owner)
             .Include(i => i.Items)
-            .Include(i => i.FieldDefinitions)
+            .Include(i => i.FieldDefinitions.OrderBy(f => f.DisplayOrder))
+            .Include(i => i.InventoryTags).ThenInclude(it => it.Tag)
             .FirstOrDefaultAsync(i => i.Id == Id);
     }
 
-    private void SetTab(string tab)
-    {
-        ActiveTab = tab;
-    }
+    private void SetTab(string tab) => ActiveTab = tab;
 
-    private void TriggerAutoSave()
-    {
+    private void CreateNewItem() =>
+        Navigation.NavigateTo($"/inventory/{Id}/item/create");
+
+    private void TriggerAutoSave() =>
         _autoSaveTimer?.Change(7000, System.Threading.Timeout.Infinite);
-    }
 
     private async Task DoAutoSave()
     {
-        if (_inventory == null || _isSaving) return;
-
+        if (_inventory == null || _isSaving || !_isOwnerOrAdmin) return;
         _isSaving = true;
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
 
-        try 
+        try
         {
-            // Optimistic locking check would happen here
             _inventory.UpdatedAt = DateTime.UtcNow;
             await DbContext.SaveChangesAsync();
             _lastSaved = DateTime.Now;
         }
         catch (DbUpdateConcurrencyException)
         {
-            // Handle collision
+            // Reload the current values and let user try again
+            await DbContext.Entry(_inventory).ReloadAsync();
         }
         finally
         {
             _isSaving = false;
-            InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
         }
     }
 
-    private void CreateNewItem() { /* Nav to item create */ }
+    public void Dispose() => _autoSaveTimer?.Dispose();
 }
 
 <style>
-    .nav-tabs .nav-link {
-        border: none;
-        color: #6c757d;
-        padding: 1rem 1.25rem;
-        font-size: 0.95rem;
-    }
-    .nav-tabs .nav-link:hover {
-        background-color: #f8f9fa;
-        color: #0d6efd;
-    }
-    .nav-tabs .nav-link.active {
-        color: #0d6efd;
-        border-bottom: 2px solid #0d6efd !important;
-    }
-    .spin {
-        animation: fa-spin 2s infinite linear;
-    }
-    @@keyframes fa-spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(359deg); }
-    }
+    .nav-tabs .nav-link { border: none; color: #6c757d; padding: 1rem 1.25rem; font-size: .95rem; }
+    .nav-tabs .nav-link:hover { background-color: #f8f9fa; color: #0d6efd; }
+    .nav-tabs .nav-link.active { color: #0d6efd; border-bottom: 2px solid #0d6efd !important; }
+    .spin { animation: spin 1.5s linear infinite; }
+    @@keyframes spin { to { transform: rotate(360deg); } }
 </style>

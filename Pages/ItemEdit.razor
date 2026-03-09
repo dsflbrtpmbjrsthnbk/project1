@@ -1,150 +1,254 @@
 @page "/inventory/{InventoryId:guid}/item/create"
 @page "/inventory/{InventoryId:guid}/item/{ItemId:guid}"
 @using UserManagementApp.Models
+@using UserManagementApp.Services
 @using Microsoft.EntityFrameworkCore
 @inject UserManagementApp.Data.ApplicationDbContext DbContext
 @inject NavigationManager Navigation
+@inject IUserService UserService
+@inject ICustomIdService CustomIdService
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 fw-bold mb-0">@(ItemId == Guid.Empty ? "New Item" : "Edit Item")</h1>
-                <div class="badge bg-light text-primary border rounded-pill px-3 py-2 fw-semibold">
-                    <i class="bi bi-tag-fill me-2"></i>@(_item?.CustomId ?? "Generating...")
+<PageTitle>@(_isNew ? "New Item" : "Edit Item") – InventoryHub</PageTitle>
+
+@if (_loading)
+{
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+}
+else if (!_hasWriteAccess)
+{
+    <div class="alert alert-danger text-center py-5">
+        <i class="bi bi-shield-x display-4 d-block mb-3"></i>
+        <h4>Access Denied</h4>
+        <p class="mb-0">You don't have write access to this inventory.</p>
+        <a href="/inventory/@InventoryId" class="btn btn-primary mt-3">Back to Inventory</a>
+    </div>
+}
+else if (_item != null && _inventory != null)
+{
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <a href="/inventory/@InventoryId" class="text-muted text-decoration-none small">
+                            <i class="bi bi-arrow-left me-1"></i> @_inventory.Title
+                        </a>
+                        <h1 class="h3 fw-bold mb-0 mt-1">@(_isNew ? "New Item" : "Edit Item")</h1>
+                    </div>
+                    <div class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-semibold">
+                        <i class="bi bi-tag-fill me-2"></i>@(_item.CustomId)
+                    </div>
                 </div>
-            </div>
 
-            @if (_item != null && _inventory != null)
-            {
+                @if (!string.IsNullOrEmpty(_errorMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show py-2">
+                        <i class="bi bi-exclamation-triangle me-2"></i>@_errorMessage
+                        <button type="button" class="btn-close" @onclick='() => _errorMessage = ""'></button>
+                    </div>
+                }
+
                 <EditForm Model="_item" OnValidSubmit="HandleSubmit">
-                    <!-- Fixed Fields Row -->
+                    <!-- Fixed Fields -->
                     <div class="row g-4 mb-5 p-4 bg-light rounded-4 border border-info border-opacity-10">
                         <div class="col-12 border-bottom pb-2 mb-2">
-                            <span class="text-info fw-bold small text-uppercase tracking-wider">Fixed Information</span>
+                            <span class="text-info fw-bold small text-uppercase">Fixed Information</span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold small">Custom ID</label>
                             <input type="text" class="form-control rounded-pill shadow-none" @bind="_item.CustomId" />
-                            <div class="form-text small">This matches the inventory's unique ID format.</div>
+                            <div class="form-text small">Unique ID within this inventory. Edit only if needed.</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold small">Created At</label>
                             <input type="text" class="form-control rounded-pill bg-white border-0 shadow-none text-muted" value="@_item.CreatedAt.ToString("g")" disabled />
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Created By</label>
+                            <input type="text" class="form-control rounded-pill bg-white border-0 shadow-none text-muted" value="@(_currentUser?.Name)" disabled />
+                        </div>
                     </div>
 
                     <!-- Dynamic Custom Fields -->
-                    <div class="row g-4">
-                        <div class="col-12 border-bottom pb-2 mb-2">
-                            <span class="text-primary fw-bold small text-uppercase tracking-wider">Inventory Fields</span>
-                        </div>
-                        
-                        @foreach (var field in _inventory.FieldDefinitions.OrderBy(f => f.DisplayOrder))
-                        {
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">@field.Title</label>
-                                @if (field.Type == FieldType.String)
-                                {
-                                    <input type="text" class="form-control rounded-pill shadow-none" 
-                                           @bind:get="GetStringValue(field.SlotIndex)" 
-                                           @bind:set="(v) => SetStringValue(field.SlotIndex, v)" 
-                                           placeholder="@field.Description" />
-                                }
-                                else if (field.Type == FieldType.Numeric)
-                                {
-                                    <input type="number" class="form-control rounded-pill shadow-none" 
-                                           @bind:get="GetNumericValue(field.SlotIndex)" 
-                                           @bind:set="(v) => SetNumericValue(field.SlotIndex, v)"
-                                           placeholder="@field.Description" />
-                                }
-                                else if (field.Type == FieldType.Boolean)
-                                {
-                                    <div class="form-check form-switch mt-2">
-                                        <input class="form-check-input" type="checkbox" 
-                                               @bind:get="GetBoolValue(field.SlotIndex) ?? false" 
-                                               @bind:set="(v) => SetBoolValue(field.SlotIndex, v)" />
-                                        <label class="form-check-label text-muted small">@field.Description</label>
-                                    </div>
-                                }
-                                else if (field.Type == FieldType.Multiline)
-                                {
-                                    <textarea class="form-control rounded-4 shadow-none" rows="4" 
-                                              @bind:get="GetTextValue(field.SlotIndex)" 
-                                              @bind:set="(v) => SetTextValue(field.SlotIndex, v)"
-                                              placeholder="@field.Description"></textarea>
-                                }
-                                else if (field.Type == FieldType.Link)
-                                {
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light border-end-0 rounded-start-pill ps-3"><i class="bi bi-link-45deg"></i></span>
-                                        <input type="text" class="form-control border-start-0 rounded-end-pill shadow-none" 
-                                               @bind:get="GetLinkValue(field.SlotIndex)" 
-                                               @bind:set="(v) => SetLinkValue(field.SlotIndex, v)"
-                                               placeholder="https://..." />
-                                    </div>
-                                }
+                    @if (_inventory.FieldDefinitions.Any())
+                    {
+                        <div class="row g-4">
+                            <div class="col-12 border-bottom pb-2 mb-2">
+                                <span class="text-primary fw-bold small text-uppercase">Inventory Fields</span>
                             </div>
-                        }
-                    </div>
+                            @foreach (var field in _inventory.FieldDefinitions.OrderBy(f => f.DisplayOrder))
+                            {
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
+                                        @field.Title
+                                        @if (!string.IsNullOrEmpty(field.Description))
+                                        {
+                                            <i class="bi bi-info-circle ms-1 text-muted small" title="@field.Description"></i>
+                                        }
+                                    </label>
+                                    @if (field.Type == FieldType.String)
+                                    {
+                                        <input type="text" class="form-control rounded-pill shadow-none"
+                                               @bind:get="GetStringValue(field.SlotIndex)"
+                                               @bind:set="(v) => SetStringValue(field.SlotIndex, v)"
+                                               placeholder="@field.Description" />
+                                    }
+                                    else if (field.Type == FieldType.Numeric)
+                                    {
+                                        <input type="number" class="form-control rounded-pill shadow-none"
+                                               @bind:get="GetNumericValue(field.SlotIndex)"
+                                               @bind:set="(v) => SetNumericValue(field.SlotIndex, v)"
+                                               placeholder="@field.Description" />
+                                    }
+                                    else if (field.Type == FieldType.Boolean)
+                                    {
+                                        <div class="form-check form-switch mt-2">
+                                            <input class="form-check-input" type="checkbox"
+                                                   @bind:get="GetBoolValue(field.SlotIndex) ?? false"
+                                                   @bind:set="(v) => SetBoolValue(field.SlotIndex, v)" />
+                                            <label class="form-check-label text-muted small">@field.Description</label>
+                                        </div>
+                                    }
+                                    else if (field.Type == FieldType.Multiline)
+                                    {
+                                        <textarea class="form-control rounded-4 shadow-none" rows="4"
+                                                  @bind:get="GetTextValue(field.SlotIndex)"
+                                                  @bind:set="(v) => SetTextValue(field.SlotIndex, v)"
+                                                  placeholder="@field.Description"></textarea>
+                                    }
+                                    else if (field.Type == FieldType.Link)
+                                    {
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-end-0 rounded-start-pill ps-3">
+                                                <i class="bi bi-link-45deg"></i>
+                                            </span>
+                                            <input type="text" class="form-control border-start-0 rounded-end-pill shadow-none"
+                                                   @bind:get="GetLinkValue(field.SlotIndex)"
+                                                   @bind:set="(v) => SetLinkValue(field.SlotIndex, v)"
+                                                   placeholder="https://..." />
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
 
                     <div class="d-flex gap-2 mt-5 justify-content-end">
-                        <button type="button" class="btn btn-light rounded-pill px-4" @onclick='() => Navigation.NavigateTo($"inventory/{InventoryId}")'>Cancel</button>
-                        <button type="submit" class="btn btn-primary rounded-pill px-5 shadow-sm">Save Item</button>
+                        <button type="button" class="btn btn-light rounded-pill px-4"
+                                @onclick='() => Navigation.NavigateTo($"/inventory/{InventoryId}")'>Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 shadow-sm" disabled="@_saving">
+                            @if (_saving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            Save Item
+                        </button>
                     </div>
                 </EditForm>
-            }
+            </div>
         </div>
     </div>
-</div>
+}
 
 @code {
     [Parameter] public Guid InventoryId { get; set; }
     [Parameter] public Guid ItemId { get; set; }
 
-    private UserManagementApp.Models.Inventory? _inventory;
-    private UserManagementApp.Models.Item? _item;
+    private Inventory? _inventory;
+    private Item? _item;
+    private User? _currentUser;
+    private bool _hasWriteAccess = false;
+    private bool _isNew = true;
+    private bool _loading = true;
+    private bool _saving = false;
+    private string _errorMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
-        _inventory = await DbContext.Inventories.Include(i => i.FieldDefinitions).FirstOrDefaultAsync(i => i.Id == InventoryId);
-        
-        if (ItemId == Guid.Empty)
+        _currentUser = await UserService.GetCurrentUserAsync();
+        _inventory = await DbContext.Inventories
+            .Include(i => i.FieldDefinitions.OrderBy(f => f.DisplayOrder))
+            .FirstOrDefaultAsync(i => i.Id == InventoryId);
+
+        if (_inventory != null && _currentUser != null)
         {
-            _item = new UserManagementApp.Models.Item { 
-                Id = Guid.NewGuid(), 
-                InventoryId = InventoryId, 
+            var isOwnerOrAdmin = _currentUser.IsAdmin || _inventory.OwnerId == _currentUser.Id;
+            _hasWriteAccess = isOwnerOrAdmin
+                || _inventory.IsPublic
+                || await DbContext.InventoryAccesses
+                    .AnyAsync(a => a.InventoryId == InventoryId && a.UserId == _currentUser.Id);
+        }
+
+        _isNew = ItemId == Guid.Empty;
+
+        if (_isNew)
+        {
+            _item = new Item
+            {
+                Id = Guid.NewGuid(),
+                InventoryId = InventoryId,
+                CreatedById = _currentUser?.Id ?? Guid.Empty,
                 CreatedAt = DateTime.UtcNow,
-                CustomId = "PENDING-" + Guid.NewGuid().ToString().Substring(0, 4)
+                UpdatedAt = DateTime.UtcNow
             };
+            if (_inventory != null)
+                _item.CustomId = await CustomIdService.GenerateIdAsync(_inventory);
         }
         else
         {
             _item = await DbContext.Items.FirstOrDefaultAsync(i => i.Id == ItemId);
         }
+
+        _loading = false;
     }
 
     private async Task HandleSubmit()
     {
-        if (_item == null) return;
-        
-        if (ItemId == Guid.Empty) DbContext.Items.Add(_item);
-        await DbContext.SaveChangesAsync();
-        Navigation.NavigateTo($"inventory/{InventoryId}");
+        if (_item == null || _currentUser == null) return;
+        _saving = true;
+        _errorMessage = "";
+
+        try
+        {
+            _item.UpdatedAt = DateTime.UtcNow;
+
+            if (_isNew)
+            {
+                _item.CreatedById = _currentUser.Id;
+                DbContext.Items.Add(_item);
+            }
+
+            await DbContext.SaveChangesAsync();
+            Navigation.NavigateTo($"/inventory/{InventoryId}");
+        }
+        catch (DbUpdateException dbEx) when (
+            dbEx.InnerException?.Message.Contains("duplicate key") == true ||
+            dbEx.InnerException?.Message.Contains("IX_Items") == true)
+        {
+            _errorMessage = "Custom ID conflict: this ID is already used in this inventory. Please edit the Custom ID field.";
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            _errorMessage = "This item was modified by another user. Please reload and try again.";
+        }
+        finally
+        {
+            _saving = false;
+        }
     }
 
-    private string GetStringValue(int i) => i == 0 ? _item?.StringField0 : i == 1 ? _item?.StringField1 : _item?.StringField2;
-    private void SetStringValue(int i, string v) { if (i == 0) _item.StringField0 = v; else if (i == 1) _item.StringField1 = v; else _item.StringField2 = v; }
+    private string? GetStringValue(int i) => i switch { 0 => _item?.StringField0, 1 => _item?.StringField1, _ => _item?.StringField2 };
+    private void SetStringValue(int i, string? v) { if (_item == null) return; if (i == 0) _item.StringField0 = v; else if (i == 1) _item.StringField1 = v; else _item.StringField2 = v; }
 
-    private double? GetNumericValue(int i) => i == 0 ? _item?.NumberField0 : i == 1 ? _item?.NumberField1 : _item?.NumberField2;
-    private void SetNumericValue(int i, double? v) { if (i == 0) _item.NumberField0 = v; else if (i == 1) _item.NumberField1 = v; else _item.NumberField2 = v; }
+    private double? GetNumericValue(int i) => i switch { 0 => _item?.NumberField0, 1 => _item?.NumberField1, _ => _item?.NumberField2 };
+    private void SetNumericValue(int i, double? v) { if (_item == null) return; if (i == 0) _item.NumberField0 = v; else if (i == 1) _item.NumberField1 = v; else _item.NumberField2 = v; }
 
-    private bool? GetBoolValue(int i) => i == 0 ? _item?.BoolField0 : i == 1 ? _item?.BoolField1 : _item?.BoolField2;
-    private void SetBoolValue(int i, bool v) { if (i == 0) _item.BoolField0 = v; else if (i == 1) _item.BoolField1 = v; else _item.BoolField2 = v; }
+    private bool? GetBoolValue(int i) => i switch { 0 => _item?.BoolField0, 1 => _item?.BoolField1, _ => _item?.BoolField2 };
+    private void SetBoolValue(int i, bool v) { if (_item == null) return; if (i == 0) _item.BoolField0 = v; else if (i == 1) _item.BoolField1 = v; else _item.BoolField2 = v; }
 
-    private string? GetTextValue(int i) => i == 0 ? _item?.TextField0 : i == 1 ? _item?.TextField1 : _item?.TextField2;
-    private void SetTextValue(int i, string v) { if (i == 0) _item.TextField0 = v; else if (i == 1) _item.TextField1 = v; else _item.TextField2 = v; }
+    private string? GetTextValue(int i) => i switch { 0 => _item?.TextField0, 1 => _item?.TextField1, _ => _item?.TextField2 };
+    private void SetTextValue(int i, string? v) { if (_item == null) return; if (i == 0) _item.TextField0 = v; else if (i == 1) _item.TextField1 = v; else _item.TextField2 = v; }
 
-    private string? GetLinkValue(int i) => i == 0 ? _item?.LinkField0 : i == 1 ? _item?.LinkField1 : _item?.LinkField2;
-    private void SetLinkValue(int i, string v) { if (i == 0) _item.LinkField0 = v; else if (i == 1) _item.LinkField1 = v; else _item.LinkField2 = v; }
+    private string? GetLinkValue(int i) => i switch { 0 => _item?.LinkField0, 1 => _item?.LinkField1, _ => _item?.LinkField2 };
+    private void SetLinkValue(int i, string? v) { if (_item == null) return; if (i == 0) _item.LinkField0 = v; else if (i == 1) _item.LinkField1 = v; else _item.LinkField2 = v; }
 }

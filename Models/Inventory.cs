@@ -28,8 +28,8 @@ namespace UserManagementApp.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        [Timestamp]
-        public byte[] RowVersion { get; set; } = null!;
+        [ConcurrencyCheck]
+        public byte[] RowVersion { get; set; } = Guid.NewGuid().ToByteArray();
 
         public ICollection<InventoryTag> InventoryTags { get; set; } = new List<InventoryTag>();
         public ICollection<Item> Items { get; set; } = new List<Item>();
@@ -40,6 +40,7 @@ namespace UserManagementApp.Models
         // For drag-and-drop builder, we'll store the sequence of elements.
         public string CustomIdPattern { get; set; } = "[]"; 
         
+        [NotMapped]
         public NpgsqlTsVector SearchVector { get; set; } = null!;
     }
 
