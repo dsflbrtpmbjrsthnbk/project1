@@ -5,6 +5,9 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inject IUserService UserService
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 
 <div class="page @(_isDarkMode ? "dark-theme" : "light-theme")">
     <header class="navbar navbar-expand-lg border-bottom px-3 bg-body">
@@ -13,7 +16,7 @@
         <div class="ms-auto d-flex align-items-center">
             <div class="input-group me-3" style="max-width: 300px;">
                 <input type="text" class="form-control form-control-sm" 
-                       placeholder="Search..." 
+                       placeholder='@Loc["SearchPlaceholder"]' 
                        @bind="_searchQuery" @onkeyup="HandleSearch" />
                 <button class="btn btn-outline-secondary btn-sm" @onclick='() => HandleSearch(new KeyboardEventArgs { Key = "Enter" })'>
                     <i class="bi bi-search"></i>
@@ -21,14 +24,19 @@
             </div>
 
             <!-- Theme Switcher -->
-            <button class="btn btn-link nav-link p-0 me-3" @onclick="ToggleTheme" title="Toggle theme">
+            <button class="btn btn-link nav-link p-0 me-2" @onclick="ToggleTheme" title="Toggle theme">
                 <i class="bi @(_isDarkMode ? "bi-sun-fill text-warning" : "bi-moon-stars-fill text-primary") fs-5"></i>
+            </button>
+
+            <!-- Language Switcher -->
+            <button class="btn btn-link nav-link p-0 me-3 small fw-bold" @onclick="ToggleLanguage" title="Switch language">
+                @(_isRussian ? "🇷🇺 RU" : "EN")
             </button>
 
             @if (_currentUser != null)
             {
                 <a class="btn btn-sm btn-success me-3 fw-bold" href="/inventory/create">
-                    <i class="bi bi-plus-lg me-1"></i> Create Inventory
+                    <i class="bi bi-plus-lg me-1"></i> @Loc["CreateInventory"]
                 </a>
 
                 <div class="dropdown me-3">
@@ -36,20 +44,20 @@
                         @_currentUser.Name
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="/personal">My Inventories</a></li>
-                        <li><a class="dropdown-item" href="/profile/@_currentUser.Id">Profile</a></li>
+                        <li><a class="dropdown-item" href="/personal">@Loc["MyInventories"]</a></li>
+                        <li><a class="dropdown-item" href="/profile/@_currentUser.Id">@Loc["Profile"]</a></li>
                         @if (_currentUser.IsAdmin)
                         {
-                            <li><a class="dropdown-item" href="/admin">Admin Control</a></li>
+                            <li><a class="dropdown-item" href="/admin">@Loc["AdminControl"]</a></li>
                         }
                     </ul>
                 </div>
                 
-                <a href="/Account/Logout" class="btn btn-sm btn-danger fw-bold">Logout</a>
+                <a href="/Account/Logout" class="btn btn-sm btn-danger fw-bold">@Loc["Logout"]</a>
             }
             else
             {
-                <a class="btn btn-sm btn-primary" href="/Account/Login">Login</a>
+                <a class="btn btn-sm btn-primary" href="/Account/Login">@Loc["Login"]</a>
             }
         </div>
     </header>
@@ -68,6 +76,7 @@
 @code {
     private string _searchQuery = "";
     private bool _isDarkMode = false;
+    private bool _isRussian = false;
     private User? _currentUser;
     private string _antiForgeryToken = "";
 
@@ -80,11 +89,13 @@
     {
         if (firstRender)
         {
-            // Restore theme from localStorage
             var savedTheme = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", "theme");
             _isDarkMode = savedTheme == "dark";
 
-            // Get antiforgery token for logout form
+            var savedLang = await JSRuntime.InvokeAsync<string?>("eval",
+                "document.cookie.split(';').find(c=>c.trim().startsWith('language='))?.split('=')[1] ?? ''");
+            _isRussian = savedLang?.Contains("ru") == true;
+
             _antiForgeryToken = await JSRuntime.InvokeAsync<string>("eval",
                 "document.querySelector('input[name=__RequestVerificationToken]')?.value ?? ''");
 
@@ -104,6 +115,15 @@
     {
         _isDarkMode = !_isDarkMode;
         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "theme", _isDarkMode ? "dark" : "light");
+    }
+
+    private async Task ToggleLanguage()
+    {
+        _isRussian = !_isRussian;
+        var culture = _isRussian ? "ru-RU" : "en-US";
+        // Set the language cookie that CookieRequestCultureProvider reads
+        await JSRuntime.InvokeVoidAsync("eval",
+            $"document.cookie='language=c%3D{culture}%7Cuic%3D{culture};path=/;max-age=31536000'; location.reload();");
     }
 }
 

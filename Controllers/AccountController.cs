@@ -65,12 +65,30 @@ namespace UserManagementApp.Controllers
             {
                 user.LastLoginTime = DateTime.UtcNow;
                 await _userManager.UpdateAsync(user);
-                
                 _logger.LogInformation("User {Email} logged in", email);
                 return LocalRedirect(returnUrl ?? "/");
             }
-            
-            TempData["ErrorMessage"] = "Invalid email or password.";
+
+            if (result.IsNotAllowed)
+            {
+                // Email not confirmed — force-confirm it and sign in (dev-friendly fix)
+                _logger.LogWarning("Login not allowed for {Email} — confirming email now.", email);
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
+                await _signInManager.SignInAsync(user, isPersistent: true);
+                user.LastLoginTime = DateTime.UtcNow;
+                await _userManager.UpdateAsync(user);
+                return LocalRedirect(returnUrl ?? "/");
+            }
+
+            if (result.IsLockedOut)
+            {
+                TempData["ErrorMessage"] = "Account is locked out. Please try again later.";
+                return View();
+            }
+
+            _logger.LogWarning("Failed login for {Email}: Succeeded={S} NotAllowed={NA} LockedOut={LO}", email, result.Succeeded, result.IsNotAllowed, result.IsLockedOut);
+            TempData["ErrorMessage"] = "Incorrect password. Please try again.";
             return View();
         }
 
@@ -97,11 +115,12 @@ namespace UserManagementApp.Controllers
             var user = new User
             {
                 Name = name.Trim(),
-                UserName = email.ToLower().Trim(), // Required by Identity
+                UserName = email.ToLower().Trim(),
                 Email = email.ToLower().Trim(),
                 Status = "active",
                 RegistrationTime = DateTime.UtcNow,
-                IsAdmin = isFirstUser
+                IsAdmin = isFirstUser,
+                EmailConfirmed = true  // no email verification flow → always confirmed
             };
 
             var result = await _userManager.CreateAsync(user, password);

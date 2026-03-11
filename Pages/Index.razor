@@ -8,7 +8,7 @@
 
 <PageTitle>Home - InventoryHub</PageTitle>
 
-<h4 class="mb-4">All Inventories</h4>
+<h4 class="mb-4">@Loc["AllInventories"]</h4>
 
 @if (!string.IsNullOrEmpty(_errorMessage))
 {
@@ -24,16 +24,16 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Name</th>
-                        <th>Owner</th>
-                        <th>Category</th>
-                        <th>Created</th>
+                        <th>@Loc["Name"]</th>
+                        <th>@Loc["Owner"]</th>
+                        <th>@Loc["Category"]</th>
+                        <th>@Loc["Created"]</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (!_latestInventories.Any())
                     {
-                        <tr><td colspan="4" class="text-center text-muted py-3">No inventories yet.</td></tr>
+                        <tr><td colspan="4" class="text-center text-muted py-3">@Loc["NoInventoriesYet"]</td></tr>
                     }
                     @foreach (var inv in _latestInventories)
                     {
@@ -53,11 +53,11 @@
     <div class="col-lg-4">
         <div class="card mb-3">
             <div class="card-body">
-                <h6 class="card-title fw-bold">Most Popular</h6>
+                <h6 class="card-title fw-bold">@Loc["MostPopular"]</h6>
                 <ul class="list-unstyled mb-0">
                     @if (!_popularInventories.Any())
                     {
-                        <li class="text-muted small">Nothing yet.</li>
+                        <li class="text-muted small">@Loc["NothingYet"]</li>
                     }
                     @foreach (var inv in _popularInventories)
                     {
@@ -72,11 +72,11 @@
 
         <div class="card">
             <div class="card-body">
-                <h6 class="card-title fw-bold">Tags</h6>
+                <h6 class="card-title fw-bold">@Loc["Tags"]</h6>
                 <div class="d-flex flex-wrap gap-1">
                     @if (!_tags.Any())
                     {
-                        <span class="text-muted small">No tags.</span>
+                        <span class="text-muted small">@Loc["NoTags"]</span>
                     }
                     @foreach (var tag in _tags)
                     {

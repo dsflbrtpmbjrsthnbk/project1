@@ -1,37 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-  -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
@@ -69,77 +42,77 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
 
-  <!-- Key Value Pairs -->
+  <!-- Russian translations -->
   <data name="HomeTitle" xml:space="preserve">
-    <value>Master your inventories.</value>
+    <value>Управляйте своими инвентарями.</value>
   </data>
   <data name="HomeSubtitle" xml:space="preserve">
-    <value>The flexible, full-text searchable database for your collections. Manage anything from rare coins to office assets.</value>
+    <value>Гибкая база данных с полнотекстовым поиском для ваших коллекций. Управляйте чем угодно — от монет до офисного оборудования.</value>
   </data>
   <data name="GetStarted" xml:space="preserve">
-    <value>Get Started for Free</value>
+    <value>Начать бесплатно</value>
   </data>
   <data name="ViewDemo" xml:space="preserve">
-    <value>View Demo Inventory</value>
+    <value>Демо-инвентарь</value>
   </data>
   <data name="RecentItems" xml:space="preserve">
-    <value>Recently Added Items</value>
+    <value>Недавно добавленные предметы</value>
   </data>
   <data name="LargestInventories" xml:space="preserve">
-    <value>Largest Inventories</value>
+    <value>Крупнейшие инвентари</value>
   </data>
   <data name="TagCloud" xml:space="preserve">
-    <value>Popular Tags</value>
+    <value>Популярные теги</value>
   </data>
   <data name="SearchPlaceholder" xml:space="preserve">
-    <value>Search...</value>
+    <value>Поиск...</value>
   </data>
   <data name="CreateInventory" xml:space="preserve">
-    <value>Create Inventory</value>
+    <value>Создать инвентарь</value>
   </data>
   <data name="MyInventories" xml:space="preserve">
-    <value>My Inventories</value>
+    <value>Мои инвентари</value>
   </data>
   <data name="Profile" xml:space="preserve">
-    <value>Profile</value>
+    <value>Профиль</value>
   </data>
   <data name="AdminControl" xml:space="preserve">
-    <value>Admin Control</value>
+    <value>Панель администратора</value>
   </data>
   <data name="Logout" xml:space="preserve">
-    <value>Logout</value>
+    <value>Выйти</value>
   </data>
   <data name="Login" xml:space="preserve">
-    <value>Login</value>
+    <value>Войти</value>
   </data>
   <data name="AllInventories" xml:space="preserve">
-    <value>All Inventories</value>
+    <value>Все инвентари</value>
   </data>
   <data name="Name" xml:space="preserve">
-    <value>Name</value>
+    <value>Название</value>
   </data>
   <data name="Owner" xml:space="preserve">
-    <value>Owner</value>
+    <value>Владелец</value>
   </data>
   <data name="Category" xml:space="preserve">
-    <value>Category</value>
+    <value>Категория</value>
   </data>
   <data name="Created" xml:space="preserve">
-    <value>Created</value>
+    <value>Создано</value>
   </data>
   <data name="NoInventoriesYet" xml:space="preserve">
-    <value>No inventories yet.</value>
+    <value>Пока нет инвентарей.</value>
   </data>
   <data name="MostPopular" xml:space="preserve">
-    <value>Most Popular</value>
+    <value>Самые популярные</value>
   </data>
   <data name="NothingYet" xml:space="preserve">
-    <value>Nothing yet.</value>
+    <value>Пока ничего.</value>
   </data>
   <data name="Tags" xml:space="preserve">
-    <value>Tags</value>
+    <value>Теги</value>
   </data>
   <data name="NoTags" xml:space="preserve">
-    <value>No tags.</value>
+    <value>Нет тегов.</value>
   </data>
 </root>

@@ -91,13 +91,42 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
-// Ensure the database is created (simple approach for local verification)
+// Ensure the database is created and seed default admin
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var services = scope.ServiceProvider;
+    var db = services.GetRequiredService<ApplicationDbContext>();
     if (db.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
     {
         db.Database.EnsureCreated();
+    }
+    
+    var userManager = services.GetRequiredService<UserManager<User>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+    
+    if (!await roleManager.RoleExistsAsync("Admin"))
+    {
+        await roleManager.CreateAsync(new IdentityRole<Guid>("Admin"));
+    }
+    
+    var adminEmail = "admin1@gmail.com";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    if (adminUser == null)
+    {
+        adminUser = new User 
+        { 
+            UserName = adminEmail, 
+            Email = adminEmail, 
+            Name = "Admin", 
+            EmailConfirmed = true,
+            Status = UserStatus.Active
+        };
+        await userManager.CreateAsync(adminUser, "1234");
+        await userManager.AddToRoleAsync(adminUser, "Admin");
+    }
+    else if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+    {
+        await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 }
 
@@ -114,13 +143,12 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 // Configure Localization Middleware
-var supportedCultures = new[] { "en-US" };
+var supportedCultures = new[] { "en-US", "ru-RU" };
 var localizationOptions = new RequestLocalizationOptions()
     .SetDefaultCulture(supportedCultures[0])
     .AddSupportedCultures(supportedCultures)
     .AddSupportedUICultures(supportedCultures);
 
-// Optional: Enable reading culture from custom `language` cookie if JS stores it there
 localizationOptions.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.CookieRequestCultureProvider
 {
     CookieName = "language"
@@ -132,12 +160,14 @@ app.UseSession();
 app.UseAuthentication();   // <-- must come before UseAuthorization
 app.UseAuthorization();
 
+// ⚠️ Conventional routing MUST come before MapFallbackToPage
+// otherwise POSTs to /Account/Login are swallowed by the Blazor host
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 app.MapControllers();
 app.MapBlazorHub();
 app.MapHub<UserManagementApp.Hubs.DiscussionHub>("/discussionHub");
 app.MapFallbackToPage("/_Host");
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();

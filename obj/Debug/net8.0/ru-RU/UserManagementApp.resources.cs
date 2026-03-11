@@ -17,7 +17,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyProductAttribute("UserManagementApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UserManagementApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyCultureAttribute("en-US")]
+[assembly: System.Reflection.AssemblyCultureAttribute("ru-RU")]
 
 // Создано классом WriteCodeFragment MSBuild.
 

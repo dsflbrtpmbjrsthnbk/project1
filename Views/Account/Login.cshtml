@@ -226,7 +226,7 @@
         <div class="divider">or continue with email</div>
 
         <!-- Email/Password Form -->
-        <form asp-action="Login" asp-controller="Account" method="post">
+        <form action="/Account/Login" method="post">
             @Html.AntiForgeryToken()
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>

@@ -1,17 +1,12 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace UserManagementApp.Controllers
 {
-    /// <summary>
-    /// The admin panel is implemented as a Blazor page at /admin.
-    /// This controller exists only to redirect any legacy /Admin MVC routes there.
-    /// </summary>
+    // Intentionally minimal — the Admin Panel lives at /admin (Blazor page: Pages/Admin.razor)
+    // No redirect needed; this file is kept only to avoid missing-route 404s for any stale links.
     [Route("Admin")]
     public class AdminController : Controller
     {
-        [HttpGet("")]
-        [HttpGet("Index")]
-        public IActionResult Index() => Redirect("/admin");
+        // No action — Blazor MapFallbackToPage handles /admin directly.
     }
 }

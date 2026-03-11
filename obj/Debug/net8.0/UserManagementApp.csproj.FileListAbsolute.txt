@@ -144,3 +144,7 @@ C:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\refint\UserManagementAp
 C:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.pdb
 C:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.genruntimeconfig.cache
 C:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\ref\UserManagementApp.dll
+C:\Users\Asus\Desktop\Project1\project1\bin\Debug\net8.0\ru-RU\UserManagementApp.resources.dll
+C:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\UserManagementApp.Resources.SharedResource.ru-RU.resources
+C:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\ru-RU\UserManagementApp.resources.cs
+C:\Users\Asus\Desktop\Project1\project1\obj\Debug\net8.0\ru-RU\UserManagementApp.resources.dll
