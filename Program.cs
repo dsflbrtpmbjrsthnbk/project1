@@ -119,10 +119,12 @@ using (var scope = app.Services.CreateScope())
             Email = adminEmail, 
             Name = "Admin", 
             EmailConfirmed = true,
-            Status = UserStatus.Active
+            Status = "active"
         };
         await userManager.CreateAsync(adminUser, "1234");
-        await userManager.AddToRoleAsync(adminUser, "Admin");
+        // Also set the custom IsAdmin flag
+        adminUser.IsAdmin = true;
+        await userManager.UpdateAsync(adminUser);
     }
     else if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
     {
