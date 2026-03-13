@@ -30,7 +30,7 @@
 
             <!-- Language Switcher -->
             <button class="btn btn-link nav-link p-0 me-3 small fw-bold" @onclick="ToggleLanguage" title="Switch language">
-                @(_isRussian ? "🇷🇺 RU" : "EN")
+                @(_isRussian ? "RU" : "EN")
             </button>
 
             @if (_currentUser != null)
@@ -114,7 +114,8 @@
     private async Task ToggleLanguage()
     {
         var newCulture = _isRussian ? "en-US" : "ru-RU";
-        Navigation.NavigateTo($"/Account/SetLanguage?culture={newCulture}&returnUrl={Uri.EscapeDataString(Navigation.Uri)}", forceLoad: true);
+        var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri);
+        Navigation.NavigateTo($"/Account/SetLanguage?culture={newCulture}&returnUrl=/{relativePath}", forceLoad: true);
     }
 
     private async Task ToggleTheme()

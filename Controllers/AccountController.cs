@@ -298,7 +298,7 @@ namespace UserManagementApp.Controllers
         }
         
         [HttpGet]
-        public IActionResult SetLanguage(string culture, string returnUrl)
+        public IActionResult SetLanguage(string culture, string? returnUrl = null)
         {
             Response.Cookies.Append(
                 "language",
@@ -306,6 +306,7 @@ namespace UserManagementApp.Controllers
                 new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
             );
 
+            if (string.IsNullOrEmpty(returnUrl) || returnUrl == "/") return Redirect("/");
             return LocalRedirect(returnUrl);
         }
 
