@@ -16,29 +16,22 @@ builder.Services.AddServerSideBlazor()
 builder.Services.AddSignalR();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-// Forced SQLite for local verification because remote DB is unreachable
-Console.WriteLine("FORCING Local SQLite Database for verification...");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite("Data Source=inventoryhub.db"));
-/*
-if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_URL")))
+var connectionStringRaw = Environment.GetEnvironmentVariable("DATABASE_URL")
+                         ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (!string.IsNullOrEmpty(connectionStringRaw) && (connectionStringRaw.Contains("postgres") || connectionStringRaw.Contains("postgresql")))
 {
-    Console.WriteLine("Applying Local SQLite Database...");
+    Console.WriteLine("Applying PostgreSQL Database...");
+    var pgConnectionString = UserManagementApp.ConnectionStringHelper.BuildPostgresConnectionString(connectionStringRaw);
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite("Data Source=inventoryhub.db"));
+        options.UseNpgsql(pgConnectionString));
 }
 else
 {
-    var rawConnectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
-                             ?? builder.Configuration.GetConnectionString("DefaultConnection");
-    var connectionString = UserManagementApp.ConnectionStringHelper
-        .BuildPostgresConnectionString(rawConnectionString);
-    
-    Console.WriteLine("Applying Remote PostgreSQL Database...");
+    Console.WriteLine("Applying Local SQLite Database (Fallback)...");
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseNpgsql(connectionString));
+        options.UseSqlite("Data Source=inventoryhub.db"));
 }
-*/
 
 // ASP.NET Core Identity setup
 builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
@@ -96,10 +89,8 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<ApplicationDbContext>();
-    if (db.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
-    {
-        db.Database.EnsureCreated();
-    }
+    // Use EnsureCreated to guarantee tables exist without needing migration files 
+    db.Database.EnsureCreated();
     
     var userManager = services.GetRequiredService<UserManager<User>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
@@ -162,8 +153,6 @@ app.UseSession();
 app.UseAuthentication();   // <-- must come before UseAuthorization
 app.UseAuthorization();
 
-// ⚠️ Conventional routing MUST come before MapFallbackToPage
-// otherwise POSTs to /Account/Login are swallowed by the Blazor host
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
