@@ -14,10 +14,10 @@ namespace UserManagementApp.Data
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var entries = ChangeTracker.Entries()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+            var modifiedEntries = ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Modified);
 
-            foreach (var entry in entries)
+            foreach (var entry in modifiedEntries)
             {
                 var rowVersionProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "RowVersion");
                 if (rowVersionProp != null)
@@ -26,7 +26,7 @@ namespace UserManagementApp.Data
                 }
 
                 var updatedAtProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "UpdatedAt");
-                if (updatedAtProp != null && entry.State == EntityState.Modified)
+                if (updatedAtProp != null)
                 {
                     updatedAtProp.CurrentValue = DateTime.UtcNow;
                 }
