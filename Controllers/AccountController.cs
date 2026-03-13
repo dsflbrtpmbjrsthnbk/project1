@@ -298,6 +298,18 @@ namespace UserManagementApp.Controllers
         }
         
         [HttpGet]
+        public IActionResult SetLanguage(string culture, string returnUrl)
+        {
+            Response.Cookies.Append(
+                "language",
+                Microsoft.AspNetCore.Localization.CookieRequestCultureProvider.MakeCookieValue(new Microsoft.AspNetCore.Localization.RequestCulture(culture)),
+                new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
+            );
+
+            return LocalRedirect(returnUrl);
+        }
+
+        [HttpGet]
         public IActionResult AccessDenied()
         {
             return View();

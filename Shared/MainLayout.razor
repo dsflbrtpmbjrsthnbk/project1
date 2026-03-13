@@ -111,19 +111,17 @@
         }
     }
 
+    private async Task ToggleLanguage()
+    {
+        var newCulture = _isRussian ? "en-US" : "ru-RU";
+        Navigation.NavigateTo($"/Account/SetLanguage?culture={newCulture}&returnUrl={Uri.EscapeDataString(Navigation.Uri)}", forceLoad: true);
+    }
+
     private async Task ToggleTheme()
     {
         _isDarkMode = !_isDarkMode;
         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "theme", _isDarkMode ? "dark" : "light");
-    }
-
-    private async Task ToggleLanguage()
-    {
-        _isRussian = !_isRussian;
-        var culture = _isRussian ? "ru-RU" : "en-US";
-        // Set the language cookie that CookieRequestCultureProvider reads
-        await JSRuntime.InvokeVoidAsync("eval",
-            $"document.cookie='language=c%3D{culture}%7Cuic%3D{culture};path=/;max-age=31536000'; location.reload();");
+        StateHasChanged();
     }
 }
 
