@@ -42,5 +42,12 @@ namespace UserManagementApp
 
             return builder.ConnectionString;
         }
+
+        public static string GetConnectionString(IConfiguration configuration)
+        {
+            var raw = Environment.GetEnvironmentVariable("DATABASE_URL")
+                      ?? configuration.GetConnectionString("DefaultConnection");
+            return BuildPostgresConnectionString(raw);
+        }
     }
 }
