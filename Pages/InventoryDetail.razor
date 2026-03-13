@@ -128,6 +128,9 @@ else
     </div>
 }
 
+@implements IDisposable
+@inject IServiceScopeFactory ScopeFactory
+
 @code {
     [Parameter] public Guid Id { get; set; }
     private Inventory? _inventory;
@@ -139,6 +142,7 @@ else
     private DateTime? _lastSaved;
     private bool _loading = true;
     private System.Threading.Timer? _autoSaveTimer;
+    private bool _disposed = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -146,7 +150,6 @@ else
         await LoadInventory();
         _loading = false;
 
-        // Determine access levels
         if (_inventory != null && _currentUser != null)
         {
             _isOwnerOrAdmin = _currentUser.IsAdmin || _inventory.OwnerId == _currentUser.Id;
@@ -177,33 +180,47 @@ else
         Navigation.NavigateTo($"/inventory/{Id}/item/create");
 
     private void TriggerAutoSave() =>
-        _autoSaveTimer?.Change(7000, System.Threading.Timeout.Infinite);
+        _autoSaveTimer?.Change(5000, System.Threading.Timeout.Infinite);
 
     private async Task DoAutoSave()
     {
-        if (_inventory == null || _isSaving || !_isOwnerOrAdmin) return;
+        if (_inventory == null || _isSaving || !_isOwnerOrAdmin || _disposed) return;
+        
         _isSaving = true;
         await InvokeAsync(StateHasChanged);
 
         try
         {
-            _inventory.UpdatedAt = DateTime.UtcNow;
-            await DbContext.SaveChangesAsync();
-            _lastSaved = DateTime.Now;
+            using var scope = ScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            
+            // Re-fetch to ensure we're not using a disposed context tracker
+            var dbInventory = await context.Inventories.FirstOrDefaultAsync(i => i.Id == Id);
+            if (dbInventory != null)
+            {
+                dbInventory.Title = _inventory.Title;
+                dbInventory.Description = _inventory.Description;
+                dbInventory.IsPublic = _inventory.IsPublic;
+                dbInventory.CategoryId = _inventory.CategoryId;
+                dbInventory.UpdatedAt = DateTime.UtcNow;
+                
+                await context.SaveChangesAsync();
+                _lastSaved = DateTime.Now;
+            }
         }
-        catch (DbUpdateConcurrencyException)
-        {
-            // Reload the current values and let user try again
-            await DbContext.Entry(_inventory).ReloadAsync();
-        }
+        catch (Exception) { /* Silent fail for auto-save background task */ }
         finally
         {
             _isSaving = false;
-            await InvokeAsync(StateHasChanged);
+            if (!_disposed) await InvokeAsync(StateHasChanged);
         }
     }
 
-    public void Dispose() => _autoSaveTimer?.Dispose();
+    public void Dispose()
+    {
+        _disposed = true;
+        _autoSaveTimer?.Dispose();
+    }
 }
 
 <style>
