@@ -37,8 +37,7 @@ namespace UserManagementApp
                 Database = databaseName,
                 Username = Uri.UnescapeDataString(userInfo[0]),
                 Password = Uri.UnescapeDataString(userInfo[1]),
-                SslMode = SslMode.Require,
-                TrustServerCertificate = true
+                SslMode = SslMode.Require
             };
 
             return builder.ConnectionString;
