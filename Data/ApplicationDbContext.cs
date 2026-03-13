@@ -114,12 +114,6 @@ namespace UserManagementApp.Data
                     .UseXminAsConcurrencyToken();
                 modelBuilder.Entity<UserManagementApp.Models.Item>()
                     .UseXminAsConcurrencyToken();
-                
-                // Hide manual RowVersion if using xmin
-                modelBuilder.Entity<UserManagementApp.Models.Inventory>()
-                    .Ignore(i => i.RowVersion);
-                modelBuilder.Entity<UserManagementApp.Models.Item>()
-                    .Ignore(i => i.RowVersion);
             }
             else
             {
