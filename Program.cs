@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using UserManagementApp.Data;
 using UserManagementApp.Services;
 using UserManagementApp.Models;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,10 +63,10 @@ builder.Services.AddAuthentication()
     googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "placeholder";
     googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "placeholder";
 })
-.AddFacebook(facebookOptions =>
+.AddGitHub(githubOptions =>
 {
-    facebookOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"] ?? "placeholder";
-    facebookOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"] ?? "placeholder";
+    githubOptions.ClientId = builder.Configuration["Authentication:GitHub:ClientId"] ?? "placeholder";
+    githubOptions.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"] ?? "placeholder";
 });
 
 builder.Services.AddSession(options =>
@@ -147,6 +148,11 @@ localizationOptions.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.L
     CookieName = "language"
 });
 app.UseRequestLocalization(localizationOptions);
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto
+});
 
 app.UseRouting();
 app.UseSession();
