@@ -111,7 +111,7 @@
         }
     }
 
-    private async Task ToggleLanguage()
+    private void ToggleLanguage()
     {
         var newCulture = _isRussian ? "en-US" : "ru-RU";
         var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri);

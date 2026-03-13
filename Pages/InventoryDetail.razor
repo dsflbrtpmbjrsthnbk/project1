@@ -2,8 +2,11 @@
 @using UserManagementApp.Models
 @using UserManagementApp.Services
 @using Microsoft.EntityFrameworkCore
-@inject UserManagementApp.Data.ApplicationDbContext DbContext
+@using UserManagementApp.Data
+@inject ApplicationDbContext DbContext
 @inject NavigationManager Navigation
+@implements IDisposable
+@inject IServiceScopeFactory ScopeFactory
 @inject IUserService UserService
 
 <PageTitle>@(_inventory?.Title ?? "Loading...") – InventoryHub</PageTitle>
@@ -128,8 +131,6 @@ else
     </div>
 }
 
-@implements IDisposable
-@inject IServiceScopeFactory ScopeFactory
 
 @code {
     [Parameter] public Guid Id { get; set; }
@@ -162,6 +163,7 @@ else
         _autoSaveTimer = new System.Threading.Timer(async _ => await DoAutoSave(),
             null, System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
     }
+
 
     private async Task LoadInventory()
     {

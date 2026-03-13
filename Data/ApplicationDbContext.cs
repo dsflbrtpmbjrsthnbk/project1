@@ -111,9 +111,14 @@ namespace UserManagementApp.Data
             if (Database.IsNpgsql())
             {
                 modelBuilder.Entity<UserManagementApp.Models.Inventory>()
-                    .UseXminAsConcurrencyToken();
+                    .Property<uint>("xmin")
+                    .HasColumnName("xmin")
+                    .IsRowVersion();
+
                 modelBuilder.Entity<UserManagementApp.Models.Item>()
-                    .UseXminAsConcurrencyToken();
+                    .Property<uint>("xmin")
+                    .HasColumnName("xmin")
+                    .IsRowVersion();
             }
             else
             {
