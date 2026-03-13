@@ -107,6 +107,30 @@ namespace UserManagementApp.Data
             modelBuilder.Entity<Like>()
                 .HasKey(l => new { l.ItemId, l.UserId });
 
+            // Concurrency configuration
+            if (Database.IsNpgsql())
+            {
+                modelBuilder.Entity<UserManagementApp.Models.Inventory>()
+                    .UseXminAsConcurrencyToken();
+                modelBuilder.Entity<UserManagementApp.Models.Item>()
+                    .UseXminAsConcurrencyToken();
+                
+                // Hide manual RowVersion if using xmin
+                modelBuilder.Entity<UserManagementApp.Models.Inventory>()
+                    .Ignore(i => i.RowVersion);
+                modelBuilder.Entity<UserManagementApp.Models.Item>()
+                    .Ignore(i => i.RowVersion);
+            }
+            else
+            {
+                modelBuilder.Entity<UserManagementApp.Models.Inventory>()
+                    .Property(i => i.RowVersion)
+                    .IsRowVersion();
+                modelBuilder.Entity<UserManagementApp.Models.Item>()
+                    .Property(i => i.RowVersion)
+                    .IsRowVersion();
+            }
+
             // Full-Text Search Configuration (PostgreSQL)
             if (Database.IsNpgsql())
             {

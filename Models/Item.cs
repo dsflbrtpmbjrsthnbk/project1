@@ -22,7 +22,6 @@ namespace UserManagementApp.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        [ConcurrencyCheck]
         public byte[] RowVersion { get; set; } = Guid.NewGuid().ToByteArray();
 
         // Fixed Custom Fields (3 of each type as per requirement)
