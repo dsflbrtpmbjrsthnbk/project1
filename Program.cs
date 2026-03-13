@@ -23,9 +23,21 @@ var connectionStringRaw = Environment.GetEnvironmentVariable("DATABASE_URL")
 if (!string.IsNullOrEmpty(connectionStringRaw) && (connectionStringRaw.Contains("postgres") || connectionStringRaw.Contains("postgresql")))
 {
     Console.WriteLine("Applying PostgreSQL Database...");
-    var pgConnectionString = UserManagementApp.ConnectionStringHelper.BuildPostgresConnectionString(connectionStringRaw);
+    // The original pgConnectionString variable is no longer directly used for UseNpgsql,
+    // as the instruction implies using ConnectionStringHelper.GetConnectionString directly within the options.
+    // var pgConnectionString = UserManagementApp.ConnectionStringHelper.BuildPostgresConnectionString(connectionStringRaw);
+
+    builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
+    {
+        var connectionString = UserManagementApp.ConnectionStringHelper.GetConnectionString(builder.Configuration);
+        options.UseNpgsql(connectionString);
+    });
+
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseNpgsql(pgConnectionString));
+    {
+        var connectionString = UserManagementApp.ConnectionStringHelper.GetConnectionString(builder.Configuration);
+        options.UseNpgsql(connectionString);
+    });
 }
 else
 {

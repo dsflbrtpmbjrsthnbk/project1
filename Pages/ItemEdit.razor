@@ -3,7 +3,7 @@
 @using UserManagementApp.Models
 @using UserManagementApp.Services
 @using Microsoft.EntityFrameworkCore
-@inject UserManagementApp.Data.ApplicationDbContext DbContext
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject NavigationManager Navigation
 @inject IUserService UserService
 @inject ICustomIdService CustomIdService
@@ -167,7 +167,11 @@ else if (_item != null && _inventory != null)
     protected override async Task OnInitializedAsync()
     {
         _currentUser = await UserService.GetCurrentUserAsync();
-        _inventory = await DbContext.Inventories
+        
+        using var context = await DbFactory.CreateDbContextAsync();
+        
+        _inventory = await context.Inventories
+            .AsNoTracking()
             .Include(i => i.FieldDefinitions.OrderBy(f => f.DisplayOrder))
             .FirstOrDefaultAsync(i => i.Id == InventoryId);
 
@@ -176,7 +180,7 @@ else if (_item != null && _inventory != null)
             var isOwnerOrAdmin = _currentUser.IsAdmin || _inventory.OwnerId == _currentUser.Id;
             _hasWriteAccess = isOwnerOrAdmin
                 || _inventory.IsPublic
-                || await DbContext.InventoryAccesses
+                || await context.InventoryAccesses
                     .AnyAsync(a => a.InventoryId == InventoryId && a.UserId == _currentUser.Id);
         }
 
@@ -197,7 +201,7 @@ else if (_item != null && _inventory != null)
         }
         else
         {
-            _item = await DbContext.Items.FirstOrDefaultAsync(i => i.Id == ItemId);
+            _item = await context.Items.AsNoTracking().FirstOrDefaultAsync(i => i.Id == ItemId);
         }
 
         _loading = false;
@@ -211,15 +215,21 @@ else if (_item != null && _inventory != null)
 
         try
         {
+            using var context = await DbFactory.CreateDbContextAsync();
+            
             _item.UpdatedAt = DateTime.UtcNow;
 
             if (_isNew)
             {
                 _item.CreatedById = _currentUser.Id;
-                DbContext.Items.Add(_item);
+                context.Items.Add(_item);
+            }
+            else
+            {
+                context.Entry(_item).State = EntityState.Modified;
             }
 
-            await DbContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
             Navigation.NavigateTo($"/inventory/{InventoryId}");
         }
         catch (DbUpdateException dbEx) when (

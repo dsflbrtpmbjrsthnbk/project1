@@ -19,10 +19,14 @@ namespace UserManagementApp.Data
 
             foreach (var entry in modifiedEntries)
             {
-                var rowVersionProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "RowVersion");
-                if (rowVersionProp != null)
+                // Only manual update RowVersion if NOT Postgres (Postgres uses xmin)
+                if (!Database.IsNpgsql())
                 {
-                    rowVersionProp.CurrentValue = Guid.NewGuid().ToByteArray();
+                    var rowVersionProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "RowVersion");
+                    if (rowVersionProp != null)
+                    {
+                        rowVersionProp.CurrentValue = Guid.NewGuid().ToByteArray();
+                    }
                 }
 
                 var updatedAtProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "UpdatedAt");
