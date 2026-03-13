@@ -1,54 +1,84 @@
 @using UserManagementApp.Models
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 
-<div class="row">
-    <div class="col-12 mb-4">
-        <h5 class="fw-bold">Item Custom Fields</h5>
-        <p class="text-muted small">Configure up to 3 fields of each type. These fields will appear on every item form in this inventory.</p>
+<div class="fields-designer">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="fw-bold mb-1">@Loc["ItemCustomFields"]</h5>
+            <p class="text-muted small mb-0">@Loc["ConfigureFieldsHint"]</p>
+        </div>
+        <button class="btn btn-primary rounded-pill px-4 shadow-sm" @onclick="SaveChanges">
+            <i class="bi bi-cloud-check me-2"></i>@Loc["Save"]
+        </button>
     </div>
 
-    <div class="col-12 d-flex flex-column gap-3">
-        @foreach (var type in Enum.GetValues<FieldType>())
-        {
-            <div class="card border-0 bg-light rounded-4 overflow-hidden">
-                <div class="card-header border-0 py-3 bg-white bg-opacity-50">
-                    <h6 class="mb-0 fw-bold text-dark">
-                        <i class="bi @GetIcon(type) me-2"></i>@type Fields
-                    </h6>
-                </div>
-                <div class="card-body p-3">
-                    <div class="row g-2">
-                        @for (int i = 0; i < 3; i++)
-                        {
-                            var idx = i;
-                            var field = GetField(type, idx);
-                            <div class="col-md-4">
-                                <div class="bg-white p-3 rounded-4 border @(field != null ? "border-primary shadow-sm" : "border-dashed opacity-50")">
-                                    @if (field != null)
-                                    {
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <input type="text" class="form-control form-control-sm border-0 fw-bold p-0 shadow-none" 
-                                                   @bind="field.Title" @bind:after="OnChange.InvokeAsync" placeholder="Field Title..." />
-                                            <button class="btn btn-sm btn-link p-0 text-danger" @onclick="() => RemoveField(field)"><i class="bi bi-x-lg"></i></button>
-                                        </div>
-                                        <input type="text" class="form-control form-control-xs border-0 text-muted p-0 shadow-none small" 
-                                               @bind="field.Description" @bind:after="OnChange.InvokeAsync" placeholder="Hint/Description..." />
-                                        <div class="form-check form-switch mt-2 small">
-                                            <input class="form-check-input" type="checkbox" @bind="field.IsInTableView" @bind:after="OnChange.InvokeAsync">
-                                            <label class="form-check-label">Show in Table</label>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <button class="btn btn-link w-100 text-decoration-none text-muted p-3 py-4" @onclick="() => AddField(type, idx)">
-                                            <i class="bi bi-plus-circle-dotted me-2"></i>Add @type
-                                        </button>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
+    <!-- Addition Bar -->
+    <div class="card border-0 bg-light rounded-4 mb-4 p-3 shadow-none">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <input type="text" class="form-control rounded-pill border-0 px-3 shadow-none" 
+                       @bind="_newFieldTitle" placeholder='@Loc["FieldNamePlaceholder"]' />
             </div>
+            <div class="col-md-4">
+                <select class="form-select rounded-pill border-0 px-3 shadow-none" @bind="_newFieldType">
+                    @foreach (var type in Enum.GetValues<FieldType>())
+                    {
+                        <option value="@type">@type</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-dark w-100 rounded-pill fw-bold" @onclick="AttemptAddField">
+                    <i class="bi bi-plus-lg me-1"></i> @Loc["Add"]
+                </button>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(_error))
+        {
+            <div class="text-danger small mt-2 ms-2"><i class="bi bi-exclamation-circle me-1"></i>@_error</div>
+        }
+    </div>
+
+    <!-- Active Fields List -->
+    <div class="field-list d-flex flex-column gap-2">
+        @if (!Inventory.FieldDefinitions.Any())
+        {
+            <div class="text-center py-5 text-muted bg-white border border-dashed rounded-4">
+                <i class="bi bi-collection-play fs-1 d-block mb-2 opacity-25"></i>
+                @Loc["NoCustomFieldsYet"]
+            </div>
+        }
+        else
+        {
+            @foreach (var field in Inventory.FieldDefinitions.OrderBy(f => f.DisplayOrder))
+            {
+                <div class="field-card d-flex align-items-center gap-3 p-3 bg-white border rounded-4 transition-all hover-shadow">
+                    <div class="drag-handle fs-5 text-muted cursor-move p-2"><i class="bi bi-grip-vertical"></i></div>
+                    
+                    <div class="field-icon fs-4 p-2 rounded-3 bg-light text-primary">
+                        <i class="bi @GetIcon(field.Type)"></i>
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <input type="text" class="form-control form-control-sm border-0 fw-bold p-0 shadow-none bg-transparent" 
+                                   @bind="field.Title" style="width: auto; min-width: 150px;" />
+                            <span class="badge rounded-pill bg-light text-muted border small fw-normal">@field.Type</span>
+                        </div>
+                        <input type="text" class="form-control form-control-xs border-0 text-muted p-0 shadow-none small bg-transparent" 
+                               @bind="field.Description" placeholder="Add a description/hint..." />
+                    </div>
+
+                    <div class="form-check form-switch me-3 mb-0">
+                        <input class="form-check-input mt-1" type="checkbox" @bind="field.IsInTableView" title='@Loc["ShowInTable"]'>
+                    </div>
+
+                    <button class="btn btn-sm btn-outline-danger border-0 rounded-circle p-2" @onclick="() => RemoveField(field)">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </div>
+            }
         }
     </div>
 </div>
@@ -57,19 +87,37 @@
     [Parameter] public Inventory Inventory { get; set; } = null!;
     [Parameter] public EventCallback OnChange { get; set; }
 
-    private FieldDefinition? GetField(FieldType type, int slot) 
-        => Inventory.FieldDefinitions.FirstOrDefault(f => f.Type == type && f.SlotIndex == slot);
+    private string _newFieldTitle = "";
+    private FieldType _newFieldType = FieldType.String;
+    private string? _error;
 
-    private void AddField(FieldType type, int slot)
+    private void AttemptAddField()
     {
+        if (string.IsNullOrWhiteSpace(_newFieldTitle)) { _error = "Please enter a title."; return; }
+
+        var count = Inventory.FieldDefinitions.Count(f => f.Type == _newFieldType);
+        if (count >= 3) {
+            _error = $"You can only have up to 3 {(_newFieldType).ToString()} fields.";
+            return;
+        }
+
+        // Find first empty slot
+        var usedSlots = Inventory.FieldDefinitions.Where(f => f.Type == _newFieldType).Select(f => f.SlotIndex).ToList();
+        int slot = 0;
+        for (int i = 0; i < 3; i++) if (!usedSlots.Contains(i)) { slot = i; break; }
+
         Inventory.FieldDefinitions.Add(new FieldDefinition {
             Id = Guid.NewGuid(),
             InventoryId = Inventory.Id,
-            Type = type,
+            Type = _newFieldType,
             SlotIndex = slot,
-            Title = $"New {type} Field",
-            IsInTableView = true
+            Title = _newFieldTitle.Trim(),
+            IsInTableView = true,
+            DisplayOrder = Inventory.FieldDefinitions.Count
         });
+
+        _newFieldTitle = "";
+        _error = null;
         OnChange.InvokeAsync();
     }
 
@@ -77,6 +125,11 @@
     {
         Inventory.FieldDefinitions.Remove(field);
         OnChange.InvokeAsync();
+    }
+
+    private async Task SaveChanges()
+    {
+        await OnChange.InvokeAsync();
     }
 
     private string GetIcon(FieldType type) => type switch {
@@ -90,6 +143,11 @@
 }
 
 <style>
-    .border-dashed { border-style: dashed !important; }
-    .form-control-xs { font-size: 0.75rem; }
+    .transition-all { transition: all 0.2s ease; }
+    .hover-shadow:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #0d6efd !important; }
+    .cursor-move { cursor: move; }
+    .field-card { border: 1px solid #edf2f7; }
+    .form-control-xs { font-size: 0.8rem; }
+    .border-dashed { border-style: dashed !important; border-width: 2px !important; }
 </style>
+

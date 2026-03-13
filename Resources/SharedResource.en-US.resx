@@ -142,4 +142,25 @@
   <data name="NoTags" xml:space="preserve">
     <value>No tags.</value>
   </data>
+  <data name="ItemCustomFields" xml:space="preserve">
+    <value>Item Custom Fields</value>
+  </data>
+  <data name="ConfigureFieldsHint" xml:space="preserve">
+    <value>Configure up to 3 fields of each type. These fields will appear on every item form in this inventory.</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="FieldNamePlaceholder" xml:space="preserve">
+    <value>Field Title...</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="NoCustomFieldsYet" xml:space="preserve">
+    <value>No custom fields added yet.</value>
+  </data>
+  <data name="ShowInTable" xml:space="preserve">
+    <value>Show in Table</value>
+  </data>
 </root>

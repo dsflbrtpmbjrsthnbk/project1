@@ -115,4 +115,25 @@
   <data name="NoTags" xml:space="preserve">
     <value>Нет тегов.</value>
   </data>
+  <data name="ItemCustomFields" xml:space="preserve">
+    <value>Дополнительные поля предметов</value>
+  </data>
+  <data name="ConfigureFieldsHint" xml:space="preserve">
+    <value>Настройте до 3 полей каждого типа. Они появятся во всех формах предметов этого инвентаря.</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Сохранить</value>
+  </data>
+  <data name="FieldNamePlaceholder" xml:space="preserve">
+    <value>Название поля...</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Добавить</value>
+  </data>
+  <data name="NoCustomFieldsYet" xml:space="preserve">
+    <value>Пользовательские поля еще не добавлены.</value>
+  </data>
+  <data name="ShowInTable" xml:space="preserve">
+    <value>Показывать в таблице</value>
+  </data>
 </root>
