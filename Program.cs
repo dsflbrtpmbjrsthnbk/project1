@@ -67,6 +67,7 @@ builder.Services.AddAuthentication()
 {
     githubOptions.ClientId = builder.Configuration["Authentication:GitHub:ClientId"] ?? "placeholder";
     githubOptions.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"] ?? "placeholder";
+    githubOptions.Scope.Add("user:email");
 });
 
 builder.Services.AddSession(options =>
