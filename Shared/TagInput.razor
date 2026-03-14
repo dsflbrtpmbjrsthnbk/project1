@@ -1,6 +1,6 @@
 @using UserManagementApp.Models
 @using Microsoft.EntityFrameworkCore
-@inject UserManagementApp.Data.ApplicationDbContext DbContext
+@inject IDbContextFactory<UserManagementApp.Data.ApplicationDbContext> DbFactory
 
 <div class="position-relative">
     <div class="d-flex flex-wrap gap-2 mb-2 p-2 bg-light rounded-4 border focus-ring-primary">
@@ -55,7 +55,8 @@
 
         if (_tagInput.Length > 0)
         {
-            _suggestions = await DbContext.Tags
+            using var context = await DbFactory.CreateDbContextAsync();
+            _suggestions = await context.Tags
                 .Where(t => t.Name.ToLower().StartsWith(_tagInput.ToLower()))
                 .Take(5)
                 .ToListAsync();
