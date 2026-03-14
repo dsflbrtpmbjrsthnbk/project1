@@ -1,11 +1,13 @@
 @using UserManagementApp.Models
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 @inject UserManagementApp.Data.ApplicationDbContext DbContext
 
 <div class="row">
     <div class="col-md-7">
-        <h5 class="fw-bold mb-3">Manage Access</h5>
-        <p class="text-muted small mb-4">Add users who are allowed to add, edit, or delete items in this inventory.</p>
+        <h5 class="fw-bold mb-3">@Loc["ManageAccess"]</h5>
+        <p class="text-muted small mb-4">@Loc["ManageAccessHint"]</p>
 
         @if (Inventory.IsPublic)
         {
@@ -13,20 +15,20 @@
                 <div class="d-flex">
                     <i class="bi bi-globe fs-2 me-3"></i>
                     <div>
-                        <h6 class="fw-bold mb-1">Public Inventory</h6>
-                        <p class="mb-0 small opacity-75">This inventory is currently public. All authenticated users have full write access. To restrict access, disable "Make Public" in the Settings tab.</p>
+                        <h6 class="fw-bold mb-1">@Loc["PublicInventory"]</h6>
+                        <p class="mb-0 small opacity-75">@Loc["PublicInventoryNote"]</p>
                     </div>
                 </div>
             </div>
         }
 
         <div class="bg-light rounded-4 p-4 mb-4">
-            <label class="form-label fw-bold small text-uppercase">Add User by Name or Email</label>
+            <label class="form-label fw-bold small text-uppercase">@Loc["AddUserByQuery"]</label>
             <div class="position-relative">
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0 rounded-start-pill ps-3"><i class="bi bi-search text-muted"></i></span>
                     <input type="text" class="form-control border-start-0 rounded-end-pill shadow-none" 
-                           placeholder="Type username or email..." 
+                           placeholder='@Loc["SearchUserPlaceholder"]' 
                            @bind="_userQuery" @oninput="OnUserSearch" />
                 </div>
 
@@ -47,8 +49,8 @@
 
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
             <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-bold">Users with Access</h6>
-                <div class="text-muted small">@_accessList.Count users</div>
+                <h6 class="mb-0 fw-bold">@Loc["UsersWithAccess"]</h6>
+                <div class="text-muted small">@Loc["UsersCount", _accessList.Count]</div>
             </div>
             <div class="list-group list-group-flush">
                 @foreach (var access in _accessList)
@@ -70,7 +72,7 @@
                 }
                 @if (!_accessList.Any())
                 {
-                    <div class="text-center py-5 text-muted small">No specific users added.</div>
+                    <div class="text-center py-5 text-muted small">@Loc["NoUsersAdded"]</div>
                 }
             </div>
         </div>

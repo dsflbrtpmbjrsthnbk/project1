@@ -2,11 +2,13 @@
 @using UserManagementApp.Models
 @using UserManagementApp.Services
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 @inject UserManagementApp.Data.ApplicationDbContext DbContext
 @inject NavigationManager Navigation
 @inject IUserService UserService
 
-<PageTitle>Create Inventory – InventoryHub</PageTitle>
+<PageTitle>@Loc["CreateInventory"] – InventoryHub</PageTitle>
 
 @if (_loading)
 {
@@ -16,8 +18,8 @@ else if (_currentUser == null)
 {
     <div class="alert alert-warning text-center py-4">
         <i class="bi bi-person-lock display-4 d-block mb-3"></i>
-        <h4>Please log in to create an inventory.</h4>
-        <a href="/Account/Login" class="btn btn-primary mt-2">Login</a>
+        <h4>@Loc["LoginToCreateMsg"]</h4>
+        <a href="/Account/Login" class="btn btn-primary mt-2">@Loc["Login"]</a>
     </div>
 }
 else
@@ -26,9 +28,9 @@ else
         <div class="col-lg-7">
             <div class="d-flex align-items-center mb-4">
                 <a href="/personal" class="btn btn-light rounded-pill px-3 me-3">
-                    <i class="bi bi-arrow-left me-1"></i> Back
+                    <i class="bi bi-arrow-left me-1"></i> @Loc["Back"]
                 </a>
-                <h1 class="h3 fw-bold mb-0">Create New Inventory</h1>
+                <h1 class="h3 fw-bold mb-0">@Loc["CreateInventory"]</h1>
             </div>
 
             @if (!string.IsNullOrEmpty(_errorMessage))
@@ -43,27 +45,27 @@ else
 
                     <!-- Title -->
                     <div class="col-12">
-                        <label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold">@Loc["Title"] <span class="text-danger">*</span></label>
                         <input type="text" class="form-control rounded-3 shadow-none"
-                               @bind="_title" placeholder="e.g. Office Equipment" maxlength="200" />
+                               @bind="_title" placeholder='@Loc["TitlePlaceholder"]' maxlength="200" />
                     </div>
 
                     <!-- Description -->
                     <div class="col-12">
                         <label class="form-label fw-semibold">
-                            Description
-                            <span class="badge bg-light text-muted border ms-1 small fw-normal">Markdown supported</span>
+                            @Loc["Description"]
+                            <span class="badge bg-light text-muted border ms-1 small fw-normal">@Loc["MarkdownSupported"]</span>
                         </label>
                         <textarea class="form-control rounded-3 shadow-none" rows="4"
                                   @bind="_description"
-                                  placeholder="Describe this inventory… **bold**, _italic_, etc."></textarea>
+                                  placeholder='@Loc["DescriptionPlaceholder"]'></textarea>
                     </div>
 
                     <!-- Category -->
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold">@Loc["Category"] <span class="text-danger">*</span></label>
                         <select class="form-select rounded-3 shadow-none" @bind="_categoryId">
-                            <option value="0">— Select category —</option>
+                            <option value="0">@Loc["SelectCategory"]</option>
                             @foreach (var cat in _categories)
                             {
                                 <option value="@cat.Id">@cat.Name</option>
@@ -73,15 +75,15 @@ else
 
                     <!-- Image URL -->
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Image URL <span class="text-muted fw-normal small">(optional)</span></label>
+                        <label class="form-label fw-semibold">@Loc["ImageUrl"] <span class="text-muted fw-normal small">(@Loc["Optional"])</span></label>
                         <input type="url" class="form-control rounded-3 shadow-none"
                                @bind="_imageUrl" placeholder="https://..." />
-                        <div class="form-text">Upload to Cloudinary or similar and paste the URL here.</div>
+                        <div class="form-text">@Loc["ImageUrlHint"]</div>
                     </div>
 
                     <!-- Tags -->
                     <div class="col-12">
-                        <label class="form-label fw-semibold">Tags</label>
+                        <label class="form-label fw-semibold">@Loc["Tags"]</label>
                         <TagInput Tags="_tags" OnTagsChanged="tags => _tags = tags" />
                     </div>
 
@@ -90,8 +92,8 @@ else
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="isPublic" @bind="_isPublic" />
                             <label class="form-check-label fw-semibold" for="isPublic">
-                                Public Inventory
-                                <span class="text-muted fw-normal small ms-1">– any authenticated user can add items</span>
+                                @Loc["PublicInventory"]
+                                <span class="text-muted fw-normal small ms-1">– @Loc["PublicInventoryHint"]</span>
                             </label>
                         </div>
                     </div>
@@ -99,14 +101,14 @@ else
                     <!-- Actions -->
                     <div class="col-12 d-flex gap-2 justify-content-end pt-2">
                         <button type="button" class="btn btn-light rounded-pill px-4"
-                                @onclick='() => Navigation.NavigateTo("/personal")'>Cancel</button>
+                                @onclick='() => Navigation.NavigateTo("/personal")'>@Loc["Cancel"]</button>
                         <button type="button" class="btn btn-primary rounded-pill px-5 shadow-sm"
                                 @onclick="HandleCreate" disabled="@_saving">
                             @if (_saving)
                             {
                                 <span class="spinner-border spinner-border-sm me-2"></span>
                             }
-                            <i class="bi bi-plus-lg me-2"></i>Create Inventory
+                            <i class="bi bi-plus-lg me-2"></i>@Loc["CreateInventory"]
                         </button>
                     </div>
                 </div>
@@ -139,12 +141,12 @@ else
     {
         if (string.IsNullOrWhiteSpace(_title))
         {
-            _errorMessage = "Title is required.";
+            _errorMessage = Loc["TitleRequired"];
             return;
         }
         if (_categoryId == 0)
         {
-            _errorMessage = "Please select a category.";
+            _errorMessage = Loc["CategoryRequired"];
             return;
         }
 

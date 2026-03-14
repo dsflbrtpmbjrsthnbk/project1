@@ -3,11 +3,13 @@
 @using UserManagementApp.Services
 @using Microsoft.EntityFrameworkCore
 @using UserManagementApp.Data
+@using Microsoft.Extensions.Localization
 @inject ApplicationDbContext DbContext
 @inject NavigationManager Navigation
 @implements IDisposable
 @inject IServiceScopeFactory ScopeFactory
 @inject IUserService UserService
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 
 <PageTitle>@(_inventory?.Title ?? "Loading...") – InventoryHub</PageTitle>
 
@@ -17,7 +19,7 @@
 }
 else if (_inventory == null)
 {
-    <div class="alert alert-warning">Inventory not found.</div>
+    <div class="alert alert-warning">@Loc["InventoryNotFound"]</div>
 }
 else
 {
@@ -27,22 +29,22 @@ else
                 <div>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb mb-1">
-                            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
-                            <li class="breadcrumb-item"><a href="/personal" class="text-decoration-none">Personal</a></li>
+                            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">@Loc["Home"]</a></li>
+                            <li class="breadcrumb-item"><a href="/personal" class="text-decoration-none">@Loc["Personal"]</a></li>
                             <li class="breadcrumb-item active">@_inventory.Title</li>
                         </ol>
                     </nav>
                     <h1 class="h2 fw-bold mb-0">@_inventory.Title</h1>
                     <div class="d-flex align-items-center gap-2 mt-1 mb-2">
                         <span class="badge bg-light text-muted border rounded-pill">@(_inventory.Category?.Name)</span>
-                        <span class="text-muted small">• by <a href="/profile/@_inventory.OwnerId" class="text-muted">@(_inventory.Owner?.Name)</a></span>
+                        <span class="text-muted small">• @Loc["By"] <a href="/profile/@_inventory.OwnerId" class="text-muted">@(_inventory.Owner?.Name)</a></span>
                         @if (_isSaving)
                         {
-                            <span class="text-muted small ms-2"><i class="bi bi-arrow-repeat spin me-1"></i>Saving...</span>
+                            <span class="text-muted small ms-2"><i class="bi bi-arrow-repeat spin me-1"></i>@Loc["Saving"]</span>
                         }
                         else if (_lastSaved.HasValue)
                         {
-                            <span class="text-muted small ms-2"><i class="bi bi-check2 me-1 text-success"></i>Saved @_lastSaved.Value.ToString("HH:mm:ss")</span>
+                            <span class="text-muted small ms-2"><i class="bi bi-check2 me-1 text-success"></i>@Loc["LastSavedAt"] @_lastSaved.Value.ToString("HH:mm:ss")</span>
                         }
                     </div>
                     @if (!string.IsNullOrEmpty(_inventory.Description))
@@ -56,7 +58,7 @@ else
                     @if (_hasWriteAccess)
                     {
                         <button class="btn btn-primary rounded-pill px-4 shadow-sm" @onclick="CreateNewItem">
-                            <i class="bi bi-plus-lg me-2"></i>Add Item
+                            <i class="bi bi-plus-lg me-2"></i>@Loc["AddItem"]
                         </button>
                     }
                 </div>
@@ -70,29 +72,29 @@ else
                     <ul class="nav nav-tabs border-bottom-0 px-3 pt-2">
                         <li class="nav-item">
                             <button class="nav-link @(ActiveTab == "items" ? "active fw-bold" : "")" @onclick='() => SetTab("items")'>
-                                Items <span class="ms-1 badge rounded-pill bg-light text-muted fw-normal border">@(_inventory.Items?.Count ?? 0)</span>
+                                @Loc["Items"] <span class="ms-1 badge rounded-pill bg-light text-muted fw-normal border">@(_inventory.Items?.Count ?? 0)</span>
                             </button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link @(ActiveTab == "chat" ? "active fw-bold" : "")" @onclick='() => SetTab("chat")'>Discussion</button>
+                            <button class="nav-link @(ActiveTab == "chat" ? "active fw-bold" : "")" @onclick='() => SetTab("chat")'>@Loc["Discussion"]</button>
                         </li>
                         @if (_isOwnerOrAdmin)
                         {
                             <li class="nav-item">
-                                <button class="nav-link @(ActiveTab == "settings" ? "active fw-bold" : "")" @onclick='() => SetTab("settings")'>Settings</button>
+                                <button class="nav-link @(ActiveTab == "settings" ? "active fw-bold" : "")" @onclick='() => SetTab("settings")'>@Loc["Settings"]</button>
                             </li>
                             <li class="nav-item">
-                                <button class="nav-link @(ActiveTab == "customid" ? "active fw-bold" : "")" @onclick='() => SetTab("customid")'>Custom ID</button>
+                                <button class="nav-link @(ActiveTab == "customid" ? "active fw-bold" : "")" @onclick='() => SetTab("customid")'>@Loc["CustomID"]</button>
                             </li>
                             <li class="nav-item">
-                                <button class="nav-link @(ActiveTab == "fields" ? "active fw-bold" : "")" @onclick='() => SetTab("fields")'>Fields</button>
+                                <button class="nav-link @(ActiveTab == "fields" ? "active fw-bold" : "")" @onclick='() => SetTab("fields")'>@Loc["Fields"]</button>
                             </li>
                             <li class="nav-item">
-                                <button class="nav-link @(ActiveTab == "access" ? "active fw-bold" : "")" @onclick='() => SetTab("access")'>Access</button>
+                                <button class="nav-link @(ActiveTab == "access" ? "active fw-bold" : "")" @onclick='() => SetTab("access")'>@Loc["Access"]</button>
                             </li>
                         }
                         <li class="nav-item">
-                            <button class="nav-link @(ActiveTab == "stats" ? "active fw-bold" : "")" @onclick='() => SetTab("stats")'>Statistics</button>
+                            <button class="nav-link @(ActiveTab == "stats" ? "active fw-bold" : "")" @onclick='() => SetTab("stats")'>@Loc["Statistics"]</button>
                         </li>
                     </ul>
                 </div>

@@ -18,18 +18,18 @@
                 <input type="text" class="form-control form-control-sm" 
                        placeholder='@Loc["SearchPlaceholder"]' 
                        @bind="_searchQuery" @onkeyup="HandleSearch" />
-                <button class="btn btn-outline-secondary btn-sm" @onclick='() => HandleSearch(new KeyboardEventArgs { Key = "Enter" })'>
+                <button class="btn btn-outline-secondary btn-sm" @onclick='() => HandleSearch(new KeyboardEventArgs { Key = "Enter" })' title='@Loc["Search"]'>
                     <i class="bi bi-search"></i>
                 </button>
             </div>
 
             <!-- Theme Switcher -->
-            <button class="btn btn-link nav-link p-0 me-2" @onclick="ToggleTheme" title="Toggle theme">
+            <button class="btn btn-link nav-link p-0 me-2" @onclick="ToggleTheme" title='@Loc["ToggleTheme"]'>
                 <i class="bi @(_isDarkMode ? "bi-sun-fill text-warning" : "bi-moon-stars-fill text-primary") fs-5"></i>
             </button>
 
             <!-- Language Switcher -->
-            <button class="btn btn-link nav-link p-0 me-3 small fw-bold" @onclick="ToggleLanguage" title="Switch language">
+            <button class="btn btn-link nav-link p-0 me-3 small fw-bold" @onclick="ToggleLanguage" title='@Loc["SwitchLanguage"]'>
                 @(_isRussian ? "RU" : "EN")
             </button>
 
@@ -83,18 +83,33 @@
     protected override async Task OnInitializedAsync()
     {
         _currentUser = await UserService.GetCurrentUserAsync();
+        
+        // Try to read theme from cookie for SSR/Prerendering
+        var cookieTheme = HttpContextAccessor.HttpContext?.Request.Cookies["theme"];
+        if (!string.IsNullOrEmpty(cookieTheme))
+        {
+            _isDarkMode = cookieTheme == "dark";
+        }
+        
+        var culture = HttpContextAccessor.HttpContext?.Request.Cookies["language"];
+        _isRussian = culture?.Contains("ru") == true;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            // Sync with localStorage as fallback or to ensure consistency
             var savedTheme = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", "theme");
-            _isDarkMode = savedTheme == "dark";
-
-            var savedLang = await JSRuntime.InvokeAsync<string?>("eval",
-                "document.cookie.split(';').find(c=>c.trim().startsWith('language='))?.split('=')[1] ?? ''");
-            _isRussian = savedLang?.Contains("ru") == true;
+            if (!string.IsNullOrEmpty(savedTheme))
+            {
+                var isDark = savedTheme == "dark";
+                if (isDark != _isDarkMode)
+                {
+                    _isDarkMode = isDark;
+                    StateHasChanged();
+                }
+            }
 
             _antiForgeryToken = await JSRuntime.InvokeAsync<string>("eval",
                 "document.querySelector('input[name=__RequestVerificationToken]')?.value ?? ''");
@@ -121,12 +136,17 @@
     private async Task ToggleTheme()
     {
         _isDarkMode = !_isDarkMode;
-        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "theme", _isDarkMode ? "dark" : "light");
+        var theme = _isDarkMode ? "dark" : "light";
+        await JSRuntime.InvokeVoidAsync("eval", $"document.cookie = 'theme={theme};path=/;max-age=31536000'");
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "theme", theme);
         StateHasChanged();
     }
 }
 
 <style>
+    .page {
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
     .dark-theme {
         background-color: #121212;
         color: #e0e0e0;

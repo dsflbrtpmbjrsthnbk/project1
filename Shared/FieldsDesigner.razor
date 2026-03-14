@@ -67,7 +67,7 @@
                             <span class="badge rounded-pill bg-light text-muted border small fw-normal">@field.Type</span>
                         </div>
                         <input type="text" class="form-control form-control-xs border-0 text-muted p-0 shadow-none small bg-transparent" 
-                               @bind="field.Description" placeholder="Add a description/hint..." />
+                               @bind="field.Description" placeholder='@Loc["AddDescriptionHint"]' />
                     </div>
 
                     <div class="form-check form-switch me-3 mb-0">
@@ -93,11 +93,11 @@
 
     private void AttemptAddField()
     {
-        if (string.IsNullOrWhiteSpace(_newFieldTitle)) { _error = "Please enter a title."; return; }
+        if (string.IsNullOrWhiteSpace(_newFieldTitle)) { _error = Loc["EnterTitleError"]; return; }
 
         var count = Inventory.FieldDefinitions.Count(f => f.Type == _newFieldType);
         if (count >= 3) {
-            _error = $"You can only have up to 3 {(_newFieldType).ToString()} fields.";
+            _error = string.Format(Loc["FieldLimitError"], _newFieldType.ToString());
             return;
         }
 

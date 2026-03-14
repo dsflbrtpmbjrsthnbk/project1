@@ -163,4 +163,436 @@
   <data name="ShowInTable" xml:space="preserve">
     <value>Show in Table</value>
   </data>
+  <data name="WelcomeBack" xml:space="preserve">
+    <value>Welcome back</value>
+  </data>
+  <data name="SignInToAccount" xml:space="preserve">
+    <value>Sign in to your account</value>
+  </data>
+  <data name="ContinueWithGoogle" xml:space="preserve">
+    <value>Continue with Google</value>
+  </data>
+  <data name="ContinueWithGitHub" xml:space="preserve">
+    <value>Continue with GitHub</value>
+  </data>
+  <data name="OrContinueWithEmail" xml:space="preserve">
+    <value>or continue with email</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="SignIn" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="NoAccount" xml:space="preserve">
+    <value>No account?</value>
+  </data>
+  <data name="CreateOne" xml:space="preserve">
+    <value>Create one</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ExportCSV" xml:space="preserve">
+    <value>Export CSV</value>
+  </data>
+  <data name="DeleteConfirmation" xml:space="preserve">
+    <value>Are you sure you want to delete the selected item(s)?</value>
+  </data>
+  <data name="RegisterTitle" xml:space="preserve">
+    <value>Create Account</value>
+  </data>
+  <data name="RegisterSubtitle" xml:space="preserve">
+    <value>Join InventoryHub today</value>
+  </data>
+  <data name="FullName" xml:space="preserve">
+    <value>Full Name</value>
+  </data>
+  <data name="AlreadyHaveAccount" xml:space="preserve">
+    <value>Already have an account?</value>
+  </data>
+  <data name="LoginHere" xml:space="preserve">
+    <value>Login here</value>
+  </data>
+  <data name="NewItem" xml:space="preserve">
+    <value>New Item</value>
+  </data>
+  <data name="EditItem" xml:space="preserve">
+    <value>Edit Item</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Access Denied</value>
+  </data>
+  <data name="NoWriteAccess" xml:space="preserve">
+    <value>You don't have write access to this inventory.</value>
+  </data>
+  <data name="BackToInventory" xml:space="preserve">
+    <value>Back to Inventory</value>
+  </data>
+  <data name="FixedInformation" xml:space="preserve">
+    <value>Fixed Information</value>
+  </data>
+  <data name="InventoryFields" xml:space="preserve">
+    <value>Inventory Fields</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SaveItem" xml:space="preserve">
+    <value>Save Item</value>
+  </data>
+  <data name="InventoryNotFound" xml:space="preserve">
+    <value>Inventory not found.</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Personal" xml:space="preserve">
+    <value>Personal</value>
+  </data>
+  <data name="Saving" xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>by</value>
+  </data>
+  <data name="AddItem" xml:space="preserve">
+    <value>Add Item</value>
+  </data>
+  <data name="Items" xml:space="preserve">
+    <value>Items</value>
+  </data>
+  <data name="Discussion" xml:space="preserve">
+    <value>Discussion</value>
+  </data>
+  <data name="CustomID" xml:space="preserve">
+    <value>Custom ID</value>
+  </data>
+  <data name="Fields" xml:space="preserve">
+    <value>Fields</value>
+  </data>
+  <data name="Access" xml:space="preserve">
+    <value>Access</value>
+  </data>
+  <data name="Statistics" xml:space="preserve">
+    <value>Statistics</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="LastSavedAt" xml:space="preserve">
+    <value>Saved at</value>
+  </data>
+  <data name="MyPersonalPage" xml:space="preserve">
+    <value>My Personal Page</value>
+  </data>
+  <data name="WelcomePersonal" xml:space="preserve">
+    <value>Welcome, {0}. Manage your inventories below.</value>
+  </data>
+  <data name="CreateNewInventory" xml:space="preserve">
+    <value>Create New Inventory</value>
+  </data>
+  <data name="SortLastUpdated" xml:space="preserve">
+    <value>Sort: Last Updated</value>
+  </data>
+  <data name="SortTitle" xml:space="preserve">
+    <value>Sort: Title</value>
+  </data>
+  <data name="SortItemCount" xml:space="preserve">
+    <value>Sort: Item Count</value>
+  </data>
+  <data name="InventoryTitle" xml:space="preserve">
+    <value>Inventory Title</value>
+  </data>
+  <data name="Visibility" xml:space="preserve">
+    <value>Visibility</value>
+  </data>
+  <data name="Public" xml:space="preserve">
+    <value>Public</value>
+  </data>
+  <data name="Private" xml:space="preserve">
+    <value>Private</value>
+  </data>
+  <data name="NoInventoriesMsg" xml:space="preserve">
+    <value>No inventories yet. Create your first one!</value>
+  </data>
+  <data name="SharedWithMe" xml:space="preserve">
+    <value>Shared With Me</value>
+  </data>
+  <data name="SharedHint" xml:space="preserve">
+    <value>Inventories where you have write access.</value>
+  </data>
+  <data name="WriteAccess" xml:space="preserve">
+    <value>Write Access</value>
+  </data>
+  <data name="NoSharedInventories" xml:space="preserve">
+    <value>No shared inventories yet.</value>
+  </data>
+  <data name="PleaseLogIn" xml:space="preserve">
+    <value>Please log in</value>
+  </data>
+  <data name="MustBeLoggedIn" xml:space="preserve">
+    <value>You must be logged in to view your personal page.</value>
+  </data>
+  <data name="MyInventoriesAlt" xml:space="preserve">
+    <value>My Inventories</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="TitlePlaceholder" xml:space="preserve">
+    <value>e.g. Office Equipment</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="MarkdownSupported" xml:space="preserve">
+    <value>Markdown supported</value>
+  </data>
+  <data name="DescriptionPlaceholder" xml:space="preserve">
+    <value>Describe this inventory… **bold**, _italic_, etc.</value>
+  </data>
+  <data name="SelectCategory" xml:space="preserve">
+    <value>— Select category —</value>
+  </data>
+  <data name="ImageUrl" xml:space="preserve">
+    <value>Image URL</value>
+  </data>
+  <data name="Optional" xml:space="preserve">
+    <value>optional</value>
+  </data>
+  <data name="ImageUrlHint" xml:space="preserve">
+    <value>Upload to Cloudinary or similar and paste the URL here.</value>
+  </data>
+  <data name="PublicInventory" xml:space="preserve">
+    <value>Public Inventory</value>
+  </data>
+  <data name="PublicInventoryHint" xml:space="preserve">
+    <value>any authenticated user can add items</value>
+  </data>
+  <data name="TitleRequired" xml:space="preserve">
+    <value>Title is required.</value>
+  </data>
+  <data name="CategoryRequired" xml:space="preserve">
+    <value>Please select a category.</value>
+  </data>
+  <data name="LoginToCreateMsg" xml:space="preserve">
+    <value>Please log in to create an inventory.</value>
+  </data>
+  <data name="SupportsMarkdown" xml:space="preserve">
+    <value>Supports Markdown</value>
+  </data>
+  <data name="MakePublic" xml:space="preserve">
+    <value>Make Public</value>
+  </data>
+  <data name="MakePublicHint" xml:space="preserve">
+    <value>Allow all authenticated users to add items.</value>
+  </data>
+  <data name="AddDescriptionHint" xml:space="preserve">
+    <value>Add a description/hint...</value>
+  </data>
+  <data name="EnterTitleError" xml:space="preserve">
+    <value>Please enter a title.</value>
+  </data>
+  <data name="FieldLimitError" xml:space="preserve">
+    <value>You can only have up to 3 {0} fields.</value>
+  </data>
+  <data name="FormatBuilder" xml:space="preserve">
+    <value>Format Builder</value>
+  </data>
+  <data name="DragElementsHint" xml:space="preserve">
+    <value>Drag elements to reorder or click X to remove. The resulting ID is generated at item creation.</value>
+  </data>
+  <data name="FixedTextPlaceholder" xml:space="preserve">
+    <value>Fixed text...</value>
+  </data>
+  <data name="SequenceFormatPlaceholder" xml:space="preserve">
+    <value>Format (e.g. D4)...</value>
+  </data>
+  <data name="DateTimeFormatPlaceholder" xml:space="preserve">
+    <value>Format (e.g. yyyy-MM-dd)...</value>
+  </data>
+  <data name="AddElement" xml:space="preserve">
+    <value>Add Element</value>
+  </data>
+  <data name="RealTimePreview" xml:space="preserve">
+    <value>Real-time Preview</value>
+  </data>
+  <data name="ExampleGeneratedID" xml:space="preserve">
+    <value>Example Generated ID</value>
+  </data>
+  <data name="IDChangeNote" xml:space="preserve">
+    <value>Changes here only affect new items. Existing items will keep their current IDs, but the new format will be enforced during editing.</value>
+  </data>
+  <data name="ManageAccess" xml:space="preserve">
+    <value>Manage Access</value>
+  </data>
+  <data name="ManageAccessHint" xml:space="preserve">
+    <value>Add users who are allowed to add, edit, or delete items in this inventory.</value>
+  </data>
+  <data name="PublicInventoryNote" xml:space="preserve">
+    <value>This inventory is currently public. All authenticated users have full write access. To restrict access, disable "Make Public" in the Settings tab.</value>
+  </data>
+  <data name="AddUserByQuery" xml:space="preserve">
+    <value>Add User by Name or Email</value>
+  </data>
+  <data name="SearchUserPlaceholder" xml:space="preserve">
+    <value>Type username or email...</value>
+  </data>
+  <data name="UsersWithAccess" xml:space="preserve">
+    <value>Users with Access</value>
+  </data>
+  <data name="UsersCount" xml:space="preserve">
+    <value>{0} users</value>
+  </data>
+  <data name="NoUsersAdded" xml:space="preserve">
+    <value>No specific users added.</value>
+  </data>
+  <data name="InventoryAnalytics" xml:space="preserve">
+    <value>Inventory Analytics</value>
+  </data>
+  <data name="InventoryAnalyticsHint" xml:space="preserve">
+    <value>Aggregated data for all items in this inventory.</value>
+  </data>
+  <data name="TotalItems" xml:space="preserve">
+    <value>Total Items</value>
+  </data>
+  <data name="AverageLabel" xml:space="preserve">
+    <value>{0} (Avg)</value>
+  </data>
+  <data name="RangeLabel" xml:space="preserve">
+    <value>Range: {0}</value>
+  </data>
+  <data name="FrequentValuesLabel" xml:space="preserve">
+    <value>Frequent Values: {0}</value>
+  </data>
+  <data name="NoCommentsYet" xml:space="preserve">
+    <value>No comments yet. Be the first to start the discussion!</value>
+  </data>
+  <data name="WriteCommentPlaceholder" xml:space="preserve">
+    <value>Write a comment… (Markdown supported)</value>
+  </data>
+  <data name="CommentInputTip" xml:space="preserve">
+    <value>Press Shift+Enter for new line. Enter to post.</value>
+  </data>
+  <data name="Post" xml:space="preserve">
+    <value>Post</value>
+  </data>
+  <data name="JoinDiscussionMsg" xml:space="preserve">
+    <value>Login to join the discussion.</value>
+  </data>
+  <data name="UserProfile" xml:space="preserve">
+    <value>User Profile</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>User Not Found</value>
+  </data>
+  <data name="UserNotFoundMsg" xml:space="preserve">
+    <value>The requested user profile does not exist.</value>
+  </data>
+  <data name="GoHome" xml:space="preserve">
+    <value>Go Home</value>
+  </data>
+  <data name="JoinedOn" xml:space="preserve">
+    <value>Joined {0}</value>
+  </data>
+  <data name="PublicInventoriesBy" xml:space="preserve">
+    <value>Inventories created by {0}</value>
+  </data>
+  <data name="NoPublicInventoriesFound" xml:space="preserve">
+    <value>No public inventories found for this user.</value>
+  </data>
+  <data name="AdminPanel" xml:space="preserve">
+    <value>Admin Panel</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Access Denied</value>
+  </data>
+  <data name="AdminAccessRequired" xml:space="preserve">
+    <value>You need admin privileges to view this page.</value>
+  </data>
+  <data name="UserManagement" xml:space="preserve">
+    <value>User Management</value>
+  </data>
+  <data name="UserManagementHint" xml:space="preserve">
+    <value>Manage system users, roles, and status.</value>
+  </data>
+  <data name="Block" xml:space="preserve">
+    <value>Block</value>
+  </data>
+  <data name="Unblock" xml:space="preserve">
+    <value>Unblock</value>
+  </data>
+  <data name="AddAdmin" xml:space="preserve">
+    <value>Add Admin</value>
+  </data>
+  <data name="RemoveAdmin" xml:space="preserve">
+    <value>Remove Admin</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="LastLogin" xml:space="preserve">
+    <value>Last Login</value>
+  </data>
+  <data name="Registered" xml:space="preserve">
+    <value>Registered</value>
+  </data>
+  <data name="Blocked" xml:space="preserve">
+    <value>Blocked</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>Never</value>
+  </data>
+  <data name="You" xml:space="preserve">
+    <value>You</value>
+  </data>
+  <data name="ToggleTheme" xml:space="preserve">
+    <value>Toggle theme</value>
+  </data>
+  <data name="SwitchLanguage" xml:space="preserve">
+    <value>Switch language</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="SearchResults" xml:space="preserve">
+    <value>Search Results</value>
+  </data>
+  <data name="SearchResultsFor" xml:space="preserve">
+    <value>Search results for "{0}"</value>
+  </data>
+  <data name="FoundResultsCount" xml:space="preserve">
+    <value>We found {0} matching results.</value>
+  </data>
+  <data name="PartOfInventory" xml:space="preserve">
+    <value>Part of {0}</value>
+  </data>
+  <data name="CreatedByUser" xml:space="preserve">
+    <value>Created by {0}</value>
+  </data>
+  <data name="ViewItem" xml:space="preserve">
+    <value>View Item</value>
+  </data>
+  <data name="NoResultsFound" xml:space="preserve">
+    <value>No results found</value>
+  </data>
+  <data name="AdjustSearchPrompt" xml:space="preserve">
+    <value>Try adjusting your search query or filters.</value>
+  </data>
 </root>

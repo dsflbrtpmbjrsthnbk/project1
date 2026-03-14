@@ -1,16 +1,18 @@
 @using UserManagementApp.Models
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 
 <div class="row g-4">
     <div class="col-12 mb-2">
-        <h5 class="fw-bold"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Inventory Analytics</h5>
-        <p class="text-muted small">Aggregated data for all items in this inventory.</p>
+        <h5 class="fw-bold"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>@Loc["InventoryAnalytics"]</h5>
+        <p class="text-muted small">@Loc["InventoryAnalyticsHint"]</p>
     </div>
 
     <!-- Counters -->
     <div class="col-md-3">
         <div class="card border-0 bg-primary bg-opacity-10 rounded-4 p-4 text-center">
-            <div class="text-primary small fw-bold text-uppercase mb-1">Total Items</div>
+            <div class="text-primary small fw-bold text-uppercase mb-1">@Loc["TotalItems"]</div>
             <div class="display-5 fw-bold text-primary">@Inventory.Items.Count</div>
         </div>
     </div>
@@ -19,9 +21,9 @@
     {
         <div class="col-md-3">
             <div class="card border-0 bg-light rounded-4 p-4">
-                <div class="text-muted small fw-bold text-uppercase mb-2">@field.Title (Avg)</div>
+                <div class="text-muted small fw-bold text-uppercase mb-2">@Loc["AverageLabel", field.Title]</div>
                 <div class="h3 fw-bold mb-0">@GetAverage(field)</div>
-                <div class="text-muted small mt-2">Range: @GetRange(field)</div>
+                <div class="text-muted small mt-2">@Loc["RangeLabel", GetRange(field)]</div>
             </div>
         </div>
     }
@@ -31,7 +33,7 @@
     {
         <div class="col-md-6">
             <div class="card border-0 shadow-sm rounded-4 p-4">
-                <h6 class="fw-bold mb-3">Frequent Values: @field.Title</h6>
+                <h6 class="fw-bold mb-3">@Loc["FrequentValuesLabel", field.Title]</h6>
                 <div class="d-flex flex-wrap gap-2">
                     @foreach (var val in GetTopValues(field))
                     {

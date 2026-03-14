@@ -2,10 +2,12 @@
 @using UserManagementApp.Models
 @using UserManagementApp.Services
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 @inject UserManagementApp.Data.ApplicationDbContext DbContext
 @inject NavigationManager Navigation
 
-<PageTitle>User Profile - InventoryHub</PageTitle>
+<PageTitle>@Loc["UserProfile"] – InventoryHub</PageTitle>
 
 @if (_loading)
 {
@@ -14,9 +16,9 @@
 else if (_user == null)
 {
     <div class="alert alert-danger text-center py-5">
-        <h4>User Not Found</h4>
-        <p>The requested user profile does not exist.</p>
-        <a href="/" class="btn btn-primary mt-3">Go Home</a>
+        <h4>@Loc["UserNotFound"]</h4>
+        <p>@Loc["UserNotFoundMsg"]</p>
+        <a href="/" class="btn btn-primary mt-3">@Loc["GoHome"]</a>
     </div>
 }
 else
@@ -31,10 +33,10 @@ else
             <h1 class="fw-bold mb-1">@_user.Name</h1>
             <p class="text-muted mb-2">@_user.Email</p>
             <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-3">
-                <span class="badge bg-light text-dark border"><i class="bi bi-calendar3 me-2"></i>Joined @_user.RegistrationTime.ToString("MMMM d, yyyy")</span>
+                <span class="badge bg-light text-dark border"><i class="bi bi-calendar3 me-2"></i>@Loc["JoinedOn", _user.RegistrationTime.ToString("d")]</span>
                 @if (_user.IsAdmin)
                 {
-                    <span class="badge bg-primary"><i class="bi bi-shield-fill-check me-2"></i>Admin</span>
+                    <span class="badge bg-primary"><i class="bi bi-shield-fill-check me-2"></i>@Loc["Admin"]</span>
                 }
             </div>
         </div>
@@ -43,17 +45,17 @@ else
     <!-- Public Inventories Table -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="card-header bg-white py-3 border-bottom">
-            <h5 class="mb-0 fw-bold"><i class="bi bi-collection-fill me-2 text-primary"></i>Public Inventories</h5>
-            <p class="small text-muted mb-0">Inventories created by @_user.Name</p>
+            <h5 class="mb-0 fw-bold"><i class="bi bi-collection-fill me-2 text-primary"></i>@Loc["PublicInventories"]</h5>
+            <p class="small text-muted mb-0">@Loc["PublicInventoriesBy", _user.Name]</p>
         </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="ps-4">Inventory Title</th>
-                        <th>Category</th>
-                        <th>Items</th>
-                        <th class="pe-4">Last Updated</th>
+                        <th class="ps-4">@Loc["InventoryTitle"]</th>
+                        <th>@Loc["Category"]</th>
+                        <th>@Loc["Items"]</th>
+                        <th class="pe-4">@Loc["LastUpdated"]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,13 +72,13 @@ else
                                 </div>
                             </td>
                             <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill">@inv.Category?.Name</span></td>
-                            <td><span class="text-muted">@inv.Items.Count items</span></td>
+                            <td><span class="text-muted">@inv.Items.Count @Loc["Items"].ToString().ToLower()</span></td>
                             <td class="pe-4 text-muted small">@inv.UpdatedAt.ToString("g")</td>
                         </tr>
                     }
                     @if (!_publicInventories.Any())
                     {
-                        <tr><td colspan="4" class="text-center text-muted py-4">No public inventories found for this user.</td></tr>
+                        <tr><td colspan="4" class="text-center text-muted py-4">@Loc["NoPublicInventoriesFound"]</td></tr>
                     }
                 </tbody>
             </table>

@@ -1,5 +1,7 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 @{
-    ViewData["Title"] = "Sign In – InventoryHub";
+    ViewData["Title"] = Loc["Login"] + " – InventoryHub";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -187,8 +189,8 @@
     </div>
 
     <div class="card">
-        <h1>Welcome back</h1>
-        <p class="subtitle">Sign in to your account</p>
+        <h1>@Loc["WelcomeBack"]</h1>
+        <p class="subtitle">@Loc["SignInToAccount"]</p>
 
         @if (TempData["ErrorMessage"] != null)
         {
@@ -215,37 +217,37 @@
                 <path fill="#FBBC05" d="M11.2 28.5A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.1.7-4.5l-8-6.2A23.9 23.9 0 0 0 0 24c0 3.8.9 7.4 2.5 10.6l8.7-6.1z"/>
                 <path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.1-5.5c-2 1.4-4.6 2.2-8.1 2.2-5.8 0-10.8-3.9-12.6-9.2l-8.7 6.1C7 43.3 14.9 48 24 48z"/>
             </svg>
-            Continue with Google
+            @Loc["ContinueWithGoogle"]
         </a>
 
         <a href="/Account/ExternalLogin?provider=GitHub" class="btn-social btn-github">
             <i class="bi bi-github"></i>
-            Continue with GitHub
+            @Loc["ContinueWithGitHub"]
         </a>
 
-        <div class="divider">or continue with email</div>
+        <div class="divider">@Loc["OrContinueWithEmail"]</div>
 
         <!-- Email/Password Form -->
         <form action="/Account/Login" method="post">
             @Html.AntiForgeryToken()
             <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
+                <label for="email" class="form-label">@Loc["Email"]</label>
                 <input type="email" class="form-control" id="email" name="email"
                        required placeholder="you@example.com" autocomplete="email">
             </div>
             <div class="mb-4">
-                <label for="password" class="form-label">Password</label>
+                <label for="password" class="form-label">@Loc["Password"]</label>
                 <input type="password" class="form-control" id="password" name="password"
-                       required placeholder="Enter your password" autocomplete="current-password">
+                       required placeholder="@Loc["Password"]" autocomplete="current-password">
             </div>
             <button type="submit" class="btn-primary">
-                <i class="bi bi-box-arrow-in-right"></i> Sign in
+                <i class="bi bi-box-arrow-in-right"></i> @Loc["SignIn"]
             </button>
         </form>
     </div>
 
     <div class="footer-text">
-        No account? <a href="/Account/Register">Create one</a>
+        @Loc["NoAccount"] <a href="/Account/Register">@Loc["CreateOne"]</a>
     </div>
 
 </div>

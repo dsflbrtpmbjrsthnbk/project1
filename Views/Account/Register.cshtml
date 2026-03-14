@@ -1,5 +1,7 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 @{
-    ViewData["Title"] = "Create Account – InventoryHub";
+    ViewData["Title"] = Loc["RegisterTitle"] + " – InventoryHub";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -148,8 +150,8 @@
     </div>
 
     <div class="card">
-        <h1>Create account</h1>
-        <p class="subtitle">Start managing your inventories</p>
+        <h1>@Loc["CreateOne"]</h1>
+        <p class="subtitle">@Loc["RegisterSubtitle"]</p>
 
         @if (TempData["ErrorMessage"] != null)
         {
@@ -163,32 +165,32 @@
             @Html.AntiForgeryToken()
 
             <div class="mb-3">
-                <label for="name" class="form-label">Full Name</label>
+                <label for="name" class="form-label">@Loc["FullName"]</label>
                 <input type="text" class="form-control" id="name" name="name"
                        required placeholder="Jane Smith" autocomplete="name">
             </div>
 
             <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
+                <label for="email" class="form-label">@Loc["Email"]</label>
                 <input type="email" class="form-control" id="email" name="email"
                        required placeholder="you@example.com" autocomplete="email">
             </div>
 
             <div class="mb-4">
-                <label for="password" class="form-label">Password</label>
+                <label for="password" class="form-label">@Loc["Password"]</label>
                 <input type="password" class="form-control" id="password" name="password"
-                       required placeholder="Choose a password" autocomplete="new-password">
+                       required placeholder="@Loc["Password"]" autocomplete="new-password">
                 <p class="form-hint">Any password works — even one character.</p>
             </div>
 
             <button type="submit" class="btn-primary">
-                <i class="bi bi-person-plus"></i> Create account
+                <i class="bi bi-person-plus"></i> @Loc["CreateOne"]
             </button>
         </form>
     </div>
 
     <div class="footer-text">
-        Already have an account? <a href="/Account/Login">Sign in</a>
+        @Loc["AlreadyHaveAccount"] <a href="/Account/Login">@Loc["LoginHere"]</a>
     </div>
 
 </div>

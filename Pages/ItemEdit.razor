@@ -4,13 +4,15 @@
 @using UserManagementApp.Services
 @using Microsoft.EntityFrameworkCore
 @using UserManagementApp.Data
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject NavigationManager Navigation
 @inject IUserService UserService
 @inject ICustomIdService CustomIdService
 @inject ILogger<ItemEdit> _logger
 
-<PageTitle>@(_isNew ? "New Item" : "Edit Item") – InventoryHub</PageTitle>
+<PageTitle>@(_isNew ? Loc["NewItem"] : Loc["EditItem"]) – InventoryHub</PageTitle>
 
 @if (_loading)
 {
@@ -20,9 +22,9 @@ else if (!_hasWriteAccess)
 {
     <div class="alert alert-danger text-center py-5">
         <i class="bi bi-shield-x display-4 d-block mb-3"></i>
-        <h4>Access Denied</h4>
-        <p class="mb-0">You don't have write access to this inventory.</p>
-        <a href="/inventory/@InventoryId" class="btn btn-primary mt-3">Back to Inventory</a>
+        <h4>@Loc["AccessDenied"]</h4>
+        <p class="mb-0">@Loc["NoWriteAccess"]</p>
+        <a href="/inventory/@InventoryId" class="btn btn-primary mt-3">@Loc["BackToInventory"]</a>
     </div>
 }
 else if (_item != null && _inventory != null)
@@ -35,7 +37,7 @@ else if (_item != null && _inventory != null)
                         <a href="/inventory/@InventoryId" class="text-muted text-decoration-none small">
                             <i class="bi bi-arrow-left me-1"></i> @_inventory.Title
                         </a>
-                        <h1 class="h3 fw-bold mb-0 mt-1">@(_isNew ? "New Item" : "Edit Item")</h1>
+                        <h1 class="h3 fw-bold mb-0 mt-1">@(_isNew ? Loc["NewItem"] : Loc["EditItem"])</h1>
                     </div>
                     <div class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-semibold">
                         <i class="bi bi-tag-fill me-2"></i>@(_item.CustomId)
@@ -54,7 +56,7 @@ else if (_item != null && _inventory != null)
                     <!-- Fixed Fields -->
                     <div class="row g-4 mb-5 p-4 bg-light rounded-4 border border-info border-opacity-10">
                         <div class="col-12 border-bottom pb-2 mb-2">
-                            <span class="text-info fw-bold small text-uppercase">Fixed Information</span>
+                            <span class="text-info fw-bold small text-uppercase">@Loc["FixedInformation"]</span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold small">Custom ID</label>
@@ -76,7 +78,7 @@ else if (_item != null && _inventory != null)
                     {
                         <div class="row g-4">
                             <div class="col-12 border-bottom pb-2 mb-2">
-                                <span class="text-primary fw-bold small text-uppercase">Inventory Fields</span>
+                                <span class="text-primary fw-bold small text-uppercase">@Loc["InventoryFields"]</span>
                             </div>
                             @foreach (var field in _inventory.FieldDefinitions.OrderBy(f => f.DisplayOrder))
                             {
@@ -137,13 +139,13 @@ else if (_item != null && _inventory != null)
 
                     <div class="d-flex gap-2 mt-5 justify-content-end">
                         <button type="button" class="btn btn-light rounded-pill px-4"
-                                @onclick='() => Navigation.NavigateTo($"/inventory/{InventoryId}")'>Cancel</button>
+                                @onclick='() => Navigation.NavigateTo($"/inventory/{InventoryId}")'>@Loc["Cancel"]</button>
                         <button type="submit" class="btn btn-primary rounded-pill px-5 shadow-sm" disabled="@_saving">
                             @if (_saving)
                             {
                                 <span class="spinner-border spinner-border-sm me-2"></span>
                             }
-                            Save Item
+                            @Loc["SaveItem"]
                         </button>
                     </div>
                 </EditForm>

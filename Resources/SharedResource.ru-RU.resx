@@ -136,4 +136,436 @@
   <data name="ShowInTable" xml:space="preserve">
     <value>Показывать в таблице</value>
   </data>
+  <data name="WelcomeBack" xml:space="preserve">
+    <value>С возвращением</value>
+  </data>
+  <data name="SignInToAccount" xml:space="preserve">
+    <value>Войдите в свой аккаунт</value>
+  </data>
+  <data name="ContinueWithGoogle" xml:space="preserve">
+    <value>Продолжить через Google</value>
+  </data>
+  <data name="ContinueWithGitHub" xml:space="preserve">
+    <value>Продолжить через GitHub</value>
+  </data>
+  <data name="OrContinueWithEmail" xml:space="preserve">
+    <value>или продолжите через email</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Пароль</value>
+  </data>
+  <data name="SignIn" xml:space="preserve">
+    <value>Войти</value>
+  </data>
+  <data name="NoAccount" xml:space="preserve">
+    <value>Нет аккаунта?</value>
+  </data>
+  <data name="CreateOne" xml:space="preserve">
+    <value>Создать</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Изменить</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="ExportCSV" xml:space="preserve">
+    <value>Экспорт CSV</value>
+  </data>
+  <data name="DeleteConfirmation" xml:space="preserve">
+    <value>Вы уверены, что хотите удалить выбранные элементы?</value>
+  </data>
+  <data name="RegisterTitle" xml:space="preserve">
+    <value>Создание аккаунта</value>
+  </data>
+  <data name="RegisterSubtitle" xml:space="preserve">
+    <value>Присоединяйтесь к InventoryHub сегодня</value>
+  </data>
+  <data name="FullName" xml:space="preserve">
+    <value>Полное имя</value>
+  </data>
+  <data name="AlreadyHaveAccount" xml:space="preserve">
+    <value>Уже есть аккаунт?</value>
+  </data>
+  <data name="LoginHere" xml:space="preserve">
+    <value>Войдите здесь</value>
+  </data>
+  <data name="NewItem" xml:space="preserve">
+    <value>Новый предмет</value>
+  </data>
+  <data name="EditItem" xml:space="preserve">
+    <value>Редактировать предмет</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Доступ ограничен</value>
+  </data>
+  <data name="NoWriteAccess" xml:space="preserve">
+    <value>У вас нет прав на редактирование этого инвентаря.</value>
+  </data>
+  <data name="BackToInventory" xml:space="preserve">
+    <value>Назад к инвентарю</value>
+  </data>
+  <data name="FixedInformation" xml:space="preserve">
+    <value>Общая информация</value>
+  </data>
+  <data name="InventoryFields" xml:space="preserve">
+    <value>Поля инвентаря</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="SaveItem" xml:space="preserve">
+    <value>Сохранить предмет</value>
+  </data>
+  <data name="InventoryNotFound" xml:space="preserve">
+    <value>Инвентарь не найден.</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Главная</value>
+  </data>
+  <data name="Personal" xml:space="preserve">
+    <value>Личное</value>
+  </data>
+  <data name="Saving" xml:space="preserve">
+    <value>Сохранение...</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>от</value>
+  </data>
+  <data name="AddItem" xml:space="preserve">
+    <value>Добавить предмет</value>
+  </data>
+  <data name="Items" xml:space="preserve">
+    <value>Предметы</value>
+  </data>
+  <data name="Discussion" xml:space="preserve">
+    <value>Обсуждение</value>
+  </data>
+  <data name="CustomID" xml:space="preserve">
+    <value>ID предмета</value>
+  </data>
+  <data name="Fields" xml:space="preserve">
+    <value>Поля</value>
+  </data>
+  <data name="Access" xml:space="preserve">
+    <value>Доступ</value>
+  </data>
+  <data name="Statistics" xml:space="preserve">
+    <value>Статистика</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="LastSavedAt" xml:space="preserve">
+    <value>Сохранено в</value>
+  </data>
+  <data name="MyPersonalPage" xml:space="preserve">
+    <value>Моя страница</value>
+  </data>
+  <data name="WelcomePersonal" xml:space="preserve">
+    <value>Добро пожаловать, {0}. Управляйте своими инвентарями ниже.</value>
+  </data>
+  <data name="CreateNewInventory" xml:space="preserve">
+    <value>Создать новый инвентарь</value>
+  </data>
+  <data name="SortLastUpdated" xml:space="preserve">
+    <value>Сортировка: Обновлено</value>
+  </data>
+  <data name="SortTitle" xml:space="preserve">
+    <value>Сортировка: Название</value>
+  </data>
+  <data name="SortItemCount" xml:space="preserve">
+    <value>Сортировка: Кол-во предметов</value>
+  </data>
+  <data name="InventoryTitle" xml:space="preserve">
+    <value>Название инвентаря</value>
+  </data>
+  <data name="Visibility" xml:space="preserve">
+    <value>Видимость</value>
+  </data>
+  <data name="Public" xml:space="preserve">
+    <value>Публичный</value>
+  </data>
+  <data name="Private" xml:space="preserve">
+    <value>Приватный</value>
+  </data>
+  <data name="NoInventoriesMsg" xml:space="preserve">
+    <value>Пока нет инвентарей. Создайте свой первый!</value>
+  </data>
+  <data name="SharedWithMe" xml:space="preserve">
+    <value>Доступные мне</value>
+  </data>
+  <data name="SharedHint" xml:space="preserve">
+    <value>Инвентари, к которым у вас есть доступ на запись.</value>
+  </data>
+  <data name="WriteAccess" xml:space="preserve">
+    <value>Доступ на запись</value>
+  </data>
+  <data name="NoSharedInventories" xml:space="preserve">
+    <value>Пока нет доступных вам инвентарей.</value>
+  </data>
+  <data name="PleaseLogIn" xml:space="preserve">
+    <value>Пожалуйста, войдите</value>
+  </data>
+  <data name="MustBeLoggedIn" xml:space="preserve">
+    <value>Вы должны войти, чтобы просматривать персональную страницу.</value>
+  </data>
+  <data name="MyInventoriesAlt" xml:space="preserve">
+    <value>Мои инвентари</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Назад</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Название</value>
+  </data>
+  <data name="TitlePlaceholder" xml:space="preserve">
+    <value>напр. Офисное оборудование</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Описание</value>
+  </data>
+  <data name="MarkdownSupported" xml:space="preserve">
+    <value>Поддержка Markdown</value>
+  </data>
+  <data name="DescriptionPlaceholder" xml:space="preserve">
+    <value>Опишите этот инвентарь… **жирный**, _курсив_ и т.д.</value>
+  </data>
+  <data name="SelectCategory" xml:space="preserve">
+    <value>— Выберите категорию —</value>
+  </data>
+  <data name="ImageUrl" xml:space="preserve">
+    <value>URL изображения</value>
+  </data>
+  <data name="Optional" xml:space="preserve">
+    <value>необязательно</value>
+  </data>
+  <data name="ImageUrlHint" xml:space="preserve">
+    <value>Загрузите в Cloudinary или аналог и вставьте ссылку здесь.</value>
+  </data>
+  <data name="PublicInventory" xml:space="preserve">
+    <value>Публичный инвентарь</value>
+  </data>
+  <data name="PublicInventoryHint" xml:space="preserve">
+    <value>любой вошедший пользователь может добавлять предметы</value>
+  </data>
+  <data name="TitleRequired" xml:space="preserve">
+    <value>Название обязательно.</value>
+  </data>
+  <data name="CategoryRequired" xml:space="preserve">
+    <value>Пожалуйста, выберите категорию.</value>
+  </data>
+  <data name="LoginToCreateMsg" xml:space="preserve">
+    <value>Пожалуйста, войдите, чтобы создать инвентарь.</value>
+  </data>
+  <data name="SupportsMarkdown" xml:space="preserve">
+    <value>Поддержка Markdown</value>
+  </data>
+  <data name="MakePublic" xml:space="preserve">
+    <value>Сделать публичным</value>
+  </data>
+  <data name="MakePublicHint" xml:space="preserve">
+    <value>Разрешить всем пользователям добавлять предметы.</value>
+  </data>
+  <data name="AddDescriptionHint" xml:space="preserve">
+    <value>Добавьте описание/подсказку...</value>
+  </data>
+  <data name="EnterTitleError" xml:space="preserve">
+    <value>Пожалуйста, введите название.</value>
+  </data>
+  <data name="FieldLimitError" xml:space="preserve">
+    <value>Вы можете добавить не более 3 полей типа {0}.</value>
+  </data>
+  <data name="FormatBuilder" xml:space="preserve">
+    <value>Конструктор формата</value>
+  </data>
+  <data name="DragElementsHint" xml:space="preserve">
+    <value>Перетаскивайте элементы для изменения порядка или нажмите X для удаления. Итоговый ID генерируется при создании предмета.</value>
+  </data>
+  <data name="FixedTextPlaceholder" xml:space="preserve">
+    <value>Фиксированный текст...</value>
+  </data>
+  <data name="SequenceFormatPlaceholder" xml:space="preserve">
+    <value>Формат (напр. D4)...</value>
+  </data>
+  <data name="DateTimeFormatPlaceholder" xml:space="preserve">
+    <value>Формат (напр. yyyy-MM-dd)...</value>
+  </data>
+  <data name="AddElement" xml:space="preserve">
+    <value>Добавить элемент</value>
+  </data>
+  <data name="RealTimePreview" xml:space="preserve">
+    <value>Предпросмотр</value>
+  </data>
+  <data name="ExampleGeneratedID" xml:space="preserve">
+    <value>Пример сгенерированного ID</value>
+  </data>
+  <data name="IDChangeNote" xml:space="preserve">
+    <value>Изменения здесь влияют только на новые предметы. Существующие предметы сохранят свои текущие ID, но новый формат будет применяться при редактировании.</value>
+  </data>
+  <data name="ManageAccess" xml:space="preserve">
+    <value>Управление доступом</value>
+  </data>
+  <data name="ManageAccessHint" xml:space="preserve">
+    <value>Добавьте пользователей, которым разрешено добавлять, редактировать или удалять предметы в этом инвентаре.</value>
+  </data>
+  <data name="PublicInventoryNote" xml:space="preserve">
+    <value>Этот инвентарь сейчас публичный. Все вошедшие пользователи имеют доступ на запись. Чтобы ограничить доступ, отключите "Сделать публичным" во вкладке Настройки.</value>
+  </data>
+  <data name="AddUserByQuery" xml:space="preserve">
+    <value>Добавить пользователя по имени или email</value>
+  </data>
+  <data name="SearchUserPlaceholder" xml:space="preserve">
+    <value>Введите имя или email...</value>
+  </data>
+  <data name="UsersWithAccess" xml:space="preserve">
+    <value>Пользователи с доступом</value>
+  </data>
+  <data name="UsersCount" xml:space="preserve">
+    <value>Пользователей: {0}</value>
+  </data>
+  <data name="NoUsersAdded" xml:space="preserve">
+    <value>Специальные пользователи не добавлены.</value>
+  </data>
+  <data name="InventoryAnalytics" xml:space="preserve">
+    <value>Аналитика инвентаря</value>
+  </data>
+  <data name="InventoryAnalyticsHint" xml:space="preserve">
+    <value>Агрегированные данные по всем предметам в этом инвентаре.</value>
+  </data>
+  <data name="TotalItems" xml:space="preserve">
+    <value>Всего предметов</value>
+  </data>
+  <data name="AverageLabel" xml:space="preserve">
+    <value>{0} (Среднее)</value>
+  </data>
+  <data name="RangeLabel" xml:space="preserve">
+    <value>Диапазон: {0}</value>
+  </data>
+  <data name="FrequentValuesLabel" xml:space="preserve">
+    <value>Частые значения: {0}</value>
+  </data>
+  <data name="NoCommentsYet" xml:space="preserve">
+    <value>Комментариев пока нет. Будьте первым!</value>
+  </data>
+  <data name="WriteCommentPlaceholder" xml:space="preserve">
+    <value>Напишите комментарий… (поддержка Markdown)</value>
+  </data>
+  <data name="CommentInputTip" xml:space="preserve">
+    <value>Shift+Enter — новая строка. Enter — отправить.</value>
+  </data>
+  <data name="Post" xml:space="preserve">
+    <value>Отправить</value>
+  </data>
+  <data name="JoinDiscussionMsg" xml:space="preserve">
+    <value>Войдите, чтобы присоединиться к обсуждению.</value>
+  </data>
+  <data name="UserProfile" xml:space="preserve">
+    <value>Профиль пользователя</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>Пользователь не найден</value>
+  </data>
+  <data name="UserNotFoundMsg" xml:space="preserve">
+    <value>Запрошенный профиль пользователя не существует.</value>
+  </data>
+  <data name="GoHome" xml:space="preserve">
+    <value>На главную</value>
+  </data>
+  <data name="JoinedOn" xml:space="preserve">
+    <value>Регистрация: {0}</value>
+  </data>
+  <data name="PublicInventoriesBy" xml:space="preserve">
+    <value>Инвентари пользователя {0}</value>
+  </data>
+  <data name="NoPublicInventoriesFound" xml:space="preserve">
+    <value>Публичные инвентари этого пользователя не найдены.</value>
+  </data>
+  <data name="AdminPanel" xml:space="preserve">
+    <value>Панель администратора</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Доступ запрещен</value>
+  </data>
+  <data name="AdminAccessRequired" xml:space="preserve">
+    <value>Вам нужны права администратора для просмотра этой страницы.</value>
+  </data>
+  <data name="UserManagement" xml:space="preserve">
+    <value>Управление пользователями</value>
+  </data>
+  <data name="UserManagementHint" xml:space="preserve">
+    <value>Управление пользователями системы, ролями и статусами.</value>
+  </data>
+  <data name="Block" xml:space="preserve">
+    <value>Заблокировать</value>
+  </data>
+  <data name="Unblock" xml:space="preserve">
+    <value>Разблокировать</value>
+  </data>
+  <data name="AddAdmin" xml:space="preserve">
+    <value>Назначить админом</value>
+  </data>
+  <data name="RemoveAdmin" xml:space="preserve">
+    <value>Разжаловать</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Статус</value>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>Роль</value>
+  </data>
+  <data name="LastLogin" xml:space="preserve">
+    <value>Последний вход</value>
+  </data>
+  <data name="Registered" xml:space="preserve">
+    <value>Регистрация</value>
+  </data>
+  <data name="Blocked" xml:space="preserve">
+    <value>Заблокирован</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>Активен</value>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>Никогда</value>
+  </data>
+  <data name="You" xml:space="preserve">
+    <value>Вы</value>
+  </data>
+  <data name="ToggleTheme" xml:space="preserve">
+    <value>Переключить тему</value>
+  </data>
+  <data name="SwitchLanguage" xml:space="preserve">
+    <value>Сменить язык</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Поиск</value>
+  </data>
+  <data name="SearchResults" xml:space="preserve">
+    <value>Результаты поиска</value>
+  </data>
+  <data name="SearchResultsFor" xml:space="preserve">
+    <value>Результаты поиска для "{0}"</value>
+  </data>
+  <data name="FoundResultsCount" xml:space="preserve">
+    <value>Найдено результатов: {0}.</value>
+  </data>
+  <data name="PartOfInventory" xml:space="preserve">
+    <value>Часть инвентаря {0}</value>
+  </data>
+  <data name="CreatedByUser" xml:space="preserve">
+    <value>Создал: {0}</value>
+  </data>
+  <data name="ViewItem" xml:space="preserve">
+    <value>Посмотреть предмет</value>
+  </data>
+  <data name="NoResultsFound" xml:space="preserve">
+    <value>Результатов не найдено</value>
+  </data>
+  <data name="AdjustSearchPrompt" xml:space="preserve">
+    <value>Попробуйте изменить поисковый запрос или фильтры.</value>
+  </data>
 </root>

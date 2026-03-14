@@ -2,11 +2,13 @@
 @using UserManagementApp.Models
 @using UserManagementApp.Services
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 @inject UserManagementApp.Data.ApplicationDbContext DbContext
 @inject NavigationManager Navigation
 @inject IUserService UserService
 
-<PageTitle>My Inventories – InventoryHub</PageTitle>
+<PageTitle>@Loc["MyInventoriesAlt"] – InventoryHub</PageTitle>
 
 @if (_loading)
 {
@@ -16,9 +18,9 @@ else if (_currentUser == null)
 {
     <div class="alert alert-warning text-center py-5">
         <i class="bi bi-person-lock display-4 d-block mb-3"></i>
-        <h4>Please log in</h4>
-        <p class="mb-0">You must be logged in to view your personal page.</p>
-        <a href="/Account/Login" class="btn btn-primary mt-3">Login</a>
+        <h4>@Loc["PleaseLogIn"]</h4>
+        <p class="mb-0">@Loc["MustBeLoggedIn"]</p>
+        <a href="/Account/Login" class="btn btn-primary mt-3">@Loc["Login"]</a>
     </div>
 }
 else
@@ -26,11 +28,11 @@ else
     <div class="row mb-5">
         <div class="col-12 d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h1 class="h3 mb-0 fw-bold">My Personal Page</h1>
-                <p class="text-muted">Welcome, @_currentUser.Name. Manage your inventories below.</p>
+                <h1 class="h3 mb-0 fw-bold">@Loc["MyPersonalPage"]</h1>
+                <p class="text-muted">@Loc["WelcomePersonal", _currentUser.Name]</p>
             </div>
             <button class="btn btn-primary rounded-pill px-4 shadow-sm" @onclick="CreateNewInventory">
-                <i class="bi bi-plus-lg me-2"></i>Create New Inventory
+                <i class="bi bi-plus-lg me-2"></i>@Loc["CreateNewInventory"]
             </button>
         </div>
 
@@ -38,17 +40,17 @@ else
         <div class="col-12 mb-5">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-collection-fill me-2 text-primary"></i>My Inventories</h5>
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-collection-fill me-2 text-primary"></i>@Loc["MyInventoriesAlt"]</h5>
                     <div class="d-flex gap-2 align-items-center">
                         <select class="form-select form-select-sm border-0 shadow-none" style="width:auto;" @onchange="SortOwned">
-                            <option value="updated">Sort: Last Updated</option>
-                            <option value="title">Sort: Title</option>
-                            <option value="items">Sort: Item Count</option>
+                            <option value="updated">@Loc["SortLastUpdated"]</option>
+                            <option value="title">@Loc["SortTitle"]</option>
+                            <option value="items">@Loc["SortItemCount"]</option>
                         </select>
                         <button class="btn btn-sm btn-outline-danger rounded-pill px-3"
                                 disabled="@(!_selectedOwned.Any())"
                                 @onclick="DeleteSelectedOwned">
-                            <i class="bi bi-trash3 me-1"></i> Delete
+                            <i class="bi bi-trash3 me-1"></i> @Loc["Delete"]
                         </button>
                     </div>
                 </div>
@@ -59,11 +61,11 @@ else
                                 <th style="width: 40px;" class="ps-4">
                                     <input type="checkbox" class="form-check-input" @onchange="ToggleSelectAllOwned" />
                                 </th>
-                                <th>Inventory Title</th>
-                                <th>Category</th>
-                                <th>Items</th>
-                                <th>Visibility</th>
-                                <th class="pe-4">Last Updated</th>
+                                <th>@Loc["InventoryTitle"]</th>
+                                <th>@Loc["Category"]</th>
+                                <th>@Loc["Items"]</th>
+                                <th>@Loc["Visibility"]</th>
+                                <th class="pe-4">@Loc["LastUpdatedCol"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -85,15 +87,15 @@ else
                                         </div>
                                     </td>
                                     <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill">@inv.Category?.Name</span></td>
-                                    <td><span class="text-muted">@inv.Items.Count items</span></td>
+                                    <td><span class="text-muted">@inv.Items.Count @Loc["Items"].ToString().ToLower()</span></td>
                                     <td>
                                         @if (inv.IsPublic)
                                         {
-                                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 small"><i class="bi bi-globe me-1"></i>Public</span>
+                                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 small"><i class="bi bi-globe me-1"></i>@Loc["Public"]</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-light text-muted border rounded-pill px-2 small"><i class="bi bi-lock me-1"></i>Private</span>
+                                            <span class="badge bg-light text-muted border rounded-pill px-2 small"><i class="bi bi-lock me-1"></i>@Loc["Private"]</span>
                                         }
                                     </td>
                                     <td class="pe-4 text-muted small">@inv.UpdatedAt.ToString("g")</td>
@@ -101,7 +103,7 @@ else
                             }
                             @if (!_ownedInventories.Any())
                             {
-                                <tr><td colspan="6" class="text-center text-muted py-4">No inventories yet. Create your first one!</td></tr>
+                                <tr><td colspan="6" class="text-center text-muted py-4">@Loc["NoInventoriesMsg"]</td></tr>
                             }
                         </tbody>
                     </table>
@@ -113,18 +115,18 @@ else
         <div class="col-12">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="card-header bg-white py-3 border-bottom">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-share-fill me-2 text-info"></i>Shared With Me</h5>
-                    <p class="small text-muted mb-0">Inventories where you have write access.</p>
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-share-fill me-2 text-info"></i>@Loc["SharedWithMe"]</h5>
+                    <p class="small text-muted mb-0">@Loc["SharedHint"]</p>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th class="ps-4">Inventory Title</th>
-                                <th>Owner</th>
-                                <th>Category</th>
-                                <th>Items</th>
-                                <th class="pe-4">Access</th>
+                                <th class="ps-4">@Loc["InventoryTitle"]</th>
+                                <th>@Loc["Owner"]</th>
+                                <th>@Loc["Category"]</th>
+                                <th>@Loc["Items"]</th>
+                                <th class="pe-4">@Loc["Access"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -136,12 +138,12 @@ else
                                     <td><span class="text-muted small">@inv.Owner?.Name</span></td>
                                     <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill">@inv.Category?.Name</span></td>
                                     <td><span class="text-muted">@inv.Items.Count</span></td>
-                                    <td class="pe-4"><span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2 small">Write Access</span></td>
+                                    <td class="pe-4"><span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2 small">@Loc["WriteAccess"]</span></td>
                                 </tr>
                             }
                             @if (!_sharedInventories.Any())
                             {
-                                <tr><td colspan="5" class="text-center text-muted py-4">No shared inventories yet.</td></tr>
+                                <tr><td colspan="5" class="text-center text-muted py-4">@Loc["NoSharedInventories"]</td></tr>
                             }
                         </tbody>
                     </table>
