@@ -1,19 +1,21 @@
 @page "/search/{Query}"
 @using UserManagementApp.Models
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 @inject UserManagementApp.Data.ApplicationDbContext DbContext
 
-<PageTitle>Search Results - InventoryHub</PageTitle>
+<PageTitle>@Loc["SearchResults"] - InventoryHub</PageTitle>
 
 <div class="container py-4">
     <div class="mb-5">
-        <h1 class="h3 fw-bold">Search results for "@Query"</h1>
-        <p class="text-muted">We found @(_inventories.Count + _items.Count) matching results.</p>
+        <h1 class="h3 fw-bold">@Loc["SearchResultsFor", Query]</h1>
+        <p class="text-muted">@Loc["FoundResultsCount", _inventories.Count + _items.Count]</p>
     </div>
 
     @if (_inventories.Any())
     {
-        <h4 class="fw-bold mb-4"><i class="bi bi-collection me-2"></i>Inventories</h4>
+        <h4 class="fw-bold mb-4"><i class="bi bi-collection me-2"></i>@Loc["Inventories"]</h4>
         <div class="table-responsive bg-white rounded-4 shadow-sm p-3 mb-5">
             <table class="table table-hover align-middle mb-0">
                 <tbody>
@@ -34,7 +36,7 @@
 
     @if (_items.Any())
     {
-        <h4 class="fw-bold mb-4"><i class="bi bi-box-seam me-2"></i>Items</h4>
+        <h4 class="fw-bold mb-4"><i class="bi bi-box-seam me-2"></i>@Loc["Items"]</h4>
         <div class="table-responsive bg-white rounded-4 shadow-sm p-3">
             <table class="table table-hover align-middle mb-0">
                 <tbody>
@@ -43,10 +45,10 @@
                         <tr>
                             <td class="ps-3 text-primary fw-bold">@item.CustomId</td>
                             <td>
-                                <div class="fw-medium">Part of <a href="inventory/@item.InventoryId" class="text-decoration-none">@item.Inventory?.Title</a></div>
-                                <div class="small text-muted">Created by @item.CreatedBy?.Name</div>
+                                <div class="fw-medium">@Loc["PartOfInventory", ""] <a href="inventory/@item.InventoryId" class="text-decoration-none">@item.Inventory?.Title</a></div>
+                                <div class="small text-muted">@Loc["CreatedByUser", item.CreatedBy?.Name ?? ""]</div>
                             </td>
-                            <td class="text-end pe-3"><a href="inventory/@item.InventoryId/item/@item.Id" class="btn btn-sm btn-link">View Item</a></td>
+                            <td class="text-end pe-3"><a href="inventory/@item.InventoryId/item/@item.Id" class="btn btn-sm btn-link">@Loc["ViewItem"]</a></td>
                         </tr>
                     }
                 </tbody>
@@ -58,8 +60,8 @@
     {
         <div class="text-center py-5">
             <i class="bi bi-search text-muted opacity-25" style="font-size: 5rem;"></i>
-            <h3 class="mt-4 text-muted">No results found</h3>
-            <p>Try adjusting your search query or filters.</p>
+            <h3 class="mt-4 text-muted">@Loc["NoResultsFound"]</h3>
+            <p>@Loc["AdjustSearchPrompt"]</p>
         </div>
     }
 </div>
