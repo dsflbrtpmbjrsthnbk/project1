@@ -2,7 +2,7 @@
 @inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 @using UserManagementApp.Models
 @using Microsoft.EntityFrameworkCore
-@inject UserManagementApp.Data.ApplicationDbContext DbContext
+@inject IDbContextFactory<UserManagementApp.Data.ApplicationDbContext> DbFactory
 
 <div class="row g-3">
     <div class="col-md-8">
@@ -59,40 +59,55 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _categories = await DbContext.Categories.OrderBy(c => c.Name).ToListAsync();
-        _stringTags = Inventory.InventoryTags.Select(it => it.Tag.Name).ToList();
+        using var context = await DbFactory.CreateDbContextAsync();
+        _categories = await context.Categories.OrderBy(c => c.Name).ToListAsync();
+        _stringTags = Inventory.InventoryTags.Select(it => it.Tag?.Name).Where(n => n != null).Cast<string>().ToList();
     }
 
     private async Task HandleTagsChanged(List<string> updatedTags)
     {
         _stringTags = updatedTags;
 
-        // Sync with DbContext manually since we are auto-saving
+        using var context = await DbFactory.CreateDbContextAsync();
+        
+        // Load the current inventory with tags to modify it
+        var dbInventory = await context.Inventories
+            .Include(i => i.InventoryTags)
+            .ThenInclude(it => it.Tag)
+            .FirstOrDefaultAsync(i => i.Id == Inventory.Id);
+
+        if (dbInventory == null) return;
+
         // 1. Remove missing tags
-        var toRemove = Inventory.InventoryTags
+        var toRemove = dbInventory.InventoryTags
             .Where(it => !_stringTags.Contains(it.Tag.Name, StringComparer.OrdinalIgnoreCase))
             .ToList();
         foreach (var r in toRemove)
         {
-            Inventory.InventoryTags.Remove(r);
+            dbInventory.InventoryTags.Remove(r);
         }
 
         // 2. Add new tags
-        var currentTagNames = Inventory.InventoryTags.Select(it => it.Tag.Name.ToLower());
+        var currentTagNames = dbInventory.InventoryTags.Select(it => it.Tag.Name.ToLower()).ToList();
         var newNames = _stringTags.Where(t => !currentTagNames.Contains(t.ToLower())).ToList();
 
         foreach (var name in newNames)
         {
-            var tag = await DbContext.Tags.FirstOrDefaultAsync(t => t.Name.ToLower() == name.ToLower());
+            var cleanName = name.Trim();
+            var tag = await context.Tags.FirstOrDefaultAsync(t => t.Name.ToLower() == cleanName.ToLower());
             if (tag == null)
             {
-                tag = new Tag { Name = name };
-                DbContext.Tags.Add(tag);
-                await DbContext.SaveChangesAsync(); // generate ID
+                tag = new Tag { Name = cleanName };
+                context.Tags.Add(tag);
             }
-            Inventory.InventoryTags.Add(new InventoryTag { InventoryId = Inventory.Id, TagId = tag.Id, Tag = tag });
+            dbInventory.InventoryTags.Add(new InventoryTag { Inventory = dbInventory, Tag = tag });
         }
 
+        await context.SaveChangesAsync();
+        
+        // Sync the local parameter so UI stays consistent
+        Inventory.InventoryTags = dbInventory.InventoryTags;
+        
         await OnChange.InvokeAsync();
     }
 }

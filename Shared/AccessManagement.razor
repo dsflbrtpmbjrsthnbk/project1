@@ -2,7 +2,7 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<UserManagementApp.SharedResource> Loc
-@inject UserManagementApp.Data.ApplicationDbContext DbContext
+@inject IDbContextFactory<UserManagementApp.Data.ApplicationDbContext> DbFactory
 
 <div class="row">
     <div class="col-md-7">
@@ -89,7 +89,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _accessList = await DbContext.InventoryAccesses
+        using var context = await DbFactory.CreateDbContextAsync();
+        _accessList = await context.InventoryAccesses
             .Include(a => a.User)
             .Where(a => a.InventoryId == Inventory.Id)
             .ToListAsync();
@@ -104,7 +105,8 @@
             return;
         }
 
-        _suggestions = await DbContext.Users
+        using var context = await DbFactory.CreateDbContextAsync();
+        _suggestions = await context.Users
             .Where(u => (!string.IsNullOrEmpty(u.Name) && u.Name.Contains(_userQuery)) || (!string.IsNullOrEmpty(u.Email) && u.Email.Contains(_userQuery)))
             .Where(u => !_accessList.Any(a => a.UserId == u.Id))
             .Take(5)
@@ -113,19 +115,33 @@
 
     private async Task AddUser(User user)
     {
-        var access = new InventoryAccess { InventoryId = Inventory.Id, UserId = user.Id, User = user };
-        _accessList.Add(access);
+        using var context = await DbFactory.CreateDbContextAsync();
+        var access = new InventoryAccess { InventoryId = Inventory.Id, UserId = user.Id };
+        
+        context.InventoryAccesses.Add(access);
+        await context.SaveChangesAsync();
+        
+        // Reload to get User object for UI
+        var addedAccess = await context.InventoryAccesses.Include(a => a.User).FirstAsync(a => a.InventoryId == Inventory.Id && a.UserId == user.Id);
+        _accessList.Add(addedAccess);
+
         _suggestions.Clear();
         _userQuery = "";
         
-        DbContext.InventoryAccesses.Add(access);
         await OnChange.InvokeAsync();
     }
 
     private async Task RemoveAccess(InventoryAccess access)
     {
+        using var context = await DbFactory.CreateDbContextAsync();
+        var toRemove = await context.InventoryAccesses.FirstOrDefaultAsync(a => a.InventoryId == access.InventoryId && a.UserId == access.UserId);
+        if (toRemove != null)
+        {
+            context.InventoryAccesses.Remove(toRemove);
+            await context.SaveChangesAsync();
+        }
+        
         _accessList.Remove(access);
-        DbContext.InventoryAccesses.Remove(access);
         await OnChange.InvokeAsync();
     }
 }

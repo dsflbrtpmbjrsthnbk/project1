@@ -4,7 +4,7 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<UserManagementApp.SharedResource> Loc
-@inject UserManagementApp.Data.ApplicationDbContext DbContext
+@inject IDbContextFactory<UserManagementApp.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager Navigation
 @inject IUserService UserService
 
@@ -133,7 +133,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         _currentUser = await UserService.GetCurrentUserAsync();
-        _categories = await DbContext.Categories.OrderBy(c => c.Name).ToListAsync();
+        using var context = await DbFactory.CreateDbContextAsync();
+        _categories = await context.Categories.OrderBy(c => c.Name).ToListAsync();
         _loading = false;
     }
 
@@ -155,6 +156,8 @@ else
 
         try
         {
+            using var context = await DbFactory.CreateDbContextAsync();
+            
             var inventory = new Inventory
             {
                 Id = Guid.NewGuid(),
@@ -169,23 +172,29 @@ else
                 CustomIdPattern = "[]"
             };
 
-            DbContext.Inventories.Add(inventory);
-
-            // Handle tags: find existing or create new
+            // Process tags and create InventoryTag relationships
             foreach (var tagName in _tags.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct(StringComparer.OrdinalIgnoreCase))
             {
-                var tag = await DbContext.Tags.FirstOrDefaultAsync(t => t.Name.ToLower() == tagName.ToLower());
+                var cleanName = tagName.Trim();
+                // Check if tag already exists in DB
+                var tag = await context.Tags.FirstOrDefaultAsync(t => t.Name.ToLower() == cleanName.ToLower());
+                
                 if (tag == null)
                 {
-                    tag = new Tag { Name = tagName.Trim() };
-                    DbContext.Tags.Add(tag);
-                    await DbContext.SaveChangesAsync(); // get tag ID
+                    tag = new Tag { Name = cleanName };
+                    context.Tags.Add(tag);
                 }
-                DbContext.InventoryTags.Add(new InventoryTag { InventoryId = inventory.Id, TagId = tag.Id });
+                
+                inventory.InventoryTags.Add(new InventoryTag { Inventory = inventory, Tag = tag });
             }
 
-            await DbContext.SaveChangesAsync();
+            context.Inventories.Add(inventory);
+            await context.SaveChangesAsync();
             Navigation.NavigateTo($"/inventory/{inventory.Id}");
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            _errorMessage = Loc["ConcurrencyError"];
         }
         catch (Exception ex)
         {

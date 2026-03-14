@@ -28,7 +28,7 @@ namespace UserManagementApp.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        public byte[] RowVersion { get; set; } = Guid.NewGuid().ToByteArray();
+        public byte[] RowVersion { get; set; } = null!;
 
         public ICollection<InventoryTag> InventoryTags { get; set; } = new List<InventoryTag>();
         public ICollection<Item> Items { get; set; } = new List<Item>();
