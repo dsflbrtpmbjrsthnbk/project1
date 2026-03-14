@@ -514,9 +514,6 @@
   <data name="AdminPanel" xml:space="preserve">
     <value>Admin Panel</value>
   </data>
-  <data name="AccessDenied" xml:space="preserve">
-    <value>Access Denied</value>
-  </data>
   <data name="AdminAccessRequired" xml:space="preserve">
     <value>You need admin privileges to view this page.</value>
   </data>
@@ -595,14 +592,8 @@
   <data name="AdjustSearchPrompt" xml:space="preserve">
     <value>Try adjusting your search query or filters.</value>
   </data>
-  <data name="FixedInformation" xml:space="preserve">
-    <value>Fixed Information</value>
-  </data>
   <data name="CustomIdHint" xml:space="preserve">
     <value>Unique ID within this inventory. Edit only if needed.</value>
-  </data>
-  <data name="InventoryFields" xml:space="preserve">
-    <value>Inventory Fields</value>
   </data>
   <data name="CustomIdConflict" xml:space="preserve">
     <value>Custom ID conflict: this ID is already used in this inventory. Please edit the Custom ID field.</value>
@@ -628,13 +619,7 @@
   <data name="EmailPlaceholder" xml:space="preserve">
     <value>you@example.com</value>
   </data>
-  <data name="LoginHere" xml:space="preserve">
-    <value>Login Here</value>
-  </data>
   <data name="ID" xml:space="preserve">
     <value>ID</value>
-  </data>
-  <data name="Created" xml:space="preserve">
-    <value>Created</value>
   </data>
 </root>

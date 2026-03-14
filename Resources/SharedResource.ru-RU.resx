@@ -200,7 +200,7 @@
     <value>Редактировать предмет</value>
   </data>
   <data name="AccessDenied" xml:space="preserve">
-    <value>Доступ ограничен</value>
+    <value>Доступ запрещен</value>
   </data>
   <data name="NoWriteAccess" xml:space="preserve">
     <value>У вас нет прав на редактирование этого инвентаря.</value>
@@ -212,7 +212,7 @@
     <value>Общая информация</value>
   </data>
   <data name="InventoryFields" xml:space="preserve">
-    <value>Поля инвентаря</value>
+    <value>Поля предметов</value>
   </data>
   <data name="Cancel" xml:space="preserve">
     <value>Отмена</value>
@@ -487,9 +487,6 @@
   <data name="AdminPanel" xml:space="preserve">
     <value>Панель администратора</value>
   </data>
-  <data name="AccessDenied" xml:space="preserve">
-    <value>Доступ запрещен</value>
-  </data>
   <data name="AdminAccessRequired" xml:space="preserve">
     <value>Вам нужны права администратора для просмотра этой страницы.</value>
   </data>
@@ -568,14 +565,8 @@
   <data name="AdjustSearchPrompt" xml:space="preserve">
     <value>Попробуйте изменить поисковый запрос или фильтры.</value>
   </data>
-  <data name="FixedInformation" xml:space="preserve">
-    <value>Фиксированная информация</value>
-  </data>
   <data name="CustomIdHint" xml:space="preserve">
     <value>Уникальный ID в этом инвентаре. Редактируйте только при необходимости.</value>
-  </data>
-  <data name="InventoryFields" xml:space="preserve">
-    <value>Поля инвентаря</value>
   </data>
   <data name="CustomIdConflict" xml:space="preserve">
     <value>Конфликт Custom ID: этот ID уже используется в этом инвентаре. Пожалуйста, измените поле Custom ID.</value>
@@ -601,13 +592,7 @@
   <data name="EmailPlaceholder" xml:space="preserve">
     <value>you@example.com</value>
   </data>
-  <data name="LoginHere" xml:space="preserve">
-    <value>Войти здесь</value>
-  </data>
   <data name="ID" xml:space="preserve">
     <value>ID</value>
-  </data>
-  <data name="Created" xml:space="preserve">
-    <value>Создано</value>
   </data>
 </root>
