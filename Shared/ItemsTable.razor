@@ -32,7 +32,7 @@
                 <th style="width: 40px;" class="ps-3">
                     <input type="checkbox" class="form-check-input" @onchange="ToggleSelectAll" />
                 </th>
-                <th>ID</th>
+                <th>@Loc["ID"]</th>
                 @foreach (var field in Inventory.FieldDefinitions.Where(f => f.IsInTableView).OrderBy(f => f.DisplayOrder))
                 {
                     <th>@field.Title</th>
@@ -97,7 +97,7 @@
     {
         var csv = new StringBuilder();
         // Header
-        var headers = new List<string> { "ID", "Created" };
+        var headers = new List<string> { Loc["ID"], Loc["Created"] };
         headers.AddRange(Inventory.FieldDefinitions.OrderBy(f => f.DisplayOrder).Select(f => f.Title));
         csv.AppendLine(string.Join(",", headers.Select(h => $"\"{h}\"")));
 

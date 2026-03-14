@@ -568,4 +568,46 @@
   <data name="AdjustSearchPrompt" xml:space="preserve">
     <value>Попробуйте изменить поисковый запрос или фильтры.</value>
   </data>
+  <data name="FixedInformation" xml:space="preserve">
+    <value>Фиксированная информация</value>
+  </data>
+  <data name="CustomIdHint" xml:space="preserve">
+    <value>Уникальный ID в этом инвентаре. Редактируйте только при необходимости.</value>
+  </data>
+  <data name="InventoryFields" xml:space="preserve">
+    <value>Поля инвентаря</value>
+  </data>
+  <data name="CustomIdConflict" xml:space="preserve">
+    <value>Конфликт Custom ID: этот ID уже используется в этом инвентаре. Пожалуйста, измените поле Custom ID.</value>
+  </data>
+  <data name="ConcurrencyError" xml:space="preserve">
+    <value>Этот предмет или его инвентарь были изменены другим пользователем. Пожалуйста, перезагрузите страницу и попробуйте снова.</value>
+  </data>
+  <data name="UnexpectedError" xml:space="preserve">
+    <value>Произошла непредвиденная ошибка: {0}</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>Создано в</value>
+  </data>
+  <data name="CreatedBy" xml:space="preserve">
+    <value>Создал</value>
+  </data>
+  <data name="PasswordConstraintHint" xml:space="preserve">
+    <value>Любой пароль подойдет — даже один символ.</value>
+  </data>
+  <data name="FullNamePlaceholder" xml:space="preserve">
+    <value>Иван Иванов</value>
+  </data>
+  <data name="EmailPlaceholder" xml:space="preserve">
+    <value>you@example.com</value>
+  </data>
+  <data name="LoginHere" xml:space="preserve">
+    <value>Войти здесь</value>
+  </data>
+  <data name="ID" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="Created" xml:space="preserve">
+    <value>Создано</value>
+  </data>
 </root>

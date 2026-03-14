@@ -59,16 +59,16 @@ else if (_item != null && _inventory != null)
                             <span class="text-info fw-bold small text-uppercase">@Loc["FixedInformation"]</span>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small">Custom ID</label>
+                            <label class="form-label fw-bold small">@Loc["CustomID"]</label>
                             <input type="text" class="form-control rounded-pill shadow-none" @bind="_item.CustomId" />
-                            <div class="form-text small">Unique ID within this inventory. Edit only if needed.</div>
+                            <div class="form-text small">@Loc["CustomIdHint"]</div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small">Created At</label>
+                            <label class="form-label fw-bold small">@Loc["CreatedAt"]</label>
                             <input type="text" class="form-control rounded-pill bg-white border-0 shadow-none text-muted" value="@_item.CreatedAt.ToString("g")" disabled />
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small">Created By</label>
+                            <label class="form-label fw-bold small">@Loc["CreatedBy"]</label>
                             <input type="text" class="form-control rounded-pill bg-white border-0 shadow-none text-muted" value="@(_currentUser?.Name)" disabled />
                         </div>
                     </div>
@@ -239,16 +239,16 @@ else if (_item != null && _inventory != null)
             dbEx.InnerException?.Message.Contains("duplicate key") == true ||
             dbEx.InnerException?.Message.Contains("IX_Items") == true)
         {
-            _errorMessage = "Custom ID conflict: this ID is already used in this inventory. Please edit the Custom ID field.";
+            _errorMessage = Loc["CustomIdConflict"];
         }
         catch (DbUpdateConcurrencyException)
         {
-            _errorMessage = "This item or its inventory was modified by another user. Please reload and try again.";
+            _errorMessage = Loc["ConcurrencyError"];
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error saving item");
-            _errorMessage = $"An unexpected error occurred: {ex.InnerException?.Message ?? ex.Message}";
+            _errorMessage = Loc["UnexpectedError", ex.InnerException?.Message ?? ex.Message];
         }
         finally
         {
