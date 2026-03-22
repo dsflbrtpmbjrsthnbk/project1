@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj": {}
+    "C:\\Users\\Asus\\Desktop\\.NET\\Project1\\project1\\UserManagementApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj": {
+    "C:\\Users\\Asus\\Desktop\\.NET\\Project1\\project1\\UserManagementApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj",
+        "projectUniqueName": "C:\\Users\\Asus\\Desktop\\.NET\\Project1\\project1\\UserManagementApp.csproj",
         "projectName": "UserManagementApp",
-        "projectPath": "C:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj",
+        "projectPath": "C:\\Users\\Asus\\Desktop\\.NET\\Project1\\project1\\UserManagementApp.csproj",
         "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Asus\\Desktop\\Project1\\project1\\obj\\",
+        "outputPath": "C:\\Users\\Asus\\Desktop\\.NET\\Project1\\project1\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Asus\\AppData\\Roaming\\NuGet\\NuGet.Config"

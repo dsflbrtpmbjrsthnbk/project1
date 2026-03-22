@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UserManagementApp")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute(" ")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0200c66caf8dade60a3dde8844dc7f6047d9917d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+243084050fc0381ffd60273dd5c2b78bd0f5d885")]
 [assembly: System.Reflection.AssemblyProductAttribute("UserManagementApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UserManagementApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

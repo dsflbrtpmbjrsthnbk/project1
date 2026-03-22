@@ -7,6 +7,14 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("OdooApi", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .WithHeaders("X-Api-Token", "Content-Type"));
+});
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor()
@@ -173,6 +181,9 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthentication();   // <-- must come before UseAuthorization
 app.UseAuthorization();
+
+// Apply CORS only to /api/* routes
+app.UseCors("OdooApi");
 
 app.MapControllerRoute(
     name: "default",

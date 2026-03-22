@@ -3,6 +3,9 @@
 @using UserManagementApp.Models
 @using Microsoft.EntityFrameworkCore
 @inject IDbContextFactory<UserManagementApp.Data.ApplicationDbContext> DbFactory
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 <div class="row g-3">
     <div class="col-md-8">
@@ -48,6 +51,84 @@
         <label class="form-label fw-semibold">@Loc["Tags"]</label>
         <TagInput Tags="_stringTags" OnTagsChanged="HandleTagsChanged" />
     </div>
+
+    <!-- ── Odoo / External API Integration ───────────────────────────────── -->
+    <div class="col-12 mt-5">
+        <div class="card border-0 rounded-4 shadow-sm" style="background: linear-gradient(135deg,#f0f7ff 0%,#e8f0fe 100%);">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                         style="width:44px;height:44px;background:#0d6efd22;">
+                        <i class="bi bi-plug-fill text-primary fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold">External API / Odoo Integration</h6>
+                        <p class="mb-0 text-muted small">Use this API token to import aggregated data from this inventory into Odoo or any external system.</p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Inventory.ApiToken))
+                {
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-uppercase text-secondary">API Token</label>
+                        <div class="input-group">
+                            <input type="@(_showToken ? "text" : "password")"
+                                   class="form-control font-monospace rounded-start-pill shadow-none"
+                                   value="@Inventory.ApiToken" readonly />
+                            <button class="btn btn-outline-secondary" @onclick="ToggleShowToken" title="Show/Hide">
+                                <i class="bi @(_showToken ? "bi-eye-slash" : "bi-eye")"></i>
+                            </button>
+                            <button class="btn btn-outline-primary" @onclick="CopyToken" title="Copy to clipboard">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                        @if (_copied)
+                        {
+                            <div class="text-success small mt-1"><i class="bi bi-check-circle me-1"></i>Copied to clipboard!</div>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-uppercase text-secondary">API Endpoint</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control font-monospace rounded-start-pill shadow-none"
+                                   value="@GetApiEndpoint()" readonly />
+                            <button class="btn btn-outline-primary" @onclick="CopyEndpoint" title="Copy endpoint">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                        @if (_copiedEndpoint)
+                        {
+                            <div class="text-success small mt-1"><i class="bi bi-check-circle me-1"></i>Endpoint copied!</div>
+                        }
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-danger btn-sm rounded-pill" @onclick="RegenerateToken" disabled="@_tokenLoading">
+                            @if (_tokenLoading) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                            <i class="bi bi-arrow-clockwise me-1"></i>Regenerate Token
+                        </button>
+                        <span class="text-muted small align-self-center">⚠ Regenerating will break any existing Odoo connection.</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-3">
+                        <p class="text-muted small mb-3">No API token has been generated yet. Click below to create one.</p>
+                        <button class="btn btn-primary rounded-pill px-4" @onclick="GenerateToken" disabled="@_tokenLoading">
+                            @if (_tokenLoading) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                            <i class="bi bi-key-fill me-2"></i>Generate API Token
+                        </button>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(_tokenError))
+                {
+                    <div class="alert alert-danger mt-2 py-2 small">@_tokenError</div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {
@@ -57,12 +138,103 @@
     private List<Category> _categories = new();
     private List<string> _stringTags = new();
 
+    // Token UI state
+    private bool _showToken = false;
+    private bool _copied = false;
+    private bool _copiedEndpoint = false;
+    private bool _tokenLoading = false;
+    private string _tokenError = "";
+    private System.Threading.Timer? _copyTimer;
+
     protected override async Task OnInitializedAsync()
     {
         using var context = await DbFactory.CreateDbContextAsync();
         _categories = await context.Categories.OrderBy(c => c.Name).ToListAsync();
         _stringTags = Inventory.InventoryTags.Select(it => it.Tag?.Name).Where(n => n != null).Cast<string>().ToList();
     }
+
+    private void ToggleShowToken() => _showToken = !_showToken;
+
+    private string GetApiEndpoint()
+    {
+        // Build base URL from the current request
+        var req = HttpContextAccessor.HttpContext?.Request;
+        if (req != null)
+        {
+            var host = req.Host.Value;
+            var scheme = req.Scheme;
+            return $"{scheme}://{host}/api/inventory/{Inventory.Id}";
+        }
+        return $"/api/inventory/{Inventory.Id}";
+    }
+
+    private async Task CopyToken()
+    {
+        if (string.IsNullOrEmpty(Inventory.ApiToken)) return;
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Inventory.ApiToken);
+        _copied = true;
+        _copyTimer?.Dispose();
+        _copyTimer = new System.Threading.Timer(_ => InvokeAsync(() => { _copied = false; StateHasChanged(); }), null, 2500, System.Threading.Timeout.Infinite);
+    }
+
+    private async Task CopyEndpoint()
+    {
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", GetApiEndpoint());
+        _copiedEndpoint = true;
+        _copyTimer?.Dispose();
+        _copyTimer = new System.Threading.Timer(_ => InvokeAsync(() => { _copiedEndpoint = false; StateHasChanged(); }), null, 2500, System.Threading.Timeout.Infinite);
+    }
+
+    private async Task GenerateToken() => await CallTokenEndpoint();
+    private async Task RegenerateToken() => await CallTokenEndpoint();
+
+    private async Task CallTokenEndpoint()
+    {
+        _tokenLoading = true;
+        _tokenError = "";
+        StateHasChanged();
+        try
+        {
+            var req = HttpContextAccessor.HttpContext?.Request;
+            var baseUrl = req != null ? $"{req.Scheme}://{req.Host.Value}" : "";
+            var url = $"{baseUrl}/api/inventory/{Inventory.Id}/token";
+
+            // We need to include the request's auth cookie. Since this is Blazor Server,
+            // we can use HttpClient with the cookie from context.
+            using var handler = new HttpClientHandler { UseCookies = false };
+            using var client = new HttpClient(handler);
+
+            // Forward the auth cookie from the current request
+            var cookieHeader = HttpContextAccessor.HttpContext?.Request.Headers["Cookie"].ToString() ?? "";
+            client.DefaultRequestHeaders.Add("Cookie", cookieHeader);
+
+            // We also need the antiforgery token but for simplicity we skip CSRF here
+            // (the endpoint uses [Authorize] only, no [ValidateAntiForgeryToken])
+            var response = await client.PostAsync(url, null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadFromJsonAsync<TokenResponse>();
+                Inventory.ApiToken = json?.Token;
+                StateHasChanged();
+            }
+            else
+            {
+                _tokenError = $"Server returned {(int)response.StatusCode}. Please ensure you are logged in.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _tokenError = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            _tokenLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private record TokenResponse(string Token);
 
     private async Task HandleTagsChanged(List<string> updatedTags)
     {

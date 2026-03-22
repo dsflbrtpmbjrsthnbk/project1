@@ -38,6 +38,9 @@ namespace UserManagementApp.Models
         // Custom ID Format Configuration (JSON serialized string or separate table)
         // For drag-and-drop builder, we'll store the sequence of elements.
         public string CustomIdPattern { get; set; } = "[]"; 
+
+        // API Token for Odoo / external integrations (null = not generated yet)
+        public string? ApiToken { get; set; }
         
         [NotMapped]
         public NpgsqlTsVector SearchVector { get; set; } = null!;

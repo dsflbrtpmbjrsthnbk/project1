@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "WT2XnX+wshU=",
+  "dgSpecHash": "6JzG0Fva5q0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Asus\\Desktop\\Project1\\project1\\UserManagementApp.csproj",
+  "projectFilePath": "C:\\Users\\Asus\\Desktop\\.NET\\Project1\\project1\\UserManagementApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Asus\\.nuget\\packages\\aspnet.security.oauth.github\\8.0.0\\aspnet.security.oauth.github.8.0.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
