@@ -50,8 +50,8 @@ class InventoryImport(models.Model):
     api_base_url = fields.Char(
         string='InventoryHub Base URL',
         required=True,
-        default='https://project-1-ig70.onrender.com',
-        help='Base URL of your InventoryHub instance, e.g., https://project-1-ig70.onrender.com',
+        default='https://project1-vkwm.onrender.com',
+        help='Base URL of your InventoryHub instance, e.g., https://project1-vkwm.onrender.com',
     )
     api_token = fields.Char(
         string='API Token',
