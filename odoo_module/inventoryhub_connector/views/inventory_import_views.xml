@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_inventoryhub_inventory_tree" model="ir.ui.view">
+        <field name="name">inventoryhub.inventory.tree</field>
+        <field name="model">inventoryhub.inventory</field>
+        <field name="arch" type="xml">
+            <tree string="Imported Inventories">
+                <field name="name"/>
+                <field name="category"/>
+                <field name="owner"/>
+                <field name="item_count"/>
+                <field name="last_synced"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_inventoryhub_inventory_form" model="ir.ui.view">
+        <field name="name">inventoryhub.inventory.form</field>
+        <field name="model">inventoryhub.inventory</field>
+        <field name="arch" type="xml">
+            <form string="Imported Inventory">
+                <header>
+                    <button name="action_import_from_inventoryhub" type="object" string="Sync / Fetch Data" class="oe_highlight" icon="fa-download"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" nolabel="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Inventory Metadata">
+                            <field name="description"/>
+                            <field name="category"/>
+                            <field name="owner"/>
+                            <field name="item_count"/>
+                            <field name="is_public"/>
+                            <field name="external_created_at"/>
+                        </group>
+                        <group string="Integration Settings">
+                            <field name="api_base_url"/>
+                            <field name="external_id"/>
+                            <field name="api_token" password="True"/>
+                            <field name="last_synced"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Aggregated Field Statistics">
+                            <field name="field_ids" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="field_type"/>
+                                    <field name="stat_count"/>
+                                    <!-- Dynamic fields column depending on type -->
+                                    <field name="stat_min" attrs="{'invisible': [('field_type', '!=', 'Numeric')]}"/>
+                                    <field name="stat_max" attrs="{'invisible': [('field_type', '!=', 'Numeric')]}"/>
+                                    <field name="stat_avg" attrs="{'invisible': [('field_type', '!=', 'Numeric')]}"/>
+                                    
+                                    <field name="stat_top_values" attrs="{'invisible': [('field_type', 'not in', ('String', 'Multiline'))]}"/>
+                                    
+                                    <field name="stat_true_count" attrs="{'invisible': [('field_type', '!=', 'Boolean')]}"/>
+                                    <field name="stat_false_count" attrs="{'invisible': [('field_type', '!=', 'Boolean')]}"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_inventoryhub_inventory" model="ir.actions.act_window">
+        <field name="name">Imported Inventories</field>
+        <field name="res_model">inventoryhub.inventory</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new InventoryHub Import Connector
+            </p>
+            <p>
+                Provide the Inventory UUID and API Token from your InventoryHub instance
+                to automatically fetch mapping data and aggregated statistics.
+            </p>
+        </field>
+    </record>
+</odoo>
