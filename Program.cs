@@ -94,6 +94,8 @@ builder.Services.AddSession(options =>
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICustomIdService, CustomIdService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IDropboxService, DropboxService>();
+builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

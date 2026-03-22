@@ -1,0 +1,367 @@
+@using UserManagementApp.Models
+@using UserManagementApp.Services
+@using Microsoft.Extensions.Localization
+@inject IUserService UserService
+@inject IDropboxService DropboxService
+@inject NavigationManager Navigation
+@inject IDbContextFactory<UserManagementApp.Data.ApplicationDbContext> DbFactory
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
+
+@* Кнопка вызова тикета — показывается везде *@
+<button class="support-fab" @onclick="OpenModal" title="@Loc["CreateSupportTicket"]">
+    <i class="bi bi-question-circle-fill"></i>
+</button>
+
+@* Фон затемнения *@
+@if (_isOpen)
+{
+    <div class="modal-backdrop-custom" @onclick="CloseModal"></div>
+
+    <div class="support-modal">
+        <div class="support-modal-header">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-headset fs-5 text-primary"></i>
+                <h5 class="mb-0 fw-bold">@Loc["SupportTicketTitle"]</h5>
+            </div>
+            <button class="btn-close" @onclick="CloseModal"></button>
+        </div>
+
+        <div class="support-modal-body">
+            @if (_isSuccess)
+            {
+                <div class="text-center py-4">
+                    <div class="success-icon mb-3">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="fw-bold text-success">@Loc["TicketSubmitted"]</h5>
+                    <p class="text-muted">@Loc["TicketSubmittedMsg"]</p>
+                    <button class="btn btn-outline-secondary mt-2" @onclick="CloseModal">@Loc["Close"]</button>
+                </div>
+            }
+            else
+            {
+                @* Поле Summary *@
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        @Loc["TicketSummary"] <span class="text-danger">*</span>
+                    </label>
+                    <textarea class="form-control" rows="4"
+                              placeholder="@Loc["TicketSummaryPlaceholder"]"
+                              @bind="_summary" maxlength="1000"></textarea>
+                    @if (_showValidation && string.IsNullOrWhiteSpace(_summary))
+                    {
+                        <div class="text-danger small mt-1">@Loc["TicketSummaryRequired"]</div>
+                    }
+                </div>
+
+                @* Выбор приоритета *@
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">@Loc["TicketPriority"]</label>
+                    <div class="d-flex gap-2">
+                        <button class="btn priority-btn @(_priority == "High" ? "priority-high active" : "priority-high")"
+                                @onclick='() => _priority = "High"'>
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> @Loc["High"]
+                        </button>
+                        <button class="btn priority-btn @(_priority == "Average" ? "priority-avg active" : "priority-avg")"
+                                @onclick='() => _priority = "Average"'>
+                            <i class="bi bi-dash-circle-fill me-1"></i> @Loc["Average"]
+                        </button>
+                        <button class="btn priority-btn @(_priority == "Low" ? "priority-low active" : "priority-low")"
+                                @onclick='() => _priority = "Low"'>
+                            <i class="bi bi-arrow-down-circle-fill me-1"></i> @Loc["Low"]
+                        </button>
+                    </div>
+                </div>
+
+                @* Информационная панель (заполняется автоматически) *@
+                <div class="auto-fill-info mb-3">
+                    <small class="text-muted d-block mb-1">
+                        <i class="bi bi-info-circle me-1"></i> @Loc["TicketAutoFill"]
+                    </small>
+                    <div class="d-flex flex-column gap-1">
+                        <span class="badge bg-light text-dark text-start">
+                            <i class="bi bi-person me-1 text-primary"></i>
+                            @(_currentUserEmail ?? Loc["NotLoggedIn"].Value)
+                        </span>
+                        <span class="badge bg-light text-dark text-start text-truncate" style="max-width:100%">
+                            <i class="bi bi-link-45deg me-1 text-primary"></i>
+                            @_currentUrl
+                        </span>
+                        @if (!string.IsNullOrEmpty(_inventoryTitle))
+                        {
+                            <span class="badge bg-light text-dark text-start">
+                                <i class="bi bi-collection me-1 text-primary"></i>
+                                @_inventoryTitle
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(_errorMessage))
+                {
+                    <div class="alert alert-danger py-2 small">
+                        <i class="bi bi-exclamation-circle me-1"></i> @_errorMessage
+                    </div>
+                }
+
+                <button class="btn btn-primary w-100 fw-bold" @onclick="SubmitTicket" disabled="@_isSubmitting">
+                    @if (_isSubmitting)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        @Loc["Sending"]
+                    }
+                    else
+                    {
+                        <i class="bi bi-send-fill me-2"></i>
+                        @Loc["Submit"]
+                    }
+                </button>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool _isOpen = false;
+    private bool _isSuccess = false;
+    private bool _isSubmitting = false;
+    private bool _showValidation = false;
+
+    private string _summary = "";
+    private string _priority = "Average";
+    private string _errorMessage = "";
+
+    private string? _currentUserEmail;
+    private string? _currentUserName;
+    private string _currentUrl = "";
+    private string? _inventoryTitle;
+
+    public async Task OpenModal()
+    {
+        _isOpen = true;
+        _isSuccess = false;
+        _summary = "";
+        _priority = "Average";
+        _errorMessage = "";
+        _showValidation = false;
+
+        // Получаем данные текущего пользователя
+        var user = await UserService.GetCurrentUserAsync();
+        _currentUserEmail = user?.Email ?? "";
+        _currentUserName = user?.Name ?? user?.Email ?? "Unknown";
+
+        // Текущий URL страницы
+        _currentUrl = Navigation.Uri;
+
+        // Пытаемся получить название коллекции из URL (если это страница инвентаря)
+        await TryGetInventoryTitleFromUrl();
+    }
+
+    private async Task TryGetInventoryTitleFromUrl()
+    {
+        _inventoryTitle = null;
+        try
+        {
+            // Пример URL: /inventory/3fa85f64-5717-4562-b3fc-2c963f66afa6
+            var uri = new Uri(_currentUrl);
+            var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+            if (segments.Length >= 2 && segments[0] == "inventory" && Guid.TryParse(segments[1], out var inventoryId))
+            {
+                using var ctx = await DbFactory.CreateDbContextAsync();
+                var inv = await ctx.Inventories.FindAsync(inventoryId);
+                _inventoryTitle = inv?.Title;
+            }
+        }
+        catch { /* Если не получилось — просто оставим пустым */ }
+    }
+
+    private void CloseModal()
+    {
+        _isOpen = false;
+    }
+
+    private async Task SubmitTicket()
+    {
+        _showValidation = true;
+        if (string.IsNullOrWhiteSpace(_summary)) return;
+
+        _isSubmitting = true;
+        _errorMessage = "";
+
+        try
+        {
+            // Получаем email-адреса всех администраторов из базы
+            using var ctx = await DbFactory.CreateDbContextAsync();
+            var adminEmails = ctx.Users
+                .Where(u => u.IsAdmin && u.Email != null)
+                .Select(u => u.Email!)
+                .ToList();
+
+            // Создаем тикет
+            var ticket = new SupportTicket
+            {
+                ReportedBy = _currentUserEmail ?? "anonymous",
+                ReportedByName = _currentUserName ?? "Anonymous",
+                Inventory = _inventoryTitle,
+                Link = _currentUrl,
+                Priority = _priority,
+                Summary = _summary.Trim(),
+                CreatedAt = DateTime.UtcNow,
+                AdminEmails = adminEmails
+            };
+
+            // Загружаем в Dropbox
+            var success = await DropboxService.UploadSupportTicketAsync(ticket);
+
+            if (success)
+            {
+                _isSuccess = true;
+            }
+            else
+            {
+                _errorMessage = Loc["TicketUploadError"].Value;
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"{Loc["UnexpectedError"].Value}: {ex.Message}";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+}
+
+<style>
+    /* Плавающая кнопка в правом нижнем углу */
+    .support-fab {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        border: none;
+        color: white;
+        font-size: 1.4rem;
+        box-shadow: 0 4px 16px rgba(13,110,253,0.4);
+        cursor: pointer;
+        z-index: 1000;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .support-fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(13,110,253,0.5);
+    }
+
+    /* Затемнение фона */
+    .modal-backdrop-custom {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1040;
+        animation: fadeIn 0.2s ease;
+    }
+
+    /* Само модальное окно */
+    .support-modal {
+        position: fixed;
+        bottom: 90px;
+        right: 24px;
+        width: 380px;
+        max-width: calc(100vw - 48px);
+        background: var(--bs-body-bg, #fff);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        z-index: 1050;
+        animation: slideUp 0.25s ease;
+        overflow: hidden;
+    }
+
+    .support-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+        background: linear-gradient(135deg, #f8f9ff, #fff);
+    }
+
+    .support-modal-body {
+        padding: 20px;
+    }
+
+    /* Кнопки приоритета */
+    .priority-btn {
+        flex: 1;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        padding: 6px 8px;
+        transition: all 0.15s ease;
+    }
+
+    .priority-high { border-color: #dc3545; color: #dc3545; background: transparent; }
+    .priority-high.active { background: #dc3545; color: white; }
+    .priority-avg { border-color: #fd7e14; color: #fd7e14; background: transparent; }
+    .priority-avg.active { background: #fd7e14; color: white; }
+    .priority-low { border-color: #198754; color: #198754; background: transparent; }
+    .priority-low.active { background: #198754; color: white; }
+
+    /* Информационная панель */
+    .auto-fill-info {
+        background: var(--bs-light, #f8f9fa);
+        border-radius: 8px;
+        padding: 10px 12px;
+        border: 1px solid var(--bs-border-color, #dee2e6);
+    }
+
+    /* Иконка успеха */
+    .success-icon {
+        animation: bounceIn 0.4s ease;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes slideUp {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    @@keyframes bounceIn {
+        0% { transform: scale(0); }
+        60% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+    /* Поддержка темной темы */
+    .dark-theme .support-modal {
+        background: #1e1e1e;
+        border: 1px solid #333;
+    }
+
+    .dark-theme .support-modal-header {
+        background: #252525;
+        border-color: #333;
+    }
+
+    .dark-theme .auto-fill-info {
+        background: #2c2c2c;
+        border-color: #444;
+    }
+
+    .dark-theme .badge.bg-light {
+        background: #2c2c2c !important;
+        color: #e0e0e0 !important;
+    }
+</style>

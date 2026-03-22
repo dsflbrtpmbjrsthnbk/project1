@@ -595,4 +595,57 @@
   <data name="ID" xml:space="preserve">
     <value>ID</value>
   </data>
+
+  <!-- Support Ticket -->
+  <data name="CreateSupportTicket" xml:space="preserve">
+    <value>Создать тикет поддержки</value>
+  </data>
+  <data name="SupportTicketTitle" xml:space="preserve">
+    <value>Обратная связь</value>
+  </data>
+  <data name="TicketSummary" xml:space="preserve">
+    <value>Описание проблемы</value>
+  </data>
+  <data name="TicketSummaryPlaceholder" xml:space="preserve">
+    <value>Опишите проблему или вопрос как можно подробнее...</value>
+  </data>
+  <data name="TicketSummaryRequired" xml:space="preserve">
+    <value>Пожалуйста, опишите проблему.</value>
+  </data>
+  <data name="TicketPriority" xml:space="preserve">
+    <value>Приоритет</value>
+  </data>
+  <data name="High" xml:space="preserve">
+    <value>Высокий</value>
+  </data>
+  <data name="Average" xml:space="preserve">
+    <value>Средний</value>
+  </data>
+  <data name="Low" xml:space="preserve">
+    <value>Низкий</value>
+  </data>
+  <data name="TicketAutoFill" xml:space="preserve">
+    <value>Заполняется автоматически:</value>
+  </data>
+  <data name="NotLoggedIn" xml:space="preserve">
+    <value>Не авторизован</value>
+  </data>
+  <data name="TicketSubmitted" xml:space="preserve">
+    <value>Тикет отправлен!</value>
+  </data>
+  <data name="TicketSubmittedMsg" xml:space="preserve">
+    <value>Администраторы получат уведомление в ближайшее время.</value>
+  </data>
+  <data name="TicketUploadError" xml:space="preserve">
+    <value>Не удалось загрузить тикет. Проверьте соединение и попробуйте снова.</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Закрыть</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>Отправить тикет</value>
+  </data>
+  <data name="Sending" xml:space="preserve">
+    <value>Отправка...</value>
+  </data>
 </root>

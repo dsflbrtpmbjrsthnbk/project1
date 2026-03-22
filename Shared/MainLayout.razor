@@ -69,9 +69,15 @@
     <footer class="footer mt-auto py-3 border-top text-center text-muted">
         <div class="container">
             <span>&copy; 2026 InventoryHub</span>
+            <span class="mx-2">·</span>
+            <a href="#" class="text-muted text-decoration-none small" @onclick="OpenSupportTicket" @onclick:preventDefault>
+                <i class="bi bi-headset me-1"></i>@Loc["CreateSupportTicket"]
+            </a>
         </div>
     </footer>
 </div>
+
+<SupportTicketModal @ref="_supportModal" />
 
 @code {
     private string _searchQuery = "";
@@ -79,6 +85,13 @@
     private bool _isRussian = false;
     private User? _currentUser;
     private string _antiForgeryToken = "";
+    private SupportTicketModal? _supportModal;
+
+    private async Task OpenSupportTicket()
+    {
+        if (_supportModal != null)
+            await _supportModal.OpenModal();
+    }
 
     protected override async Task OnInitializedAsync()
     {

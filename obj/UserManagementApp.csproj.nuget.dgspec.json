@@ -44,6 +44,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "AspNet.Security.OAuth.GitHub": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "BCrypt.Net-Next": {
               "target": "Package",
               "version": "[4.0.3, )"
@@ -55,10 +59,6 @@
             "Markdig": {
               "target": "Package",
               "version": "[0.34.0, )"
-            },
-            "Microsoft.AspNetCore.Authentication.Facebook": {
-              "target": "Package",
-              "version": "[8.0.0, )"
             },
             "Microsoft.AspNetCore.Authentication.Google": {
               "target": "Package",
