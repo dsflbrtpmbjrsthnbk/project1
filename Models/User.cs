@@ -5,14 +5,6 @@ namespace UserManagementApp.Models
 {
     public class User : IdentityUser<Guid>
     {
-        // IdentityUser already provides:
-        // - Id (Guid)
-        // - UserName (will be used for email)
-        // - Email
-        // - PasswordHash
-        // - SecurityStamp
-        // - EmailConfirmed
-
         [Required]
         [MaxLength(100)]
         public string Name { get; set; } = null!;

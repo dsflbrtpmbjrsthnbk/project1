@@ -65,7 +65,7 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// Configure Application Cookie to redirect to our Account controller
+// Configure Application Cookie 
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -108,12 +108,12 @@ builder.Services.AddHttpClient<ISalesforceService, SalesforceService>();
 
 var app = builder.Build();
 
-// Ensure the database is created and seed default admin
+// Ensure the database is created 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<ApplicationDbContext>();
-    // Use EnsureCreated to guarantee tables exist without needing migration files 
+    // Use EnsureCreated to guarantee tables exist 
     db.Database.EnsureCreated();
     
     var userManager = services.GetRequiredService<UserManager<User>>();
@@ -137,7 +137,6 @@ using (var scope = app.Services.CreateScope())
             Status = "active"
         };
         await userManager.CreateAsync(adminUser, "1234");
-        // Also set the custom IsAdmin flag
         adminUser.IsAdmin = true;
         await userManager.UpdateAsync(adminUser);
     }

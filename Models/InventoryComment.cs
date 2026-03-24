@@ -2,8 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace UserManagementApp.Models
 {
-    /// <summary>
-    /// Inventory-level discussion comment (separate from item-level Comments).
     /// </summary>
     public class InventoryComment
     {
@@ -17,8 +15,7 @@ namespace UserManagementApp.Models
         public User User { get; set; } = null!;
 
         [Required]
-        public string Content { get; set; } = null!;  // Markdown
-
+        public string Content { get; set; } = null!;  
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

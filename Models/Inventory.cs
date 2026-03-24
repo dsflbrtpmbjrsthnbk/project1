@@ -13,7 +13,7 @@ namespace UserManagementApp.Models
         [MaxLength(200)]
         public string Title { get; set; } = null!;
 
-        public string? Description { get; set; } // Supports Markdown
+        public string? Description { get; set; } 
 
         public string? ImageUrl { get; set; }
 
@@ -35,11 +35,10 @@ namespace UserManagementApp.Models
         public ICollection<FieldDefinition> FieldDefinitions { get; set; } = new List<FieldDefinition>();
         public ICollection<InventoryAccess> AllowedUsers { get; set; } = new List<InventoryAccess>();
         
-        // Custom ID Format Configuration (JSON serialized string or separate table)
-        // For drag-and-drop builder, we'll store the sequence of elements.
+        // Custom ID Format Configuration 
         public string CustomIdPattern { get; set; } = "[]"; 
 
-        // API Token for Odoo / external integrations (null = not generated yet)
+        // API Token for Odoo 
         public string? ApiToken { get; set; }
         
         [NotMapped]
