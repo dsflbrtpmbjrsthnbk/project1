@@ -29,11 +29,26 @@ namespace UserManagementApp.Services
                 return _accessToken;
             }
 
-            var sfConfig = _configuration.GetSection("Salesforce");
+            var sfConfig = _configuration.GetSection("Authentication:Salesforce");
             var clientId = sfConfig["ClientId"];
             var clientSecret = sfConfig["ClientSecret"];
             var username = sfConfig["Username"];
-            var password = sfConfig["Password"]; // Includes Security Token
+            var password = sfConfig["Password"];
+
+            // Fallback for flat "Salesforce" section
+            if (string.IsNullOrEmpty(clientId))
+            {
+                sfConfig = _configuration.GetSection("Salesforce");
+                clientId = sfConfig["ClientId"];
+                clientSecret = sfConfig["ClientSecret"];
+                username = sfConfig["Username"];
+                password = sfConfig["Password"];
+            }
+
+            if (string.IsNullOrEmpty(clientId))
+            {
+                throw new Exception("Salesforce ClientId is missing in appsettings.json. Please check 'Authentication:Salesforce' or 'Salesforce' section.");
+            }
 
             var content = new FormUrlEncodedContent(new[]
             {
@@ -49,14 +64,13 @@ namespace UserManagementApp.Services
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Failed to authenticate with Salesforce: {error}");
+                throw new Exception($"Failed to authenticate with Salesforce (Client ID: {clientId?.Substring(0, Math.Min(clientId.Length, 5))}...): {error}");
             }
 
             var json = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(json);
             _accessToken = doc.RootElement.GetProperty("access_token").GetString();
             
-            // Assume 1 hour expiry for simplicity if not provided
             _tokenExpiry = DateTime.UtcNow.AddHours(1);
 
             return _accessToken;
