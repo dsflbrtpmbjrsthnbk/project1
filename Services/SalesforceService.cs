@@ -22,6 +22,27 @@ namespace UserManagementApp.Services
             _configuration = configuration;
         }
 
+        private string GetConfigValue(string keyName)
+        {
+            // Пытаемся взять значение из корня (например, из переменных окружения в Render: Salesforce__ClientId)
+            var val = _configuration[$"Salesforce:{keyName}"];
+            
+            // Если там не пусто, и это не тестовая заглушка, возвращаем
+            if (!string.IsNullOrEmpty(val) && !val.StartsWith("YOUR_", StringComparison.OrdinalIgnoreCase) && !val.StartsWith("OUR_", StringComparison.OrdinalIgnoreCase))
+            {
+                return val;
+            }
+
+            // Иначе ищем во вложенной секции (Authentication:Salesforce:...)
+            val = _configuration[$"Authentication:Salesforce:{keyName}"];
+            if (!string.IsNullOrEmpty(val) && !val.StartsWith("YOUR_", StringComparison.OrdinalIgnoreCase) && !val.StartsWith("OUR_", StringComparison.OrdinalIgnoreCase))
+            {
+                return val;
+            }
+
+            return null;
+        }
+
         public async Task<string> GetAccessTokenAsync()
         {
             if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry)
@@ -29,25 +50,14 @@ namespace UserManagementApp.Services
                 return _accessToken;
             }
 
-            var sfConfig = _configuration.GetSection("Authentication:Salesforce");
-            var clientId = sfConfig["ClientId"];
-            var clientSecret = sfConfig["ClientSecret"];
-            var username = sfConfig["Username"];
-            var password = sfConfig["Password"];
-
-            // Fallback for flat "Salesforce" section
-            if (string.IsNullOrEmpty(clientId))
-            {
-                sfConfig = _configuration.GetSection("Salesforce");
-                clientId = sfConfig["ClientId"];
-                clientSecret = sfConfig["ClientSecret"];
-                username = sfConfig["Username"];
-                password = sfConfig["Password"];
-            }
+            var clientId = GetConfigValue("ClientId");
+            var clientSecret = GetConfigValue("ClientSecret");
+            var username = GetConfigValue("Username");
+            var password = GetConfigValue("Password");
 
             if (string.IsNullOrEmpty(clientId))
             {
-                throw new Exception("Salesforce ClientId is missing in appsettings.json or environment variables. Please check the 'Salesforce' configuration section.");
+                throw new Exception("Salesforce ClientId is missing or contains 'YOUR_...'. Please check your configuration.");
             }
 
             var content = new FormUrlEncodedContent(new[]
@@ -64,7 +74,8 @@ namespace UserManagementApp.Services
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Failed to authenticate with Salesforce (Client ID: {clientId?.Substring(0, Math.Min(clientId.Length, 5))}...): {error}");
+                var shortId = clientId.Length > 5 ? clientId.Substring(0, 5) + "..." : clientId;
+                throw new Exception($"Failed to authenticate with Salesforce (Client ID: {shortId}): {error}");
             }
 
             var json = await response.Content.ReadAsStringAsync();
@@ -79,7 +90,9 @@ namespace UserManagementApp.Services
         public async Task<string> CreateAccountAsync(string name, string phone = null, string website = null)
         {
             var token = await GetAccessTokenAsync();
-            var instanceUrl = _configuration["Salesforce:InstanceUrl"] ?? _configuration["Authentication:Salesforce:InstanceUrl"];
+            
+            // Поддерживаем оба варианта названия: InstanceUrl и LoginUrl
+            var instanceUrl = GetConfigValue("InstanceUrl") ?? GetConfigValue("LoginUrl");
             
             if (string.IsNullOrEmpty(instanceUrl)) throw new Exception("Salesforce InstanceUrl is missing from configuration.");
 
@@ -110,7 +123,7 @@ namespace UserManagementApp.Services
         public async Task<string> CreateContactAsync(string accountId, string firstName, string lastName, string email, string title = null, string department = null)
         {
             var token = await GetAccessTokenAsync();
-            var instanceUrl = _configuration["Salesforce:InstanceUrl"] ?? _configuration["Authentication:Salesforce:InstanceUrl"];
+            var instanceUrl = GetConfigValue("InstanceUrl") ?? GetConfigValue("LoginUrl");
             
             var contactData = new
             {
