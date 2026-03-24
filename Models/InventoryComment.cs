@@ -2,9 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace UserManagementApp.Models
 {
-    /// <summary>
-    /// Inventory-level discussion comment (separate from item-level Comments).
-    /// </summary>
     public class InventoryComment
     {
         [Key]
