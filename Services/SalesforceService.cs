@@ -47,7 +47,7 @@ namespace UserManagementApp.Services
 
             if (string.IsNullOrEmpty(clientId))
             {
-                throw new Exception("Salesforce ClientId is missing in appsettings.json. Please check 'Authentication:Salesforce' or 'Salesforce' section.");
+                throw new Exception("Salesforce ClientId is missing in appsettings.json or environment variables. Please check the 'Salesforce' configuration section.");
             }
 
             var content = new FormUrlEncodedContent(new[]
@@ -79,8 +79,10 @@ namespace UserManagementApp.Services
         public async Task<string> CreateAccountAsync(string name, string phone = null, string website = null)
         {
             var token = await GetAccessTokenAsync();
-            var instanceUrl = _configuration["Salesforce:InstanceUrl"];
+            var instanceUrl = _configuration["Salesforce:InstanceUrl"] ?? _configuration["Authentication:Salesforce:InstanceUrl"];
             
+            if (string.IsNullOrEmpty(instanceUrl)) throw new Exception("Salesforce InstanceUrl is missing from configuration.");
+
             var accountData = new
             {
                 Name = name,
@@ -108,7 +110,7 @@ namespace UserManagementApp.Services
         public async Task<string> CreateContactAsync(string accountId, string firstName, string lastName, string email, string title = null, string department = null)
         {
             var token = await GetAccessTokenAsync();
-            var instanceUrl = _configuration["Salesforce:InstanceUrl"];
+            var instanceUrl = _configuration["Salesforce:InstanceUrl"] ?? _configuration["Authentication:Salesforce:InstanceUrl"];
             
             var contactData = new
             {
