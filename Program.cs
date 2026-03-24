@@ -106,6 +106,8 @@ builder.Services.AddScoped<IDropboxService, DropboxService>();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddHttpClient<ISalesforceService, SalesforceService>();
+
 var app = builder.Build();
 
 // Ensure the database is created and seed default admin

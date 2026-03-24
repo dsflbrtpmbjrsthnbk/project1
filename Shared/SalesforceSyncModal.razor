@@ -1,0 +1,148 @@
+@using UserManagementApp.Models
+@using UserManagementApp.Services
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<UserManagementApp.SharedResource> Loc
+@inject ISalesforceService SalesforceService
+
+@if (IsOpen)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-cloud-arrow-up-fill text-primary me-2"></i>
+                        Sync Profile to Salesforce CRM
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="text-muted small mb-4">
+                        This will create a new **Account** and **Contact** in Salesforce for your organization.
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(_errorMessage))
+                    {
+                        <div class="alert alert-danger small mb-3">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            @_errorMessage
+                        </div>
+                    }
+
+                    <EditForm Model="@_model" OnValidSubmit="HandleSubmit">
+                        <DataAnnotationsValidator />
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Company / Organization Name</label>
+                            <InputText class="form-control" @bind-Value="_model.CompanyName" placeholder="e.g. Acme Corp" />
+                            <ValidationMessage For="@(() => _model.CompanyName)" class="text-danger small" />
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Phone Number</label>
+                                <InputText class="form-control" @bind-Value="_model.Phone" placeholder="+1..." />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Website</label>
+                                <InputText class="form-control" @bind-Value="_model.Website" placeholder="https://..." />
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Job Title</label>
+                                <InputText class="form-control" @bind-Value="_model.JobTitle" placeholder="Manager" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Department</label>
+                                <InputText class="form-control" @bind-Value="_model.Department" placeholder="Sales" />
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary rounded-pill py-2 fw-bold" disabled="@_isSubmitting">
+                                @if (_isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                    <span>Syncing...</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-check-lg me-2"></i>
+                                    <span>Confirm Sync</span>
+                                }
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public User TargetUser { get; set; }
+
+    private SalesforceSyncModel _model = new();
+    private bool _isSubmitting = false;
+    private string _errorMessage;
+
+    private void Close()
+    {
+        _errorMessage = null;
+        OnClose.InvokeAsync();
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (TargetUser == null) return;
+
+        _isSubmitting = true;
+        _errorMessage = null;
+
+        try
+        {
+            // 1. Create Account
+            var accountId = await SalesforceService.CreateAccountAsync(_model.CompanyName, _model.Phone, _model.Website);
+
+            // 2. Create Contact under that Account
+            // Split name into First/Last for Salesforce
+            var nameParts = TargetUser.Name.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            var firstName = nameParts.Length > 1 ? nameParts[0] : "";
+            var lastName = nameParts.Length > 1 ? nameParts[1] : nameParts[0];
+
+            await SalesforceService.CreateContactAsync(
+                accountId, 
+                firstName, 
+                lastName, 
+                TargetUser.Email, 
+                _model.JobTitle, 
+                _model.Department
+            );
+
+            // Success!
+            Close();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error syncing to Salesforce: {ex.Message}";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    public class SalesforceSyncModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Company Name is required")]
+        public string CompanyName { get; set; }
+        public string Phone { get; set; }
+        public string Website { get; set; }
+        public string JobTitle { get; set; }
+        public string Department { get; set; }
+    }
+}

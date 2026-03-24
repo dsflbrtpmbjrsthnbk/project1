@@ -6,6 +6,7 @@
 @inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 @inject UserManagementApp.Data.ApplicationDbContext DbContext
 @inject NavigationManager Navigation
+@inject UserService UserService
 
 <PageTitle>@Loc["UserProfile"] – InventoryHub</PageTitle>
 
@@ -30,7 +31,16 @@ else
             </div>
         </div>
         <div class="col-md-10 text-center text-md-start">
-            <h1 class="fw-bold mb-1">@_user.Name</h1>
+            <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-3 mb-2">
+                <h1 class="fw-bold mb-0">@_user.Name</h1>
+                @if (IsCurrentUser || CurrentUserAdmin)
+                {
+                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3" @onclick="() => _showSfModal = true">
+                        <i class="bi bi-cloud-arrow-up-fill me-2"></i>
+                        Sync to CRM
+                    </button>
+                }
+            </div>
             <p class="text-muted mb-2">@_user.Email</p>
             <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-3">
                 <span class="badge bg-light text-dark border"><i class="bi bi-calendar3 me-2"></i>@Loc["JoinedOn", _user.RegistrationTime.ToString("d")]</span>
@@ -41,6 +51,10 @@ else
             </div>
         </div>
     </div>
+
+    <SalesforceSyncModal IsOpen="_showSfModal" 
+                         OnClose="() => _showSfModal = false" 
+                         TargetUser="_user" />
 
     <!-- Public Inventories Table -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
@@ -92,9 +106,15 @@ else
     private User? _user;
     private List<Inventory> _publicInventories = new();
     private bool _loading = true;
+    private bool _showSfModal = false;
+
+    private User? _currentUser;
+    private bool IsCurrentUser => _currentUser?.Id == UserId;
+    private bool CurrentUserAdmin => _currentUser?.IsAdmin ?? false;
 
     protected override async Task OnParametersSetAsync()
     {
+        _currentUser = await UserService.GetCurrentUserAsync();
         _user = await DbContext.Users.FindAsync(UserId);
         
         if (_user != null)
