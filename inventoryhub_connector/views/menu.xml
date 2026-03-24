@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- menu -->
+    <menuitem id="menu_inventoryhub_root"
+              name="InventoryHub"
+              sequence="90"
+              web_icon="inventoryhub_connector,static/description/icon.png"/>
+
+    <!-- submenu -->
+    <menuitem id="menu_inventoryhub_inventories"
+              name="Inventories"
+              parent="menu_inventoryhub_root"
+              action="action_inventoryhub_inventory"
+              sequence="10"/>
+
+</odoo>

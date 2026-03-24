@@ -10,7 +10,6 @@ namespace UserManagementApp.Services
         private readonly ILogger<DropboxService> _logger;
         private readonly HttpClient _httpClient;
 
-        // URL для загрузки файлов в Dropbox через их Content API
         private const string DropboxUploadUrl = "https://content.dropboxapi.com/2/files/upload";
 
         public DropboxService(IConfiguration configuration, ILogger<DropboxService> logger, IHttpClientFactory httpClientFactory)
