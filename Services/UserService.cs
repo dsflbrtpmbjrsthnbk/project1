@@ -29,7 +29,6 @@ namespace UserManagementApp.Services
             if (!Guid.TryParse(userIdString, out var userId))
                 return null;
 
-            // Use a separate scope to avoid DbContext concurrency issues with Blazor components
             using var scope = _scopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             

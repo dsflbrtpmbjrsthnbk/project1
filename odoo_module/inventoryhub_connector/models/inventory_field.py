@@ -1,11 +1,7 @@
 from odoo import fields, models
 
-
 class InventoryField(models.Model):
-    """
-    Represents an aggregated field from an imported InventoryHub inventory.
-    Stores statistics like min, max, avg, or top text values depending on the field type.
-    """
+   
     _name = 'inventoryhub.field'
     _description = 'InventoryHub – Imported Field Statistics'
     _order = 'id'
@@ -37,7 +33,6 @@ class InventoryField(models.Model):
         readonly=True,
     )
 
-    # ── Common stats ──────────────────────────────────────────────────────────
     stat_count = fields.Integer(
         string='Non-Empty Count',
         readonly=True,
@@ -48,7 +43,6 @@ class InventoryField(models.Model):
         readonly=True,
     )
 
-    # ── Numeric stats ─────────────────────────────────────────────────────────
     stat_min = fields.Float(
         string='Min',
         readonly=True,
@@ -62,14 +56,12 @@ class InventoryField(models.Model):
         readonly=True,
     )
 
-    # ── Text stats ────────────────────────────────────────────────────────────
     stat_top_values = fields.Text(
         string='Top Values',
         readonly=True,
         help='Most frequent values with their occurrences (e.g., "Apple (10), Banana (5)").',
     )
 
-    # ── Boolean stats ─────────────────────────────────────────────────────────
     stat_true_count = fields.Integer(
         string='True Count',
         readonly=True,

@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Top-level menu -->
     <menuitem id="menu_inventoryhub_root"
               name="InventoryHub"
               sequence="100"/>
 
-    <!-- App Sub-menu -->
     <menuitem id="menu_inventoryhub_imports"
               name="Imported Inventories"
               parent="menu_inventoryhub_root"

@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Base Database service for Odoo
   odoo-db:
     image: postgres:15
     container_name: odoo_db
@@ -13,21 +12,19 @@ services:
       - odoo-db-data:/var/lib/postgresql/data
     restart: always
 
-  # Primary Odoo application instance
   odoo-app:
     image: odoo:16.0
     container_name: odoo_app
     depends_on:
       - odoo-db
     ports:
-      - "8069:8069" # Standard port for exposing Odoo frontend
+      - "8069:8069"
     environment:
       - HOST=odoo-db
       - USER=odoo
       - PASSWORD=odoo
     volumes:
       - odoo-web-data:/var/lib/odoo
-      # Mount the module folder created locally so Odoo can install it
       - ../odoo_module:/mnt/extra-addons
     restart: always
 
