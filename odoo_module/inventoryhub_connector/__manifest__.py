@@ -6,7 +6,7 @@
     'description': """
         Module for importing inventory data from InventoryHub API.
     """,
-    'depends': ['base', 'stock'],
+    'depends': ['base'],
     'data': [
         'security/ir.model.access.csv',
         'views/inventory_import_views.xml',

@@ -69,10 +69,29 @@
         </field>
     </record>
 
+    <record id="view_inventoryhub_inventory_search" model="ir.ui.view">
+        <field name="name">inventoryhub.inventory.search</field>
+        <field name="model">inventoryhub.inventory</field>
+        <field name="arch" type="xml">
+            <search string="Search Inventories">
+                <field name="name"/>
+                <field name="category"/>
+                <field name="owner"/>
+                <separator/>
+                <filter string="My Imports" name="my_imports" domain="[('owner', '=', uid)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Category" name="group_by_category" context="{'group_by': 'category'}"/>
+                    <filter string="Owner" name="group_by_owner" context="{'group_by': 'owner'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="action_inventoryhub_inventory" model="ir.actions.act_window">
         <field name="name">Imported Inventories</field>
         <field name="res_model">inventoryhub.inventory</field>
         <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_inventoryhub_inventory_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create a new InventoryHub Import Connector
@@ -83,4 +102,16 @@
             </p>
         </field>
     </record>
+
+    <!-- Menu items -->
+    <menuitem id="menu_inventoryhub_root" 
+              name="InventoryHub" 
+              sequence="100" 
+              web_icon="base,static/description/icon.png"/>
+
+    <menuitem id="menu_inventoryhub_inventory"
+              name="Imported Inventories"
+              parent="menu_inventoryhub_root"
+              action="action_inventoryhub_inventory"
+              sequence="10"/>
 </odoo>

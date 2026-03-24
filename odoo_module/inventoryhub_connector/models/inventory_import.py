@@ -20,6 +20,9 @@ class InventoryImport(models.Model):
     api_base_url = fields.Char(string='InventoryHub Base URL', required=True, default='https://project1-vkwm.onrender.com')
     api_token = fields.Char(string='API Token', required=True)
     item_count = fields.Integer(string='Item Count', readonly=True, default=0)
+    last_synced = fields.Datetime(string='Last Synced', readonly=True)
+    is_public = fields.Boolean(string='Is Public', readonly=True)
+    external_created_at = fields.Datetime(string='External Created At', readonly=True)
 
     field_ids = fields.One2many('inventoryhub.field', 'inventory_id', string='Fields Statistics', readonly=True)
 
@@ -49,6 +52,9 @@ class InventoryImport(models.Model):
             'category': data.get('category', ''),
             'owner': data.get('owner', ''),
             'item_count': data.get('itemCount', 0),
+            'is_public': data.get('isPublic', False),
+            'external_created_at': data.get('createdAt'),
+            'last_synced': fields.Datetime.now(),
         })
 
         self.field_ids.unlink()
