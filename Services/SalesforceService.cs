@@ -13,7 +13,7 @@ namespace UserManagementApp.Services
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-        private string _accessToken;
+        private string? _accessToken;
         private DateTime _tokenExpiry;
 
         public SalesforceService(HttpClient httpClient, IConfiguration configuration)
@@ -22,18 +22,15 @@ namespace UserManagementApp.Services
             _configuration = configuration;
         }
 
-        private string GetConfigValue(string keyName)
+        private string? GetConfigValue(string keyName)
         {
-            // Пытаемся взять значение из корня (например, из переменных окружения в Render: Salesforce__ClientId)
             var val = _configuration[$"Salesforce:{keyName}"];
             
-            // Если там не пусто, и это не тестовая заглушка, возвращаем
             if (!string.IsNullOrEmpty(val) && !val.StartsWith("YOUR_", StringComparison.OrdinalIgnoreCase) && !val.StartsWith("OUR_", StringComparison.OrdinalIgnoreCase))
             {
                 return val;
             }
 
-            // Иначе ищем во вложенной секции (Authentication:Salesforce:...)
             val = _configuration[$"Authentication:Salesforce:{keyName}"];
             if (!string.IsNullOrEmpty(val) && !val.StartsWith("YOUR_", StringComparison.OrdinalIgnoreCase) && !val.StartsWith("OUR_", StringComparison.OrdinalIgnoreCase))
             {
@@ -50,15 +47,26 @@ namespace UserManagementApp.Services
                 return _accessToken;
             }
 
-            var clientId = GetConfigValue("ClientId");
-            var clientSecret = GetConfigValue("ClientSecret");
-            var username = GetConfigValue("Username");
-            var password = GetConfigValue("Password");
+            var clientId = GetConfigValue("ClientId")?.Trim();
+            var clientSecret = GetConfigValue("ClientSecret")?.Trim();
+            var username = GetConfigValue("Username")?.Trim();
+            var password = GetConfigValue("Password")?.Trim();
+            
+            var instanceUrl = GetConfigValue("InstanceUrl") ?? GetConfigValue("LoginUrl");
 
             if (string.IsNullOrEmpty(clientId))
-            {
-                throw new Exception("Salesforce ClientId is missing or contains 'YOUR_...'. Please check your configuration.");
-            }
+                throw new Exception("Salesforce ClientId is missing or contains 'YOUR_...'. Please check configuration.");
+            if (string.IsNullOrEmpty(clientSecret))
+                throw new Exception("Salesforce ClientSecret is missing.");
+            if (string.IsNullOrEmpty(username))
+                throw new Exception("Salesforce Username is missing.");
+            if (string.IsNullOrEmpty(password))
+                throw new Exception("Salesforce Password is missing.");
+            if (string.IsNullOrEmpty(instanceUrl))
+                throw new Exception("Salesforce LoginUrl/InstanceUrl is missing.");
+
+            instanceUrl = instanceUrl.Trim().TrimEnd('/');
+            instanceUrl = instanceUrl.Replace(".my.salesforce-setup.com", ".my.salesforce.com");
 
             var content = new FormUrlEncodedContent(new[]
             {
@@ -69,7 +77,8 @@ namespace UserManagementApp.Services
                 new KeyValuePair<string, string>("password", password)
             });
 
-            var response = await _httpClient.PostAsync("https://login.salesforce.com/services/oauth2/token", content);
+            var tokenUrl = $"{instanceUrl}/services/oauth2/token";
+            var response = await _httpClient.PostAsync(tokenUrl, content);
             
             if (!response.IsSuccessStatusCode)
             {
@@ -80,21 +89,22 @@ namespace UserManagementApp.Services
 
             var json = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(json);
-            _accessToken = doc.RootElement.GetProperty("access_token").GetString();
+            _accessToken = doc.RootElement.GetProperty("access_token").GetString() ?? "";
             
             _tokenExpiry = DateTime.UtcNow.AddHours(1);
 
             return _accessToken;
         }
 
-        public async Task<string> CreateAccountAsync(string name, string phone = null, string website = null)
+        public async Task<string> CreateAccountAsync(string name, string? phone = null, string? website = null)
         {
             var token = await GetAccessTokenAsync();
-            
-            // Поддерживаем оба варианта названия: InstanceUrl и LoginUrl
             var instanceUrl = GetConfigValue("InstanceUrl") ?? GetConfigValue("LoginUrl");
             
             if (string.IsNullOrEmpty(instanceUrl)) throw new Exception("Salesforce InstanceUrl is missing from configuration.");
+            
+            instanceUrl = instanceUrl.Trim().TrimEnd('/');
+            instanceUrl = instanceUrl.Replace(".my.salesforce-setup.com", ".my.salesforce.com");
 
             var accountData = new
             {
@@ -117,13 +127,18 @@ namespace UserManagementApp.Services
 
             var json = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(json);
-            return doc.RootElement.GetProperty("id").GetString();
+            return doc.RootElement.GetProperty("id").GetString() ?? "";
         }
 
-        public async Task<string> CreateContactAsync(string accountId, string firstName, string lastName, string email, string title = null, string department = null)
+        public async Task<string> CreateContactAsync(string accountId, string firstName, string lastName, string email, string? title = null, string? department = null)
         {
             var token = await GetAccessTokenAsync();
             var instanceUrl = GetConfigValue("InstanceUrl") ?? GetConfigValue("LoginUrl");
+            
+            if (string.IsNullOrEmpty(instanceUrl)) throw new Exception("Salesforce InstanceUrl is missing from configuration.");
+            
+            instanceUrl = instanceUrl.Trim().TrimEnd('/');
+            instanceUrl = instanceUrl.Replace(".my.salesforce-setup.com", ".my.salesforce.com");
             
             var contactData = new
             {
@@ -149,7 +164,7 @@ namespace UserManagementApp.Services
 
             var json = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(json);
-            return doc.RootElement.GetProperty("id").GetString();
+            return doc.RootElement.GetProperty("id").GetString() ?? "";
         }
     }
 }
