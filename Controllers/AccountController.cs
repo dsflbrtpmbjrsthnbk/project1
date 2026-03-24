@@ -22,8 +22,6 @@ namespace UserManagementApp.Controllers
             _logger = logger;
         }
 
-        // ── Email/Password Login & Register ───────────────────────────────────
-
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
@@ -71,7 +69,6 @@ namespace UserManagementApp.Controllers
 
             if (result.IsNotAllowed)
             {
-                // Email not confirmed — force-confirm it and sign in (dev-friendly fix)
                 _logger.LogWarning("Login not allowed for {Email} — confirming email now.", email);
                 user.EmailConfirmed = true;
                 await _userManager.UpdateAsync(user);
@@ -120,7 +117,7 @@ namespace UserManagementApp.Controllers
                 Status = "active",
                 RegistrationTime = DateTime.UtcNow,
                 IsAdmin = isFirstUser,
-                EmailConfirmed = true  // no email verification flow → always confirmed
+                EmailConfirmed = true  
             };
 
             var result = await _userManager.CreateAsync(user, password);
@@ -145,7 +142,6 @@ namespace UserManagementApp.Controllers
             return View();
         }
 
-        // ── OAuth (Google / Facebook) ──────────────────────────────────────────
 
         [HttpGet]
         public IActionResult ExternalLogin(string provider, string? returnUrl = null)
@@ -187,7 +183,6 @@ namespace UserManagementApp.Controllers
                 return RedirectToAction("Login", new { returnUrl });
             }
 
-            // 1. Try to sign in the user if the external login already exists
             var signInResult = await _signInManager.ExternalLoginSignInAsync(loginProvider, providerKey, isPersistent: true, bypassTwoFactor: true);
             
             if (signInResult.Succeeded)
@@ -215,13 +210,11 @@ namespace UserManagementApp.Controllers
                 return RedirectToAction("Login", new { returnUrl });
             }
 
-            // 2. If external login sign-in failed, check if a user with this email already exists
             _logger.LogInformation("External login {LoginProvider} sign-in failed for email {Email}. Attempting to link or create user.", loginProvider, email);
             var userByEmail = await _userManager.FindByEmailAsync(email);
 
             if (userByEmail == null)
             {
-                // 3. No existing user with this email, create a new user
                 _logger.LogInformation("No existing user found for email {Email}. Creating new user.", email);
                 var isFirstUser = !_userManager.Users.Any();
                 var newUser = new User
@@ -232,7 +225,7 @@ namespace UserManagementApp.Controllers
                     Status = "active",
                     RegistrationTime = DateTime.UtcNow,
                     IsAdmin = isFirstUser,
-                    EmailConfirmed = true, // External providers usually confirm email
+                    EmailConfirmed = true, 
                     LastLoginTime = DateTime.UtcNow
                 };
 
@@ -244,7 +237,6 @@ namespace UserManagementApp.Controllers
                     return RedirectToAction("Login", new { returnUrl });
                 }
 
-                // Link the external login to the newly created user
                 var addLoginResult = await _userManager.AddLoginAsync(newUser, info);
                 if (!addLoginResult.Succeeded)
                 {
@@ -259,7 +251,6 @@ namespace UserManagementApp.Controllers
             }
             else
             {
-                // 4. User with this email already exists, link the external login to this user
                 _logger.LogInformation("Existing user found for email {Email}. Attempting to link external login {LoginProvider}.", email, loginProvider);
 
                 if (userByEmail.IsBlocked())
@@ -287,7 +278,6 @@ namespace UserManagementApp.Controllers
             }
         }
 
-        // ── Logout ────────────────────────────────────────────────────────────
 
         [HttpGet]
         public async Task<IActionResult> Logout()

@@ -8,12 +8,10 @@
 @inject IDbContextFactory<UserManagementApp.Data.ApplicationDbContext> DbFactory
 @inject IStringLocalizer<UserManagementApp.SharedResource> Loc
 
-@* Кнопка вызова тикета — показывается везде *@
 <button class="support-fab" @onclick="OpenModal" title="@Loc["CreateSupportTicket"]">
     <i class="bi bi-question-circle-fill"></i>
 </button>
 
-@* Фон затемнения *@
 @if (_isOpen)
 {
     <div class="modal-backdrop-custom" @onclick="CloseModal"></div>
@@ -41,7 +39,6 @@
             }
             else
             {
-                @* Поле Summary *@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">
                         @Loc["TicketSummary"] <span class="text-danger">*</span>
@@ -55,7 +52,6 @@
                     }
                 </div>
 
-                @* Выбор приоритета *@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">@Loc["TicketPriority"]</label>
                     <div class="d-flex gap-2">
@@ -74,7 +70,6 @@
                     </div>
                 </div>
 
-                @* Информационная панель (заполняется автоматически) *@
                 <div class="auto-fill-info mb-3">
                     <small class="text-muted d-block mb-1">
                         <i class="bi bi-info-circle me-1"></i> @Loc["TicketAutoFill"]
@@ -146,15 +141,12 @@
         _errorMessage = "";
         _showValidation = false;
 
-        // Получаем данные текущего пользователя
         var user = await UserService.GetCurrentUserAsync();
         _currentUserEmail = user?.Email ?? "";
         _currentUserName = user?.Name ?? user?.Email ?? "Unknown";
 
-        // Текущий URL страницы
         _currentUrl = Navigation.Uri;
 
-        // Пытаемся получить название коллекции из URL (если это страница инвентаря)
         await TryGetInventoryTitleFromUrl();
     }
 
@@ -163,7 +155,6 @@
         _inventoryTitle = null;
         try
         {
-            // Пример URL: /inventory/3fa85f64-5717-4562-b3fc-2c963f66afa6
             var uri = new Uri(_currentUrl);
             var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
@@ -199,7 +190,7 @@
                 .Select(u => u.Email!)
                 .ToList();
 
-            // Создаем тикет
+            // тикет
             var ticket = new SupportTicket
             {
                 ReportedBy = _currentUserEmail ?? "anonymous",
@@ -212,7 +203,7 @@
                 AdminEmails = adminEmails
             };
 
-            // Загружаем в Dropbox
+            // Dropbox
             var success = await DropboxService.UploadSupportTicketAsync(ticket);
 
             if (success)
@@ -236,7 +227,6 @@
 }
 
 <style>
-    /* Плавающая кнопка в правом нижнем углу */
     .support-fab {
         position: fixed;
         bottom: 24px;
@@ -262,7 +252,6 @@
         box-shadow: 0 6px 20px rgba(13,110,253,0.5);
     }
 
-    /* Затемнение фона */
     .modal-backdrop-custom {
         position: fixed;
         inset: 0;
@@ -271,7 +260,6 @@
         animation: fadeIn 0.2s ease;
     }
 
-    /* Само модальное окно */
     .support-modal {
         position: fixed;
         bottom: 90px;
@@ -299,7 +287,6 @@
         padding: 20px;
     }
 
-    /* Кнопки приоритета */
     .priority-btn {
         flex: 1;
         border: 2px solid transparent;
@@ -316,7 +303,6 @@
     .priority-low { border-color: #198754; color: #198754; background: transparent; }
     .priority-low.active { background: #198754; color: white; }
 
-    /* Информационная панель */
     .auto-fill-info {
         background: var(--bs-light, #f8f9fa);
         border-radius: 8px;
@@ -324,7 +310,6 @@
         border: 1px solid var(--bs-border-color, #dee2e6);
     }
 
-    /* Иконка успеха */
     .success-icon {
         animation: bounceIn 0.4s ease;
     }
@@ -345,7 +330,6 @@
         100% { transform: scale(1); }
     }
 
-    /* Поддержка темной темы */
     .dark-theme .support-modal {
         background: #1e1e1e;
         border: 1px solid #333;

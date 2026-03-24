@@ -19,9 +19,6 @@ namespace UserManagementApp.Hubs
             await Groups.AddToGroupAsync(Context.ConnectionId, inventoryId);
         }
 
-        /// <summary>
-        /// Called by client to post a comment. Saves to DB, then broadcasts to all viewers.
-        /// </summary>
         public async Task SendComment(string inventoryId, string userId, string content)
         {
             if (string.IsNullOrWhiteSpace(content)) return;
@@ -33,10 +30,6 @@ namespace UserManagementApp.Hubs
             var user = await _context.Users.FindAsync(uid);
             if (user == null) return;
 
-            // Find a valid item ID – discussion is linked to inventory, not a specific item.
-            // We use a sentinel approach: store inventory comments in a separate table.
-            // Here we persist the comment to the Comments table associated with a special sentinel item.
-            // SIMPLER: Persist directly as a DB record (inventory-level discussion).
             var comment = new InventoryComment
             {
                 Id = Guid.NewGuid(),
@@ -49,7 +42,6 @@ namespace UserManagementApp.Hubs
             _context.InventoryComments.Add(comment);
             await _context.SaveChangesAsync();
 
-            // Broadcast to all connected clients in the group
             await Clients.Group(inventoryId).SendAsync(
                 "ReceiveComment",
                 user.Id.ToString(),
