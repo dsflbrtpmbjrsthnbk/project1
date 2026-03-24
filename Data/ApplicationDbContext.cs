@@ -19,6 +19,7 @@ namespace UserManagementApp.Data
 
             foreach (var entry in modifiedEntries)
             {
+                // Only manual update RowVersion if NOT Postgres (Postgres uses xmin)
                 if (!Database.IsNpgsql())
                 {
                     var rowVersionProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "RowVersion");
@@ -54,6 +55,10 @@ namespace UserManagementApp.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // User configuration is mostly handled by base.OnModelCreating
+            // Custom properties like Status, IsAdmin etc. are mapped automatically if they match column names or via convention.
+            // We only need to ensure the gen_random_uuid() for ID if we want that specifically, 
+            // but Identity handles ID generation usually.
             if (Database.IsNpgsql())
             {
                 modelBuilder.Entity<User>()
@@ -100,7 +105,7 @@ namespace UserManagementApp.Data
             // Item configuration
             modelBuilder.Entity<UserManagementApp.Models.Item>()
                 .HasIndex(i => new { i.InventoryId, i.CustomId })
-                .IsUnique(); 
+                .IsUnique(); // Killer Feature requirement: uniqueness per inventory
 
             // Like configuration
             modelBuilder.Entity<Like>()
@@ -129,6 +134,7 @@ namespace UserManagementApp.Data
                     .IsRowVersion();
             }
 
+            // Full-Text Search Configuration (PostgreSQL)
             if (Database.IsNpgsql())
             {
                 modelBuilder.Entity<UserManagementApp.Models.Inventory>()

@@ -5,7 +5,11 @@ using UserManagementApp.Models;
 
 namespace UserManagementApp.Controllers
 {
-   
+    /// <summary>
+    /// Public REST API for external integrations (Odoo, etc.).
+    /// Every endpoint requires the X-Api-Token header that matches
+    /// the token stored on the requested Inventory.
+    /// </summary>
     [ApiController]
     [Route("api/inventory")]
     public class InventoryApiController : ControllerBase
@@ -17,6 +21,11 @@ namespace UserManagementApp.Controllers
             _db = db;
         }
 
+        // ──────────────────────────────────────────────────────────────────────
+        // GET /api/inventory/{id}
+        // Header: X-Api-Token: <token>
+        // Returns aggregated statistics for the inventory.
+        // ──────────────────────────────────────────────────────────────────────
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetInventory(Guid id)
         {
@@ -59,6 +68,13 @@ namespace UserManagementApp.Controllers
             return Ok(result);
         }
 
+        // ──────────────────────────────────────────────────────────────────────
+        // POST /api/inventory/{id}/token
+        // Header: (none — requires the inventory owner to be logged in via
+        //          the Blazor UI; this endpoint is called internally)
+        // Generates (or regenerates) the API token for an inventory.
+        // Protected by requiring the owner's session cookie.
+        // ──────────────────────────────────────────────────────────────────────
         [HttpPost("{id:guid}/token")]
         [Microsoft.AspNetCore.Authorization.Authorize]
         public async Task<IActionResult> GenerateToken(Guid id)
@@ -81,102 +97,6 @@ namespace UserManagementApp.Controllers
             await _db.SaveChangesAsync();
 
             return Ok(new { token = inventory.ApiToken });
-        }
-
-        [HttpPost("{id:guid}/item")]
-        public async Task<IActionResult> CreateItem(Guid id, [FromBody] RemoteItemRequest request)
-        {
-            var token = Request.Headers["X-Api-Token"].FirstOrDefault();
-            if (string.IsNullOrWhiteSpace(token))
-                return Unauthorized(new { error = "X-Api-Token header is missing." });
-
-            var inventory = await _db.Inventories
-                .Include(i => i.FieldDefinitions)
-                .FirstOrDefaultAsync(i => i.Id == id);
-
-            if (inventory == null) return NotFound();
-            if (inventory.ApiToken == null || inventory.ApiToken != token) return StatusCode(403, "Invalid API token.");
-
-            var newItem = new Item
-            {
-                Id = Guid.NewGuid(),
-                InventoryId = inventory.Id,
-                Title = request.Title ?? "Imported Item",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            if (request.Fields != null)
-            {
-                foreach (var kvp in request.Fields)
-                {
-                    if (!Guid.TryParse(kvp.Key, out var fieldId)) continue;
-                    var fieldDef = inventory.FieldDefinitions.FirstOrDefault(f => f.Id == fieldId);
-                    if (fieldDef == null) continue;
-
-                    SetItemFieldValue(newItem, fieldDef, kvp.Value);
-                }
-            }
-
-            _db.Items.Add(newItem);
-            inventory.UpdatedAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
-
-            return Ok(new { id = newItem.Id, title = newItem.Title });
-        }
-
-        public class RemoteItemRequest
-        {
-            public string? Title { get; set; }
-            public Dictionary<string, object>? Fields { get; set; }
-        }
-
-        private static void SetItemFieldValue(Item item, FieldDefinition f, object? value)
-        {
-            if (value == null) return;
-            var valStr = value.ToString();
-
-            switch (f.Type)
-            {
-                case FieldType.Numeric:
-                    if (double.TryParse(valStr, out var d))
-                    {
-                        if (f.SlotIndex == 0) item.NumberField0 = d;
-                        else if (f.SlotIndex == 1) item.NumberField1 = d;
-                        else if (f.SlotIndex == 2) item.NumberField2 = d;
-                    }
-                    break;
-                case FieldType.Boolean:
-                    if (bool.TryParse(valStr, out var b))
-                    {
-                        if (f.SlotIndex == 0) item.BoolField0 = b;
-                        else if (f.SlotIndex == 1) item.BoolField1 = b;
-                        else if (f.SlotIndex == 2) item.BoolField2 = b;
-                    }
-                    else if (valStr == "1" || valStr == "0")
-                    {
-                        var bv = valStr == "1";
-                        if (f.SlotIndex == 0) item.BoolField0 = bv;
-                        else if (f.SlotIndex == 1) item.BoolField1 = bv;
-                        else if (f.SlotIndex == 2) item.BoolField2 = bv;
-                    }
-                    break;
-                case FieldType.String:
-                    if (f.SlotIndex == 0) item.StringField0 = valStr;
-                    else if (f.SlotIndex == 1) item.StringField1 = valStr;
-                    else if (f.SlotIndex == 2) item.StringField2 = valStr;
-                    break;
-                case FieldType.Multiline:
-                    if (f.SlotIndex == 0) item.TextField0 = valStr;
-                    else if (f.SlotIndex == 1) item.TextField1 = valStr;
-                    else if (f.SlotIndex == 2) item.TextField2 = valStr;
-                    break;
-                case FieldType.Link:
-                    if (f.SlotIndex == 0) item.LinkField0 = valStr;
-                    else if (f.SlotIndex == 1) item.LinkField1 = valStr;
-                    else if (f.SlotIndex == 2) item.LinkField2 = valStr;
-                    break;
-            }
         }
 
         // ══════════════════════════════════════════════════════════════════════

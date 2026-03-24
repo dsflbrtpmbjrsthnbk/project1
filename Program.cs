@@ -20,7 +20,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor()
     .AddHubOptions(options =>
     {
-        options.MaximumReceiveMessageSize = 1048576; 
+        options.MaximumReceiveMessageSize = 1048576; // 1MB for longer comments
     });
 builder.Services.AddSignalR();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -31,7 +31,9 @@ var connectionStringRaw = Environment.GetEnvironmentVariable("DATABASE_URL")
 if (!string.IsNullOrEmpty(connectionStringRaw) && (connectionStringRaw.Contains("postgres") || connectionStringRaw.Contains("postgresql")))
 {
     Console.WriteLine("Applying PostgreSQL Database...");
-    
+    // The original pgConnectionString variable is no longer directly used for UseNpgsql,
+    // as the instruction implies using ConnectionStringHelper.GetConnectionString directly within the options.
+    // var pgConnectionString = UserManagementApp.ConnectionStringHelper.BuildPostgresConnectionString(connectionStringRaw);
 
     builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
     {
@@ -179,9 +181,10 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 
 app.UseRouting();
 app.UseSession();
-app.UseAuthentication();   
+app.UseAuthentication();   // <-- must come before UseAuthorization
 app.UseAuthorization();
 
+// Apply CORS only to /api/* routes
 app.UseCors("OdooApi");
 
 app.MapControllerRoute(

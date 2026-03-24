@@ -61,6 +61,7 @@
                 .Take(5)
                 .ToListAsync();
             
+            // Remove suggestions we already added
             _suggestions.RemoveAll(s => Tags.Contains(s.Name, StringComparer.OrdinalIgnoreCase));
         }
         else

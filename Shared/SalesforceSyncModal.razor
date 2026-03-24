@@ -109,6 +109,7 @@
             var accountId = await SalesforceService.CreateAccountAsync(_model.CompanyName, _model.Phone, _model.Website);
 
             // 2. Create Contact under that Account
+            // Split name into First/Last for Salesforce
             var nameParts = TargetUser.Name.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
             var firstName = nameParts.Length > 1 ? nameParts[0] : "";
             var lastName = nameParts.Length > 1 ? nameParts[1] : nameParts[0];
@@ -122,6 +123,7 @@
                 _model.Department
             );
 
+            // Success!
             Close();
         }
         catch (Exception ex)
