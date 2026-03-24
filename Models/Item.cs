@@ -14,7 +14,7 @@ namespace UserManagementApp.Models
 
         [Required]
         [MaxLength(255)]
-        public string CustomId { get; set; } = null!; // The "Killer Feature" ID
+        public string CustomId { get; set; } = null!; 
 
         public Guid CreatedById { get; set; }
         public User CreatedBy { get; set; } = null!;
@@ -24,7 +24,6 @@ namespace UserManagementApp.Models
 
         public byte[] RowVersion { get; set; } = Guid.NewGuid().ToByteArray();
 
-        // Fixed Custom Fields (3 of each type as per requirement)
         // String fields
         public string? StringField0 { get; set; }
         public string? StringField1 { get; set; }
