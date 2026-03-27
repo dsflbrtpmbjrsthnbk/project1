@@ -101,7 +101,8 @@ namespace UserManagementApp.Controllers
             {
                 Id = Guid.NewGuid(),
                 InventoryId = inventory.Id,
-                Title = request.Title ?? "Imported Item",
+                CustomId = request.Title ?? "Imported Item",
+                CreatedById = inventory.OwnerId, 
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -122,7 +123,7 @@ namespace UserManagementApp.Controllers
             inventory.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
-            return Ok(new { id = newItem.Id, title = newItem.Title });
+            return Ok(new { id = newItem.Id, title = newItem.CustomId });
         }
 
         public class RemoteItemRequest
