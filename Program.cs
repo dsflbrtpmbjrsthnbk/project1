@@ -52,7 +52,6 @@ else
         options.UseSqlite("Data Source=inventoryhub.db"));
 }
 
-// ASP.NET Core Identity setup
 builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 {
     options.User.RequireUniqueEmail = true;
@@ -65,7 +64,7 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// Configure Application Cookie 
+// Configure Application Cookie
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -96,7 +95,6 @@ builder.Services.AddSession(options =>
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
-// Application services
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICustomIdService, CustomIdService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -108,12 +106,11 @@ builder.Services.AddHttpClient<ISalesforceService, SalesforceService>();
 
 var app = builder.Build();
 
-// Ensure the database is created and seed default admin
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<ApplicationDbContext>();
-    // Use EnsureCreated to guarantee tables exist 
+    // Use EnsureCreated to guarantee tables exist
     db.Database.EnsureCreated();
     
     var userManager = services.GetRequiredService<UserManager<User>>();
@@ -137,7 +134,6 @@ using (var scope = app.Services.CreateScope())
             Status = "active"
         };
         await userManager.CreateAsync(adminUser, "1234");
-        // Also set the custom IsAdmin flag
         adminUser.IsAdmin = true;
         await userManager.UpdateAsync(adminUser);
     }
@@ -159,7 +155,6 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseStaticFiles();
 
-// Configure Localization Middleware
 var supportedCultures = new[] { "en-US", "ru-RU" };
 var localizationOptions = new RequestLocalizationOptions()
     .SetDefaultCulture(supportedCultures[0])

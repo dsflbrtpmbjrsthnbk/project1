@@ -5,7 +5,6 @@ using UserManagementApp.Models;
 
 namespace UserManagementApp.Controllers
 {
-   
     [ApiController]
     [Route("api/inventory")]
     public class InventoryApiController : ControllerBase
@@ -72,7 +71,6 @@ namespace UserManagementApp.Controllers
                 return NotFound();
 
             var dbUser = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            // Only the owner or an admin can generate tokens
             if (inventory.OwnerId != userId && !(dbUser?.IsAdmin ?? false))
                 return Forbid();
 
@@ -101,7 +99,7 @@ namespace UserManagementApp.Controllers
             {
                 Id = Guid.NewGuid(),
                 InventoryId = inventory.Id,
-                Title = request.Title ?? "Imported Item",
+                CustomId = request.Title ?? "Imported Item",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -122,7 +120,7 @@ namespace UserManagementApp.Controllers
             inventory.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
-            return Ok(new { id = newItem.Id, title = newItem.Title });
+            return Ok(new { id = newItem.Id, title = newItem.CustomId });
         }
 
         public class RemoteItemRequest
@@ -178,10 +176,6 @@ namespace UserManagementApp.Controllers
                     break;
             }
         }
-
-        // ══════════════════════════════════════════════════════════════════════
-        // Aggregation helpers
-        // ══════════════════════════════════════════════════════════════════════
 
         private static object BuildFieldStats(FieldDefinition field, List<Item> items)
         {
@@ -261,8 +255,6 @@ namespace UserManagementApp.Controllers
             var nonNull = items.Count(i => !string.IsNullOrWhiteSpace(GetLinkValue(i, f.SlotIndex)));
             return new { nonNullCount = nonNull, totalItems = items.Count };
         }
-
-        // ── Column accessors ──────────────────────────────────────────────────
 
         private static double? GetNumericValue(Item item, int slot) => slot switch
         {
